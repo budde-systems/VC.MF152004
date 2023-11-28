@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<REA-JET>
+  <Label version="3.9" protected="False">
+    <Meta name="author" content="VIC-LAP-069/Microsoft Windows NT 10.0.22621.0" />
+    <Meta name="designer" content="REA JET LabelCreator" />
+    <Meta name="lastchangedversion" content="Version 3.10.1.28" />
+    <Meta name="designerversion" content="Version 3.10.1.28" />
+    <Meta name="lastchanged" content="Dienstag, 24. Oktober 2023 REA JET LabelCreator" />
+    <Meta name="description" content="No description" />
+    <Meta name="objectcounter" content="1" />
+    <Name>Label_Standard</Name>
+    <Size>
+      <Width autosize="False" unit="mm">450</Width>
+      <Height autosize="False" unit="mm">108.3733</Height>
+    </Size>
+    <Layout>
+      <Object name="Bild_Standard" protected="False">
+        <Bitmap>
+          <Scale>None</Scale>
+        </Bitmap>
+        <Position>
+          <X unit="mm">0.0</X>
+          <Y unit="mm">20</Y>
+          <Z transparency="True">0</Z>
+        </Position>
+        <Size>
+          <Width autosize="False" unit="mm">450.00</Width>
+          <Height autosize="False" unit="mm">50</Height>
+          <Alignment>
+            <VAlign>Top</VAlign>
+            <HAlign>Left</HAlign>
+          </Alignment>
+        </Size>
+        <Inverted value="False">
+        </Inverted>
+        <HiddenCount value="0">
+        </HiddenCount>
+        <Content>
+          <Choice name="Choice_1" value="6">
+            <PrintCount value="-1" />
+            <List>
+              <File name="1" value="vc_kkz_6_6132x709px (1).png" />
+              <File name="2" value="vc_kkz_9_6132x709px.png" />
+              <File name="3" value="vc_kkz_12_6132x709px (1).png" />
+              <File name="4" value="vc_kkz_15_6132x709px.png" />
+              <File name="5" value="vc_kkz_18_6132x709px (1).png" />
+              <File name="6" value="wf_kkz_6_6132x709px (1).png" />
+              <File name="7" value="wf_kkz_18_6132x709px (1).png" />
+            </List>
+          </Choice>
+        </Content>
+        <Effects>
+          <Effect type="DitheringFloydSteinberg">
+            <BlackLevel>100</BlackLevel>
+          </Effect>
+        </Effects>
+        <Pen mode="Both" id="0" />
+        <Subdivision value="Auto" />
+        <Hatches>
+        </Hatches>
+        <Meta name="PositionLocked" content="False" />
+        <Meta name="ContentCounter" content="1" />
+        <Rotation value="0.00" unit="degree" tilt="True" />
+      </Object>
+    </Layout>
+  </Label>
+</REA-JET>

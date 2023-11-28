@@ -1,0 +1,27 @@
+﻿@page
+@model MF152004.Webservice.Pages.Configuration.IndexModel
+@{
+    ViewData["Title"] = "Konfiguration";
+}
+
+<div id="configurationData">
+    <partial name="_ConfigurationDataPartial" model="Model.ConfigurationData" />
+</div>
+
+
+@section Scripts{
+    <script>
+
+        function getConfigurationData(){
+            $.ajax({
+                type: "GET",
+                url: 'configuration?handler=ConfigurationData',
+                dataType: "html",
+                success: function(result){
+                    $('#configurationData').html(result);
+                }
+            });
+        }
+
+    </script>
+}

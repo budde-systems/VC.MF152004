@@ -1,0 +1,165 @@
+﻿@using MF152004.Webservice.Data.PageData;
+@model ConfigurationDTO;
+@{
+
+}
+
+<div class="row">
+
+    <div class="col">
+        <h5 class="text-black-50">Übersicht Carrier</h5>
+
+        <br />
+
+        <form method="post" asp-page-handler="NewCarrier" id="carrierForm">
+            <div class="input-group mb-3">
+                <input name="name" id="carrier" type="text" class="form-control" placeholder="Neuen Carrier einfügen" aria-label="Recipient's username" aria-describedby="button-addon2">
+                @*<button class="btn btn-outline-secondary" type="button" id="button-addon2">Einfügen</button>*@
+                @*<input type="button" class="btn btn-outline-secondary" id="submit" onclick="setCarrier()" value="Einfügen" />*@
+                <input type="submit" class="btn btn-outline-secondary" id="submit" value="Einfügen" />
+            </div>
+        </form>
+
+        <table class="table table-hover table-striped">
+
+            <thead>
+                <tr>
+                    <th>
+                        Name
+                    </th>
+
+                    <th class="col-sm-12 col-md-1">
+                        Entfernen
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                
+                @foreach (var carrier in Model.Carriers)
+                {
+                    <tr>
+                        <td>
+                            @carrier.Name
+                        </td>
+
+                        <td>
+                            <form method="post">
+                                <button type="submit" asp-page-handler="RemoveCarrier" asp-route-name="@carrier.Name" class="btn btn-sm btn-warning form-control">-</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+    
+    <div class="col border-start">
+        <h5 class="text-black-50">Übersicht Länder</h5>
+
+        <br />
+
+        <form method="post" asp-page-handler="NewCountry">
+            <div class="input-group mb-3">
+                <input id="country" name="name" type="text" class="form-control" placeholder="Neues Land einfügen" aria-label="Recipient's username" aria-describedby="button-addon2">
+                <button type="submit" class="btn btn-outline-secondary" id="button-addon2">Einfügen</button>
+                
+            </div>
+        </form>
+
+        <table class="table table-hover table-striped">
+
+            <thead>
+                <tr>
+                    <th>
+                        Name
+                    </th>
+
+                    <th class="col-sm-12 col-md-1">
+                        Entfernen
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                
+                @foreach (var country in Model.Countries)
+                {
+                    <tr>
+                        <td>
+                            @country.Name
+                        </td>
+
+                        <td>
+                            <form method="post">
+                                <button type="submit" asp-page-handler="RemoveCountry" asp-route-name="@country.Name" class="btn btn-sm btn-warning form-control">-</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+    
+    <div class="col border-start">
+        <h5 class="text-black-50">Übersicht Client IDs</h5>
+
+        <br />
+
+        <form method="post" asp-page-handler="NewClientId">
+
+            <div class="input-group mb-3">
+                <input id="client" name="clientId" type="text" class="form-control" placeholder="Neue Client ID einfügen" aria-label="Recipient's username" aria-describedby="button-addon2">
+                <button type="submit" class="btn btn-outline-secondary" id="button-addon2">Einfügen</button>
+            </div>
+
+        </form>
+
+        <table class="table table-hover table-striped">
+
+            <thead>
+                <tr>
+                    <th>
+                        Name
+                    </th>
+
+                    <th class="col-sm-12 col-md-1">
+                        Entfernen
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                
+                @foreach (var client in Model.ClientReferences)
+                {
+                    <tr>
+                        <td>
+                            @client.Name
+                        </td>
+
+                        <td>
+                            <form method="post">
+                                <button type="submit" asp-page-handler="RemoveClientId" asp-route-clientId="@client.Name" class="btn btn-sm btn-warning form-control">-</button>
+                            </form>                            
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+    
+    
+
+</div>
+
+

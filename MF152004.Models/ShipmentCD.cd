@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="MF152004.Models.Main.Shipment">
+    <Position X="1.5" Y="4" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAWCiAEDAAAAAEEAABAAAAAACIAgAAAAAAAIgAAABA=</HashCode>
+      <FileName>Main\Shipment.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Interface Name="BlueApps.MaterialFlow.Common.Models.IShipment">
+    <Position X="1.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier />
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

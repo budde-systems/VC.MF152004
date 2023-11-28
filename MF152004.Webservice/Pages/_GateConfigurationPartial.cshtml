@@ -1,0 +1,44 @@
+﻿@using MF152004.Webservice.Data.PageData;
+@model DestinationDTO;
+
+<div class="modal-header">
+    <h5 id="modalGateTitle" class="modal-title">Zielkonfiguration für @Model.Name</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class ="modal-body">
+    <span id="gateStatus">Zielstatus: 
+        @if(Model.Active)
+        {
+            <span class="text-success">Aktiv - kann avisiert werden</span>
+        }
+        else
+        {
+            <span class="text-warning">Inaktiv - kann nicht avisiert werden</span>
+        }
+    </span>
+    <input name="gateId" hidden asp-for="GateId" />
+    <div class="form-floating mb-3">
+        <select name="carrierId" asp-for="SelectedCarrier.Id" id="carrierSelect" class="form-select" asp-items="@Model.GetCarriersSelectList()"></select>
+        <label for="carrierSelect">Einfache Auswahl Carrier</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <select name="countryIds" asp-for="SelectedCountries" style="min-height: 8rem" id="countries" class="form-select" asp-items="@Model.GetCountriesSelectList()"></select>
+        <label for="countries">Mehrauswahl Länder</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <select name="clientIds" asp-for="SelectedClientIds" style="min-height: 8rem" id="clients" class="form-select" asp-items="@Model.GetClientReferencesSelectList()"></select>
+        <label class="control-label" for="clients">Mehrauswahl Client IDs</label>
+    </div>
+
+</div>
+
+@section Scripts{
+
+    <script>
+
+    </script>
+
+}
+

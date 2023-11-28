@@ -1,0 +1,48 @@
+Webservice 0.9.25
+-	Added brandprinter logic
+
+Workerservice 0.9.15
+-	The last labelprinter reference can be requested by plc client.
+
+Workerservice 0.9.14
+-	Tracked packets in sectors are removed if they are detected in other sectors
+
+Webservice 0.9.23
+-	Labels will be requested everytime when the service receives a POST/PUT of shipments.
+-	The trackingcode can be changed now at the PUT endpoint
+
+Workerservice 0.9.13
+-	Fixed a bug that caused an unhandled hub connection exception when the web service was not online
+
+Webservice 0.9.22
+-	Fixed a bug: tracking entity (destination) led to an invalid operation exception at updating method
+
+Webservice 0.9.21 & Workerservice 0.9.12
+-	Gate activities are displayed on the web UI
+
+Webservice 0.9.20
+-	Added destination statistics
+
+Webservice 0.9.19
+-	Added no-reads statistics
+
+Workerservice 0.9.11
+-	The less than zero weight-check has been removed
+
+Workerservice 0.9.10
+-	First 4 characters in the field: conveyor_belt_message contain the failurecode.
+
+Webservice 0.9.18 & Workerservice 0.9.09
+-	Added signalR
+-	The conveyor system will stop after two in a row labelprinter-match-errors. The confirmation takes place via the 
+	WEB UI.
+-	Handling steps for the employee can be defined in the appsettings.
+
+Webservice 0.9.17
+-	Shipments older than 400 days will be removed from DB
+
+Webservice 0.9.16
+-	Zpl files will be removed after 21 days & destination_reached_at is not null OR if they are 60 days old.
+
+Webservice 0.9.15 & Workerservice 0.9.08
+-	Fixed a bug which has prevented to dispose the mqtt client connection after finishing web- and workerservice

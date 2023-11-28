@@ -1,0 +1,26 @@
+﻿@page
+@model MF152004.Webservice.Pages.Statistics.IndexModel
+@{
+    ViewData["Title"] = "Statistiken";
+}
+
+<div id="statisticsPartial">
+    <partial name="_StatisticsPartial" model="Model.Statistics"/>
+</div>
+
+@section Scripts{
+    <script>
+
+        function getStatisticData() {
+            $.ajax({
+                type: "GET",
+                url: 'statistics?handler=StatisticData',
+                dataType: "html",
+                success: function (result) {
+                    $('#statisticsPartial').html(result);
+                }
+            });
+        }
+
+    </script>
+}

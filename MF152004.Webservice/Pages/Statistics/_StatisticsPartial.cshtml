@@ -1,0 +1,461 @@
+﻿@using MF152004.Webservice.Data.PageData;
+@model StatisticsDTO;
+@{
+}
+
+@if(Model is null)
+{
+    <h4>Keine Daten vorhanden</h4>
+}
+else
+{
+    <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <button class="nav-link active" id="nav-destinations-tab" data-bs-toggle="tab" data-bs-target="#nav-destinations" type="button" role="tab" aria-controls="nav-destinations" aria-selected="true">Ziele</button>
+            <button class="nav-link" id="nav-noreads-tab" data-bs-toggle="tab" data-bs-target="#nav-noreads" type="button" role="tab" aria-controls="nav-noreads" aria-selected="false">No Reads</button>
+        </div>
+    </nav>
+
+    <div class="tab-content" id="nav-tabContent">
+
+        <div class="tab-pane fade show active" id="nav-destinations" role="tabpanel" aria-labelledby="nav-destinations-tab" tabindex="0">
+
+            <div class="row mt-3">
+
+                <div class="col" style="font-size:13px">
+
+                    <h5 class="text-black-50">Heutige Ziele erreicht @(Model?.DaysDestinationsData?.Count ?? 0)</h5>
+
+                    <div>
+                        <strong class="text-black-50">Auswertung Ziele</strong>
+                    </div>
+
+                    <div style="overflow:auto; min-height:20rem; max-height:20rem">
+                        @if (Model != null && Model.DestinationDayStatistic != null)
+                        {
+                            @foreach (var st in Model.DestinationDayStatistic)
+                            {
+                                <label class="col-form-label  ms-2 me-2" style="font-size:13px">@st.DestinationName - Gesamt @st.Amount</label>
+                                <div class="progress row  ms-2 me-2" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated overflow-visible" style="width: @(Math.Round(st.Frequency, 0))%">@(Math.Round(st.Frequency, 1))%</div>
+                                </div>
+                            }
+
+                            <br />
+                        }
+                    </div>
+
+                    <hr />
+
+                    <strong class="text-black-50">Auflistung</strong>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Ziel
+                                    </th>
+
+                                    <th class="col-sm-12 col-md-5">
+                                        Zeitpunkt
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @if (Model != null && Model.DaysDestinationsData != null)
+                                {
+                                    foreach (var dayData in Model.DaysDestinationsData)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @dayData.DestinationName
+                                            </td>
+
+                                            <td>
+                                                @dayData.AtTime.ToLongTimeString()
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+                <div class="col" style="font-size:13px">
+
+                    <h5 class="text-black-50">Ziele diese Woche erreicht @(Model?.WeekDestinationsData?.Count ?? 0)</h5>
+
+                    <div>
+                        <strong class="text-black-50">Auswertung Ziele</strong>
+                    </div>
+
+                    <div style="overflow:auto; min-height:20rem; max-height:20rem">
+                        @if (Model != null && Model.DestinationWeekStatistic != null)
+                        {
+                            @foreach (var st in Model.DestinationWeekStatistic)
+                            {
+                                <label class="col-form-label  ms-2 me-2" style="font-size:13px">@st.DestinationName - Gesamt @st.Amount</label>
+                                <div class="progress row  ms-2 me-2" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated overflow-visible" style="width: @(Math.Round(st.Frequency, 0))%">@(Math.Round(st.Frequency, 1))%</div>
+                                </div>
+                            }
+
+                            <br />
+                        }
+                    </div>
+
+                    <hr />
+
+                    <strong class="text-black-50">Auflistung</strong>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Ziel
+                                    </th>
+
+                                    <th class="col-sm-12 col-md-5">
+                                        Zeitpunkt
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @if (Model != null && Model.WeekDestinationsData != null)
+                                {
+                                    foreach (var dayData in Model.WeekDestinationsData)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @dayData.DestinationName
+                                            </td>
+
+                                            <td>
+                                                @dayData.AtTime.ToString("G")
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+                <div class="col" style="font-size:13px">
+
+                    <h5 class="text-black-50">Ziele diesen Monat erreicht @(Model?.MonthDestinationsData?.Count ?? 0)</h5>
+
+                    <div>
+                        <strong class="text-black-50">Auswertung Ziele</strong>
+                    </div>
+
+                    <div style="overflow:auto; min-height:20rem; max-height:20rem">
+                        @if (Model != null && Model.DestinationMonthStatistic != null)
+                        {
+                            @foreach (var st in Model.DestinationMonthStatistic)
+                            {
+                                <label class="col-form-label  ms-2 me-2" style="font-size:13px">@st.DestinationName - Gesamt @st.Amount</label>
+                                <div class="progress row  ms-2 me-2" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated overflow-visible" style="width: @(Math.Round(st.Frequency, 0))%">@(Math.Round(st.Frequency, 1))%</div>
+                                </div>
+                            }
+
+                            <br />
+                        }
+                    </div>
+
+                    <hr />
+
+                    <strong class="text-black-50">Auflistung</strong>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Ziel
+                                    </th>
+
+                                    <th class="col-sm-12 col-md-5">
+                                        Zeitpunkt
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @if (Model != null && Model.MonthDestinationsData != null)
+                                {
+                                    foreach (var dayData in Model.MonthDestinationsData)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @dayData.DestinationName
+                                            </td>
+
+                                            <td>
+                                                @dayData.AtTime.ToString("G")
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="tab-pane fade" id="nav-noreads" role="tabpanel" aria-labelledby="nav-noreads-tab" tabindex="1">
+
+            <div class="row mt-3">
+
+                <div class="col" style="font-size:13px">
+                    <h5 class="text-black-50">Heutige NOREADS @(Model?.DayNoReads?.Count ?? 0)</h5>
+
+                    <div>
+                        <strong class="text-black-50">Auswertung Scanner</strong>
+                    </div>
+
+                    <div style="overflow:auto; min-height:20rem; max-height:20rem">
+                        @if (Model != null && Model.ScannerDayNoReadStatistics != null)
+                        {
+                            @foreach (var st in Model.ScannerDayNoReadStatistics)
+                            {
+                                <label class="col-form-label  ms-2 me-2" style="font-size:13px">@st.ScannerPosition</label>
+                                <div class="progress row  ms-2 me-2" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated overflow-visible" style="width: @(Math.Round(st.Frequency, 0))%">@(Math.Round(st.Frequency, 1))%</div>
+                                </div>
+                            }
+
+                            <br />
+                        }
+                    </div>
+
+                    <hr />
+
+                    <strong class="text-black-50">Auflistung</strong>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Position
+                                    </th>
+
+                                    <th class="col-sm-12 col-md-5">
+                                        Zeitpunkt
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @if (Model != null && Model.DayNoReads != null)
+                                {
+                                    foreach (var noRead in Model.DayNoReads)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @noRead.Position
+                                            </td>
+
+                                            <td>
+                                                @noRead.AtTime.ToLongTimeString()
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                </div>
+
+                <div class="col" style="font-size:13px">
+                    <h5 class="text-black-50">NOREADS in dieser Woche @(Model?.WeekNoReads?.Count ?? 0)</h5>
+
+                    <div>
+                        <strong class="text-black-50">Auswertung Scanner</strong>
+                    </div>
+
+                    <div style="overflow:auto; min-height:20rem; max-height:20rem">
+                        @if (Model != null && Model.ScannerWeekNoReadStatistics != null)
+                        {
+                            @foreach (var st in Model.ScannerWeekNoReadStatistics)
+                            {
+                                <label class="col-form-label  ms-2 me-2" style="font-size:13px">@st.ScannerPosition</label>
+                                <div class="progress row  ms-2 me-2" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated overflow-visible" style="width: @(Math.Round(st.Frequency, 0))%">@(Math.Round(st.Frequency, 1))%</div>
+                                </div>
+                            }
+
+                            <br />
+                        }
+                    </div>
+
+                    <hr />
+
+                    <strong class="text-black-50">Auflistung</strong>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Position
+                                    </th>
+
+                                    <th class="col-sm-12 col-md-5">
+                                        Zeitpunkt
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @if (Model != null && Model.WeekNoReads != null)
+                                {
+                                    foreach (var noRead in Model.WeekNoReads)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @noRead.Position
+                                            </td>
+
+                                            <td>
+                                                @noRead.AtTime.ToString("G")
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                </div>
+
+                <div class="col" style="font-size:13px">
+                    <h5 class="text-black-50">NOREADS in diesem Monat @(Model?.MonthNoReads?.Count ?? 0)</h5>
+
+                    <div>
+                        <strong class="text-black-50">Auswertung Scanner</strong>
+                    </div>
+
+                    <div style="overflow:auto; min-height:20rem; max-height:20rem">
+                        @if (Model != null && Model.ScannerMonthNoReadStatistics != null)
+                        {
+                            @foreach (var st in Model.ScannerMonthNoReadStatistics)
+                            {
+                                <label class="col-form-label  ms-2 me-2" style="font-size:13px">@st.ScannerPosition</label>
+                                <div class="progress row  ms-2 me-2" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated overflow-visible" style="width: @(Math.Round(st.Frequency, 0))%">@(Math.Round(st.Frequency, 1))%</div>
+                                </div>
+                            }
+
+                            <br />
+                        }
+                    </div>
+
+                    <hr />
+
+                    <strong class="text-black-50">Auflistung</strong>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Position
+                                    </th>
+
+                                    <th class="col-sm-12 col-md-5">
+                                        Zeitpunkt
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @if (Model != null && Model.MonthNoReads != null)
+                                {
+                                    foreach (var noRead in Model.MonthNoReads)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @noRead.Position
+                                            </td>
+
+                                            <td>
+                                                @noRead.AtTime.ToString("G")
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <style>
+        .table-responsive {
+            height: 38rem;
+            overflow: auto;
+        }
+
+        thead tr:nth-child(1) th {
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+    </style>
+}

@@ -1,0 +1,6 @@
+-	FIX:	HttpClient vom HttpClientFactory erstellen (aktuell Resourcenfressend)
+-	FIX:	DestinationsService => Destination in manchen Fällen immer noch als tracked markiert
+-	TODO:	Konfiguration für Zustand erstellen. Lese und Schreibvorgänge auf Datei.
+-	FIX:	Shipments sollen nach einem gewissen kleinem Zeitraum aus dem Workersevice entfernt werden. 
+	Sollten sich Packstücke auf der Anlage befinden, die in den Workerdienst nicht vorhanden sind, soll
+	beim Webdienst angefragt werden.

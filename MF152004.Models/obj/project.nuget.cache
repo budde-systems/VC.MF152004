@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "yoFd/LZOzOSmF8s9unoWwZoc00c26FNZYu97gRodSGq5cr+02hHe124SRHnPwBZZbqyozAZsfdHZe5ORYVtAkw==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Models\\MF152004.Models.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\kadaf\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\7.0.0\\microsoft.extensions.configuration.abstractions.7.0.0.nupkg.sha512",
+    "C:\\Users\\kadaf\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\7.0.0\\microsoft.extensions.logging.abstractions.7.0.0.nupkg.sha512",
+    "C:\\Users\\kadaf\\.nuget\\packages\\microsoft.extensions.primitives\\7.0.0\\microsoft.extensions.primitives.7.0.0.nupkg.sha512",
+    "C:\\Users\\kadaf\\.nuget\\packages\\mqttnet\\4.2.0.706\\mqttnet.4.2.0.706.nupkg.sha512"
+  ],
+  "logs": []
+}

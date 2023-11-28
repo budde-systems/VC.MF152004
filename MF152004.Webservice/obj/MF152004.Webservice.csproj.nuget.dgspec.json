@@ -1,0 +1,413 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Webservice\\MF152004.Webservice.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Common\\MF152004.Common.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Common\\MF152004.Common.csproj",
+        "projectName": "MF152004.Common",
+        "projectPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Common\\MF152004.Common.csproj",
+        "packagesPath": "C:\\Users\\kadaf\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Common\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\kadaf\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {
+              "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Models\\MF152004.Models.csproj": {
+                "projectPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Models\\MF152004.Models.csproj"
+              },
+              "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common.Models\\BlueApps.MaterialFlow.Common.Models.csproj": {
+                "projectPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common.Models\\BlueApps.MaterialFlow.Common.Models.csproj"
+              },
+              "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common\\BlueApps.MaterialFlow.Common.csproj": {
+                "projectPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common\\BlueApps.MaterialFlow.Common.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.SignalR.Core": {
+              "target": "Package",
+              "version": "[1.1.0, )"
+            },
+            "Microsoft.Extensions.Options": {
+              "target": "Package",
+              "version": "[7.0.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Models\\MF152004.Models.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Models\\MF152004.Models.csproj",
+        "projectName": "MF152004.Models",
+        "projectPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Models\\MF152004.Models.csproj",
+        "packagesPath": "C:\\Users\\kadaf\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Models\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\kadaf\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {
+              "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common.Models\\BlueApps.MaterialFlow.Common.Models.csproj": {
+                "projectPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common.Models\\BlueApps.MaterialFlow.Common.Models.csproj"
+              },
+              "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common\\BlueApps.MaterialFlow.Common.csproj": {
+                "projectPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common\\BlueApps.MaterialFlow.Common.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Webservice\\MF152004.Webservice.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Webservice\\MF152004.Webservice.csproj",
+        "projectName": "MF152004.Webservice",
+        "projectPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Webservice\\MF152004.Webservice.csproj",
+        "packagesPath": "C:\\Users\\kadaf\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Webservice\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\kadaf\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {
+              "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Common\\MF152004.Common.csproj": {
+                "projectPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Common\\MF152004.Common.csproj"
+              },
+              "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Models\\MF152004.Models.csproj": {
+                "projectPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Models\\MF152004.Models.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.SignalR.Client": {
+              "target": "Package",
+              "version": "[7.0.12, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[7.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[7.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.Relational": {
+              "target": "Package",
+              "version": "[7.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[7.0.7, )"
+            },
+            "Microsoft.EntityFrameworkCore.Sqlite": {
+              "target": "Package",
+              "version": "[7.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[7.0.8, )"
+            },
+            "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
+              "target": "Package",
+              "version": "[7.0.7, )"
+            },
+            "Serilog.AspNetCore": {
+              "target": "Package",
+              "version": "[7.0.0, )"
+            },
+            "Serilog.Sinks.File": {
+              "target": "Package",
+              "version": "[5.0.0, )"
+            },
+            "System.Linq.Async": {
+              "target": "Package",
+              "version": "[6.0.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common.Models\\BlueApps.MaterialFlow.Common.Models.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common.Models\\BlueApps.MaterialFlow.Common.Models.csproj",
+        "projectName": "BlueApps.MaterialFlow.Common.Models",
+        "projectPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common.Models\\BlueApps.MaterialFlow.Common.Models.csproj",
+        "packagesPath": "C:\\Users\\kadaf\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common.Models\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\kadaf\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common\\BlueApps.MaterialFlow.Common.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common\\BlueApps.MaterialFlow.Common.csproj",
+        "projectName": "BlueApps.MaterialFlow.Common",
+        "projectPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common\\BlueApps.MaterialFlow.Common.csproj",
+        "packagesPath": "C:\\Users\\kadaf\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\kadaf\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {
+              "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common.Models\\BlueApps.MaterialFlow.Common.Models.csproj": {
+                "projectPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common.Models\\BlueApps.MaterialFlow.Common.Models.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "MQTTnet": {
+              "target": "Package",
+              "version": "[4.2.0.706, )"
+            },
+            "Microsoft.Extensions.Configuration.Abstractions": {
+              "target": "Package",
+              "version": "[7.0.0, )"
+            },
+            "Microsoft.Extensions.Logging.Abstractions": {
+              "target": "Package",
+              "version": "[7.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-MF152004.Workerservice-cdaa7fc6-056b-4a0c-9ab5-71bd953e6a41</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
+    <PackageReference Include="MQTTnet" Version="4.2.0.706" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="7.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BlueApps.MaterialFlow\BlueApps.MaterialFlow.Common.Models\BlueApps.MaterialFlow.Common.Models.csproj" />
+    <ProjectReference Include="..\..\..\BlueApps.MaterialFlow\BlueApps.MaterialFlow.Common\BlueApps.MaterialFlow.Common.csproj" />
+    <ProjectReference Include="..\MF152004.Common\MF152004.Common.csproj" />
+    <ProjectReference Include="..\MF152004.Models\MF152004.Models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="reapisharp">
+      <HintPath>..\reapi\reapisharp.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
