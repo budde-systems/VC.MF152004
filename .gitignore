@@ -3,3 +3,19 @@
 ################################################################################
 
 /.vs/MF152004
+/MF152004.Common/obj
+/MF152004.Common/bin
+/MF152004.Models/obj
+/MF152004.Models/bin
+/MF152004.Webservice/obj
+/MF152004.Webservice/bin
+/MF152004.Webservice/obj
+/MF152004.Webservice/bin
+/MF152004.Webservice.ComTest/obj
+/MF152004.Webservice.ComTest/bin
+/MF152004.Workerservice/obj
+/MF152004.Workerservice/bin
+/MF152004.Workerservice/obj
+/MF152004.Workerservice/bin
+/MF152004.Workerservice.ComTest/obj
+/MF152004.Workerservice.ComTest/bin

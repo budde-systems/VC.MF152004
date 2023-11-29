@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\MF152004.Webservice.props" />
-</Project>
