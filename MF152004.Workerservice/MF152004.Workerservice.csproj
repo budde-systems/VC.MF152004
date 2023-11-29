@@ -5,6 +5,11 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-MF152004.Workerservice-cdaa7fc6-056b-4a0c-9ab5-71bd953e6a41</UserSecretsId>
+    <Configurations>Debug;Release;Safe_Debug</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants);SAFE_DEBUG</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

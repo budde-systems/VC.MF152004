@@ -18,13 +18,9 @@ public class Worker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var serviceScope = _services.CreateScope();
-        var broker = serviceScope.ServiceProvider.GetService<MqttBroker>();
-
-        if (broker != null)
-            await broker.RunBrokerAsync();
-        else
-            Environment.Exit(0); //TODO: logging etc.
+#if !SAFE_DEBUG
+        await StartBroker();
+#endif
 
         _materialFlowManager.Run(stoppingToken);
 
@@ -33,5 +29,16 @@ public class Worker : BackgroundService
             _logger.LogInformation("Workerservice running at: {time}", DateTimeOffset.Now);
             await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
         }
+    }
+
+    private async Task StartBroker()
+    {
+        var serviceScope = _services.CreateScope();
+        var broker = serviceScope.ServiceProvider.GetService<MqttBroker>();
+
+        if (broker != null)
+            await broker.RunBrokerAsync();
+        else
+            Environment.Exit(0); //TODO: logging etc.
     }
 }

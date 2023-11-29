@@ -160,7 +160,10 @@ public class MaterialFlowMng : MaterialFlowManager
         await PrepareContextService();
 
         _logger.LogInformation("Destinations will be request");
+
+#if !SAFE_DEBUG
         _msgDistributor.SendDestinationsRequest(); //request destination configuration after start
+#endif
     }
 
     private async Task PrepareClient()
@@ -248,12 +251,18 @@ public class MaterialFlowMng : MaterialFlowManager
         var telescopeSectorA = new TelescopeGatesSectorA(_client, "6-7", _contextService, _msgDistributor);
         var telescopeSectorB = new TelescopeGatesSectorB(_client, "7-8", _contextService, _msgDistributor);
 
+#if !SAFE_DEBUG
         _msgDistributor.WeightScanned += scale.Weight_Scanned;
         _msgDistributor.LabelPrinterRefRequest += labelPrinterSector.RepeatLastPrinterReferenceBroadcast;
+#endif
 
         _brandingPrinterClient.ConnectBrandPrinter(GetFrontBrandPrinter());
         _brandingPrinterClient.ConnectBrandPrinter(GetBackBrandPrinter());
         brandPrinterSector.AddBrandingPrinterClient(_brandingPrinterClient);
+
+#if SAFE_DEBUG
+        _msgDistributor.BarcodeScanned += brandPrinterSector.Barcode_Scanned;
+#endif
 
         labelPrinterSector.AddLabelPrinters(GetFrontLabelPrinter());
         labelPrinterSector.AddLabelPrinters(GetBackLabelPrinter());
@@ -268,9 +277,11 @@ public class MaterialFlowMng : MaterialFlowManager
 
         sectors.ForEach(sector =>
         {
+#if !SAFE_DEBUG
             _msgDistributor.BarcodeScanned += sector.Barcode_Scanned;
             _msgDistributor.UnsubscribedPacket += sector.UnsubscribedPacket;
             _msgDistributor.ErrorCodeTriggered += sector.ErrorTriggered;
+#endif
 
             sector.AddLogger(logger);
         });
@@ -332,6 +343,10 @@ public class MaterialFlowMng : MaterialFlowManager
 
     private async Task PrepareContextService() //Fragt Daten beim Webservice an
     {
+#if SAFE_DEBUG
+        return;
+#endif
+
         var timeLimit = 60000;
         var time = 0;
 

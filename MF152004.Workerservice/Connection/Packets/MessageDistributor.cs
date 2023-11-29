@@ -406,6 +406,10 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
     /// <exception cref="ArgumentNullException"></exception>
     public void SendShipmentUpdate(Shipment? shipment)
     {
+#if SAFE_DEBUG
+        return;
+#endif
+
         if (shipment != null)
         {
             var pckHelper = new ShipmentPacketHelper("", CommonData.Topics[TopicType.Workerservice_Webservice]);
@@ -475,6 +479,10 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
 
     public void SendWeightScan(Scan scan)
     {
+#if SAFE_DEBUG
+        return;
+#endif
+
         var pckHelper = new WeightScanMessagePacketHelper("", CommonData.Topics[TopicType.Workerservice_Webservice_WeightScan]);            
         pckHelper.CreateNewWeightScanResponse(scan);
 
