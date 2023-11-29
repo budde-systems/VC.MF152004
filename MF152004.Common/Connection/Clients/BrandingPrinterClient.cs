@@ -12,13 +12,21 @@ public class BrandingPrinterClient
     private readonly ILogger<BrandingPrinterClient> _logger;
     private ReaPi.ResponseHandle _responseHandle;
 
+    private readonly ReaPi.connectionCallbackPtr _connectionCallback;
+    private readonly ReaPi.eventCallbackPtr _eventCallback;
+    private readonly ReaPi.responseCallbackPtr _responseCallback;
+
     public event EventHandler<FinishedPrintJobEventArgs>? EndOfPrint;
         
     public BrandingPrinterClient(ILogger<BrandingPrinterClient> logger)
     {
         _logger = logger;
 
-        ReaPi.RegisterConnectionCallback(OnConnectionCallback, 0);
+        _connectionCallback = OnConnectionCallback;
+        _eventCallback = OnEventCallback;
+        _responseCallback = OnResponseCallback;
+
+        ReaPi.RegisterConnectionCallback(_connectionCallback, 0);
     }
 
     private void OnConnectionCallback(ReaPi.ConnectionIdentifier connectionid, ReaPi.EConnState state, ReaPi.EErrorCode errorcode, nint context)
@@ -28,8 +36,8 @@ public class BrandingPrinterClient
             
         if (connectionid > 0 && state == ReaPi.EConnState.CONNECT)
         {
-            ReaPi.RegisterEventCallback(connectionid, OnEventCallback, 0);
-            ReaPi.RegisterResponseCallback(connectionid, OnResponseCallback, 0);
+            ReaPi.RegisterEventCallback(connectionid, _eventCallback, 0);
+            ReaPi.RegisterResponseCallback(connectionid, _responseCallback, 0);
 
             ReaPi.GetNetworkConfig(connectionid);
         }
