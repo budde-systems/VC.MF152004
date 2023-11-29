@@ -1,29 +1,28 @@
 ﻿using MF152004.Models.Main;
 using MF152004.Webservice.Data;
 
-namespace MF152004.Webservice.Services
+namespace MF152004.Webservice.Services;
+
+public class WeightScanService
 {
-    public class WeightScanService
+    private readonly ApplicationDbContext _context;
+    private readonly ILogger<WeightScanService> _logger;
+
+    public WeightScanService(ApplicationDbContext context, ILogger<WeightScanService> logger)
     {
-        private readonly ApplicationDbContext _context;
-        private readonly ILogger<WeightScanService> _logger;
+        _context = context;
+        _logger = logger;
+    }
 
-        public WeightScanService(ApplicationDbContext context, ILogger<WeightScanService> logger)
+    public async void AddWeightScan(Scan? scan)
+    {
+        if (scan is null)
         {
-            _context = context;
-            _logger = logger;
+            _logger.LogWarning("The scan is null");
+            return;
         }
 
-        public async void AddWeightScan(Scan? scan)
-        {
-            if (scan is null)
-            {
-                _logger.LogWarning("The scan is null");
-                return;
-            }
-
-            _context.WeightScans.Add(scan);
-            await _context.SaveChangesAsync();                
-        }
+        _context.WeightScans.Add(scan);
+        await _context.SaveChangesAsync();                
     }
 }

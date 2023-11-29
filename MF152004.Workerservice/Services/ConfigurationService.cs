@@ -2,38 +2,37 @@
 using MF152004.Workerservice.Common;
 using MF152004.Workerservice.Data;
 
-namespace MF152004.Workerservice.Services
+namespace MF152004.Workerservice.Services;
+
+public class ConfigurationService
 {
-    public class ConfigurationService
+    private readonly Context _context; //TODO: lock ergänzen
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="context"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public ConfigurationService(Context context)
     {
-        private readonly Context _context; //TODO: lock ergänzen
+        if (context == null) 
+            throw new ArgumentNullException("context");
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="context"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public ConfigurationService(Context context)
+        _context = context;
+    }
+
+    public void UpdateCongigs(ServiceConfiguration? configuration)
+    {
+        if (configuration != null)
         {
-            if (context == null) 
-                throw new ArgumentNullException("context");
+            _context.Config = configuration;
 
-            _context = context;
-        }
+            CommonData.WeightTolerance = configuration.WeightToleranceConfig.WeigthTolerance;
+        } //TODO: else logging error
+    }
 
-        public void UpdateCongigs(ServiceConfiguration? configuration)
-        {
-            if (configuration != null)
-            {
-                _context.Config = configuration;
-
-                CommonData.WeightTolerance = configuration.WeightToleranceConfig.WeigthTolerance;
-            } //TODO: else logging error
-        }
-
-        public bool ConfigHasEntities()
-        {
-            return _context.Config != null && _context.Config.SealerRouteConfigs.Count > 0;
-        }
+    public bool ConfigHasEntities()
+    {
+        return _context.Config != null && _context.Config.SealerRouteConfigs.Count > 0;
     }
 }

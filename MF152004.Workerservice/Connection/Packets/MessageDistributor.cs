@@ -1,6 +1,6 @@
 ﻿using BlueApps.MaterialFlow.Common.Connection.Client;
+using BlueApps.MaterialFlow.Common.Connection.PacketHelper;
 using BlueApps.MaterialFlow.Common.Connection.Packets.Events;
-using BlueApps.MaterialFlow.Common.Connection.PackteHelper;
 using BlueApps.MaterialFlow.Common.Models;
 using BlueApps.MaterialFlow.Common.Models.EventArgs;
 using BlueApps.MaterialFlow.Common.Values.Types;
@@ -14,480 +14,479 @@ using MF152004.Models.Values.Types;
 using Microsoft.AspNetCore.SignalR.Client;
 using MF152004.Models.Connection.Packets.HubPacket;
 
-namespace MF152004.Workerservice.Connection.Packets
+namespace MF152004.Workerservice.Connection.Packets;
+
+public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packets.MessageDistributor
 {
-    public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packets.MessageDistributor
+    public override event EventHandler<BarcodeScanEventArgs>? BarcodeScanned;
+    public override event EventHandler<WeightScanEventArgs>? WeightScanned;
+    public override event EventHandler<UnsubscribedPacketEventArgs>? UnsubscribedPacket;
+    public override event EventHandler<ErrorcodeEventArgs>? ErrorCodeTriggered;
+
+    public event EventHandler<NewShipmentEventArgs>? NewShipmentsReached;
+    public event EventHandler<UpdateShipmentEventArgs>? UpdateShipmentsReached;
+    public event EventHandler<DeleteShipmentEventArgs>? DeleteShipmentsReached;
+    public event EventHandler<UpdateConfigurationEventArgs>? UpdateConfigurationReached;
+    public event EventHandler<UpdateDestinationsEventArgs>? UpdateDestinationsReached;
+    public event EventHandler<DockedTelescopeEventArgs>? DockedTelescopeReached;
+    public event EventHandler<LoadFactorEventArgs>? LoadFactorReached;
+    public event EventHandler? LabelPrinterRefRequest;
+
+    private readonly MqttClient _client;
+    private readonly ILogger<MessageDistributor> _logger;
+    private HubConnection? _hubConnection;
+
+    public MessageDistributor(
+        List<MessagePacketHelper> packetHelpers, 
+        MqttClient client, 
+        string? hubUrl,
+        ILogger<MessageDistributor> logger) : base(packetHelpers)
     {
-        public override event EventHandler<BarcodeScanEventArgs>? BarcodeScanned;
-        public override event EventHandler<WeightScanEventArgs>? WeigtScanned;
-        public override event EventHandler<UnsubscribedPacketEventArgs>? UnsubscribedPacket;
-        public override event EventHandler<ErrorcodeEventArgs>? ErrorcodeTriggered;
+        _client = client;
+        _logger = logger;
 
-        public event EventHandler<NewShipmentEventArgs>? NewShipmentsReached;
-        public event EventHandler<UpdateShipmentEventArgs>? UpdateShipmentsReached;
-        public event EventHandler<DeleteShipmentEventArgs>? DeleteShipmentsReached;
-        public event EventHandler<UpdateConfigurationEventArgs>? UpdateConfigurationReached;
-        public event EventHandler<UpdateDestinationsEventArgs>? UpdateDestinationsReached;
-        public event EventHandler<DockedTelescopeEventArgs>? DockedTelescopeReached;
-        public event EventHandler<LoadFactorEventArgs>? LoadFactorReached;
-        public event EventHandler? LabelPrinterRefRequest;
+        InitHubConnection(hubUrl);
 
-        private readonly MqttClient _client;
-        private readonly ILogger<MessageDistributor> _logger;
-        private HubConnection? _hubConnection;
+        _logger.LogInformation("The message-distributor has been started successfully on workerservice");
+    }
 
-        public MessageDistributor(
-            List<MessagePacketHelper> packetHelpers, 
-            MqttClient client, 
-            string? hubUrl,
-            ILogger<MessageDistributor> logger) : base(packetHelpers)
+    private async void InitHubConnection(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
         {
-            _client = client;
-            _logger = logger;
-
-            InitHubConnection(hubUrl);
-
-            _logger.LogInformation("The message-distributor has been started successfully on workerservice");
+            _logger.LogWarning("The url for the hub connection is null or empty.");
         }
-
-        private async void InitHubConnection(string? url)
+        else
         {
-            if (string.IsNullOrWhiteSpace(url))
-            {
-                _logger.LogWarning("The url for the hub connection is null or empty.");
-            }
-            else
-            {
-                _hubConnection = new HubConnectionBuilder()
-                                .WithAutomaticReconnect()
-                                .WithUrl(url)
-                                .Build();
+            _hubConnection = new HubConnectionBuilder()
+                .WithAutomaticReconnect()
+                .WithUrl(url)
+                .Build();
 
-                while (true)
+            while (true)
+            {
+                try
                 {
-                    try
-                    {
-                        await _hubConnection.StartAsync();
-                        break;
-                    }
-                    catch (Exception exception)
-                    {
-                        _logger.LogError($"No hub-connection could established. Next try in 5secs. ERROR:\n{exception}");
-                        await Task.Delay(TimeSpan.FromSeconds(5));
-                    }
+                    await _hubConnection.StartAsync();
+                    break;
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogError($"No hub-connection could established. Next try in 5secs. ERROR:\n{exception}");
+                    await Task.Delay(TimeSpan.FromSeconds(5));
                 }
             }
         }
+    }
 
-        public override void DistributeIncommingMessages(object? sender, MessagePacketEventArgs messageEvent)
+    public override void DistributeIncomingMessages(object? sender, MessagePacketEventArgs messageEvent)
+    {
+        if (messageEvent is null || messageEvent.Message is null || messageEvent.Message.Topic is null)
         {
-            if (messageEvent is null || messageEvent.Message is null || messageEvent.Message.Topic is null)
+            _logger.LogWarning($"Received message-event is null or has null references " +
+                               $"[at {nameof(DistributeIncomingMessages)}]");
+            return;
+        }
+
+        var packetHelper = _packetHelpers
+            .FirstOrDefault(helper => helper.InTopic == messageEvent.Message.Topic);
+
+        if (packetHelper != null)
+        {
+            packetHelper.SetPacketData(messageEvent.Message);
+
+            if (packetHelper.InTopic == CommonData.Topics[TopicType.PLC_Workerservice])
             {
-                _logger.LogWarning($"Received message-event is null or has null references " +
-                    $"[at {nameof(DistributeIncommingMessages)}]");
-                return;
+                DistributeMessageFromPLC(packetHelper);
             }
-
-            var packetHelper = _packetHelpers
-                .FirstOrDefault(helper => helper.InTopic == messageEvent.Message.Topic);
-
-            if (packetHelper != null)
+            else if (packetHelper.InTopic == CommonData.Topics[TopicType.WebService_Workerservice])
             {
-                packetHelper.SetPacketData(messageEvent.Message);
-
-                if (packetHelper.InTopic == CommonData.Topics[TopicType.PLC_Workerservice])
-                {
-                    DistributeMessageFromPLC(packetHelper);
-                }
-                else if (packetHelper.InTopic == CommonData.Topics[TopicType.WebService_Workerservice])
-                {
-                    DistributeMessageFromWebservice(packetHelper);
-                }
-                else if (packetHelper.InTopic == CommonData.Topics[TopicType.WebService_Workerservice_Config])
-                {
-                    DistributeMessageFromWebserviceConfig(packetHelper);
-                }
-                else if (packetHelper.InTopic == CommonData.Topics[TopicType.Webservice_Workerservice_Destination])
-                {
-                    DistributeMessageFromWebserviceDestination(packetHelper);
-                }
-                else if (packetHelper.InTopic == CommonData.Topics[TopicType.Webservice_Workerservice_General])
-                {
-                    //TODO: Noch offen
-                }
+                DistributeMessageFromWebservice(packetHelper);
             }
-            else
+            else if (packetHelper.InTopic == CommonData.Topics[TopicType.WebService_Workerservice_Config])
             {
-                _logger.LogWarning($"Packet helper is null [at {nameof(DistributeIncommingMessages)}]");
+                DistributeMessageFromWebserviceConfig(packetHelper);
+            }
+            else if (packetHelper.InTopic == CommonData.Topics[TopicType.Webservice_Workerservice_Destination])
+            {
+                DistributeMessageFromWebserviceDestination(packetHelper);
+            }
+            else if (packetHelper.InTopic == CommonData.Topics[TopicType.Webservice_Workerservice_General])
+            {
+                //TODO: Noch offen
             }
         }
-
-        #region plc
-        private void DistributeMessageFromPLC(MessagePacketHelper packetHelper)
+        else
         {
-            PLC152004_PacketHelper pckHelper = packetHelper as PLC152004_PacketHelper;
-
-            switch (pckHelper.Command)
-            {
-                case PLC_Command.C001:
-
-                    OnBarcodeScanned(pckHelper);
-
-                    break;
-
-                case PLC_Command.C003:
-
-                    OnWeightScanned(pckHelper);
-
-                    break;
-
-                case PLC_Command.C004:
-                    //TODO: Offen - mit Abranson besprechen
-                    break;
-
-                case PLC_Command.C005:
-
-                    OnUnsubscripedPacket(pckHelper);
-
-                    break;
-
-                case PLC_Command.C006:
-
-                    OnDockedTelescope(pckHelper);
-
-                    break;
-
-                case PLC_Command.C007:
-                    OnErrorcodeTriggered(pckHelper);
-                    break;
-
-                case PLC_Command.C010:
-                    OnLoadFactor(pckHelper);
-                    break;
-
-                case PLC_Command.C011:
-                    LabelPrinterRefRequest?.Invoke(this, EventArgs.Empty);
-                    break;
-            }
+            _logger.LogWarning($"Packet helper is null [at {nameof(DistributeIncomingMessages)}]");
         }
+    }
 
-        private void OnBarcodeScanned(PLC152004_PacketHelper pckHelper)
+    #region plc
+    private void DistributeMessageFromPLC(MessagePacketHelper packetHelper)
+    {
+        var pckHelper = packetHelper as PLC152004_PacketHelper;
+
+        switch (pckHelper.Command)
         {
-            //TODO: Logging 
-            BarcodeScanEventArgs scan = new BarcodeScanEventArgs
-            {
-                Position = pckHelper.Areas[4],                
-                Barcodes = GetBarcodes(pckHelper)
-            };
+            case PLC_Command.C001:
 
-            _ = int.TryParse(pckHelper.Areas[2], out int packetTracing);
-            scan.PacketTracing = packetTracing;
+                OnBarcodeScanned(pckHelper);
 
-            BarcodeScanned?.Invoke(this, scan);
+                break;
+
+            case PLC_Command.C003:
+
+                OnWeightScanned(pckHelper);
+
+                break;
+
+            case PLC_Command.C004:
+                //TODO: Offen - mit Abranson besprechen
+                break;
+
+            case PLC_Command.C005:
+
+                OnUnsubscripedPacket(pckHelper);
+
+                break;
+
+            case PLC_Command.C006:
+
+                OnDockedTelescope(pckHelper);
+
+                break;
+
+            case PLC_Command.C007:
+                OnErrorcodeTriggered(pckHelper);
+                break;
+
+            case PLC_Command.C010:
+                OnLoadFactor(pckHelper);
+                break;
+
+            case PLC_Command.C011:
+                LabelPrinterRefRequest?.Invoke(this, EventArgs.Empty);
+                break;
         }
+    }
 
-        private void OnWeightScanned(PLC152004_PacketHelper pckHelper)
+    private void OnBarcodeScanned(PLC152004_PacketHelper pckHelper)
+    {
+        //TODO: Logging 
+        var scan = new BarcodeScanEventArgs
         {
-            _ = int.TryParse(pckHelper.Areas[2], out int packetTracing);
-            _ = byte.TryParse(pckHelper.Areas[3], out byte validHeight);
-            _ = double.TryParse(pckHelper.Areas[5], out double weight);
+            Position = pckHelper.Areas[4],                
+            Barcodes = GetBarcodes(pckHelper)
+        };
 
-            WeightScanEventArgs_152004 scan = new WeightScanEventArgs_152004()
-            {
-                Weight = weight,
-                PacketTracing = packetTracing,
-                Barcodes = GetBarcodes(pckHelper),
-                ValidHeight = validHeight == 0 ? true : false,
-                Position = pckHelper.Areas[4]
-            };
+        _ = int.TryParse(pckHelper.Areas[2], out var packetTracing);
+        scan.PacketTracing = packetTracing;
 
-            WeigtScanned?.Invoke(this, scan);
-        }
+        BarcodeScanned?.Invoke(this, scan);
+    }
 
-        private List<string> GetBarcodes(PLC152004_PacketHelper pckHelper)
+    private void OnWeightScanned(PLC152004_PacketHelper pckHelper)
+    {
+        _ = int.TryParse(pckHelper.Areas[2], out var packetTracing);
+        _ = byte.TryParse(pckHelper.Areas[3], out var validHeight);
+        _ = double.TryParse(pckHelper.Areas[5], out var weight);
+
+        var scan = new WeightScanEventArgs_152004()
         {
-            var barcodes = new List<string>();
+            Weight = weight,
+            PacketTracing = packetTracing,
+            Barcodes = GetBarcodes(pckHelper),
+            ValidHeight = validHeight == 0 ? true : false,
+            Position = pckHelper.Areas[4]
+        };
 
-            for (int i = 6; i < pckHelper.PacketSettings.AreaLengths.Length; i++)
-            {
-                if (!string.IsNullOrEmpty(pckHelper.Areas[i]))
-                {
-                    barcodes.Add(pckHelper.Areas[i]);
-                }
-            }
+        WeightScanned?.Invoke(this, scan);
+    }
 
-            return barcodes;
-        }
+    private List<string> GetBarcodes(PLC152004_PacketHelper pckHelper)
+    {
+        var barcodes = new List<string>();
 
-        private void OnUnsubscripedPacket(PLC152004_PacketHelper pckHelper)
+        for (var i = 6; i < pckHelper.PacketSettings.AreaLengths.Length; i++)
         {
-            UnsubscribedPacketEventArgs packet = new();
-
-            _ = int.TryParse(pckHelper.Areas[2], out int packetTracing);
-            packet.PacketTracing = packetTracing;
-
-            UnsubscribedPacket?.Invoke(this, packet);
-        }
-
-        private void OnDockedTelescope(PLC152004_PacketHelper pckHelper)
-        {
-            DockedTelescopeEventArgs docked = new()
+            if (!string.IsNullOrEmpty(pckHelper.Areas[i]))
             {
-                AtTime = DateTime.Now,
-                Gates = pckHelper.Areas[3].Split(',').ToList()
-            };
-
-            DockedTelescopeReached?.Invoke(this, docked);
-        }
-
-        private void OnErrorcodeTriggered(PLC152004_PacketHelper packetHelper)
-        {
-            ErrorcodeEventArgs error = new()
-            {
-                Errorcodes = SplitErrorcodes(packetHelper.Areas[6])
-            };
-
-            if (error.Errorcodes.Count > 0)
-            {
-                ErrorcodeTriggered?.Invoke(this, error);
+                barcodes.Add(pckHelper.Areas[i]);
             }
         }
 
-        private ICollection<short> SplitErrorcodes(string data)
+        return barcodes;
+    }
+
+    private void OnUnsubscripedPacket(PLC152004_PacketHelper pckHelper)
+    {
+        UnsubscribedPacketEventArgs packet = new();
+
+        _ = int.TryParse(pckHelper.Areas[2], out var packetTracing);
+        packet.PacketTracing = packetTracing;
+
+        UnsubscribedPacket?.Invoke(this, packet);
+    }
+
+    private void OnDockedTelescope(PLC152004_PacketHelper pckHelper)
+    {
+        DockedTelescopeEventArgs docked = new()
         {
-            var errorcodes = new List<short>();
+            AtTime = DateTime.Now,
+            Gates = pckHelper.Areas[3].Split(',').ToList()
+        };
 
-            if (string.IsNullOrEmpty(data))
-                return errorcodes;
+        DockedTelescopeReached?.Invoke(this, docked);
+    }
 
-            var existsErrorcodes = (Errorcode[])Enum.GetValues(typeof(Errorcode));
+    private void OnErrorcodeTriggered(PLC152004_PacketHelper packetHelper)
+    {
+        ErrorcodeEventArgs error = new()
+        {
+            Errorcodes = SplitErrorcodes(packetHelper.Areas[6])
+        };
 
-            foreach (var splittedCode in data.Split(','))
-            {
-                if (short.TryParse(splittedCode, out short validCode))
-                {
-                    if (existsErrorcodes.Any(c => (short)c == validCode))
-                        errorcodes.Add(validCode);
-                }
-            }
+        if (error.Errorcodes.Count > 0)
+        {
+            ErrorCodeTriggered?.Invoke(this, error);
+        }
+    }
 
+    private ICollection<short> SplitErrorcodes(string data)
+    {
+        var errorcodes = new List<short>();
+
+        if (string.IsNullOrEmpty(data))
             return errorcodes;
+
+        var existsErrorcodes = (Errorcode[])Enum.GetValues(typeof(Errorcode));
+
+        foreach (var splittedCode in data.Split(','))
+        {
+            if (short.TryParse(splittedCode, out var validCode))
+            {
+                if (existsErrorcodes.Any(c => (short)c == validCode))
+                    errorcodes.Add(validCode);
+            }
         }
 
-        private void OnLoadFactor(PLC152004_PacketHelper packetHelper)
+        return errorcodes;
+    }
+
+    private void OnLoadFactor(PLC152004_PacketHelper packetHelper)
+    {
+        var status = packetHelper.Areas[4].ToCharArray();
+
+        LoadFactorEventArgs load = new()
         {
-            char[] status = packetHelper.Areas[4].ToCharArray();
+            AtTime = DateTime.Now
+        };
 
-            LoadFactorEventArgs load = new()
+        for (var i = 0; i < status.Length; i++)
+        {
+            if (status[i] == '1')
             {
-                AtTime = DateTime.Now
-            };
-
-            for (int i = 0; i < status.Length; i++)
-            {
-                if (status[i] == '1')
+                load.LoadFactors.Add(new() //Design: zur Vermeidung von falschen Daten
                 {
-                    load.LoadFactors.Add(new() //Design: zur Vermeidung von falschen Daten
-                    {
-                        Gate = (i + 1).ToString(),
-                        Factor = 100d
-                    });
-                }
-                else if (status[i] == '0')
+                    Gate = (i + 1).ToString(),
+                    Factor = 100d
+                });
+            }
+            else if (status[i] == '0')
+            {
+                load.LoadFactors.Add(new()
                 {
-                    load.LoadFactors.Add(new()
-                    {
-                        Gate = (i + 1).ToString(),
-                        Factor = 0d
-                    });
-                }
-            }
-
-            if (load.LoadFactors.Count > 0)
-                LoadFactorReached?.Invoke(this, load);
-        }
-
-        #endregion
-
-        #region configuration
-
-        private void DistributeMessageFromWebserviceConfig(MessagePacketHelper packetHelper)
-        {
-            ConfigurationPacketHelper pckHelper = (ConfigurationPacketHelper)packetHelper;
-
-            switch (pckHelper.ConfigurationPacket.KeyCode)
-            {
-                case ActionKey.NewEntity:
-
-                    OnNewConfiguration(pckHelper.ConfigurationPacket.Configuration);
-
-                    break;
+                    Gate = (i + 1).ToString(),
+                    Factor = 0d
+                });
             }
         }
 
-        private void OnNewConfiguration(ServiceConfiguration configuration)
+        if (load.LoadFactors.Count > 0)
+            LoadFactorReached?.Invoke(this, load);
+    }
+
+    #endregion
+
+    #region configuration
+
+    private void DistributeMessageFromWebserviceConfig(MessagePacketHelper packetHelper)
+    {
+        var pckHelper = (ConfigurationPacketHelper)packetHelper;
+
+        switch (pckHelper.ConfigurationPacket.KeyCode)
         {
-            UpdateConfigurationReached?.Invoke(this, new UpdateConfigurationEventArgs
-            {
-                ServiceConfiguration = configuration
-            });
+            case ActionKey.NewEntity:
+
+                OnNewConfiguration(pckHelper.ConfigurationPacket.Configuration);
+
+                break;
         }
+    }
 
-
-        public void SendConfigurationRequest()
+    private void OnNewConfiguration(ServiceConfiguration configuration)
+    {
+        UpdateConfigurationReached?.Invoke(this, new UpdateConfigurationEventArgs
         {
-            var pckHelper = new ConfigurationPacketHelper("", CommonData.Topics[TopicType.Workerservice_Webservice_Config]);
-            pckHelper.CreateNewConfigurationRequest();
+            ServiceConfiguration = configuration
+        });
+    }
 
-            _client.SendData(pckHelper.GetPacketData());
-        }
 
-        #endregion
+    public void SendConfigurationRequest()
+    {
+        var pckHelper = new ConfigurationPacketHelper("", CommonData.Topics[TopicType.Workerservice_Webservice_Config]);
+        pckHelper.CreateNewConfigurationRequest();
 
-        #region shipments
+        _client.SendData(pckHelper.GetPacketData());
+    }
 
-        private void DistributeMessageFromWebservice(MessagePacketHelper packetHelper)
+    #endregion
+
+    #region shipments
+
+    private void DistributeMessageFromWebservice(MessagePacketHelper packetHelper)
+    {
+        var pckHelper = (ShipmentPacketHelper)packetHelper;
+
+        switch (pckHelper.ShipmentPacket.KeyCode)
         {
-            ShipmentPacketHelper pckHelper = (ShipmentPacketHelper)packetHelper;
+            case ActionKey.UpdatedEntity:
 
-            switch (pckHelper.ShipmentPacket.KeyCode)
-            {
-                case ActionKey.UpdatedEntity:
+                OnUpdateShipments(pckHelper);
 
-                    OnUpdateShipments(pckHelper);
+                break;
 
-                    break;
+            case ActionKey.NewEntity:
 
-                case ActionKey.NewEntity:
+                OnNewShipments(pckHelper);
 
-                    OnNewShipments(pckHelper);
-
-                    break;
-            }
+                break;
         }
+    }
 
-        private void OnUpdateShipments(ShipmentPacketHelper pckHelper)
+    private void OnUpdateShipments(ShipmentPacketHelper pckHelper)
+    {
+        var shipments = new UpdateShipmentEventArgs
         {
-            UpdateShipmentEventArgs shipments = new UpdateShipmentEventArgs
-            {
-                UpdatedShipments = pckHelper.ShipmentPacket.Shipments
-            };
+            UpdatedShipments = pckHelper.ShipmentPacket.Shipments
+        };
 
-            UpdateShipmentsReached?.Invoke(this, shipments);
-        }
+        UpdateShipmentsReached?.Invoke(this, shipments);
+    }
 
-        private void OnNewShipments(ShipmentPacketHelper pckHelper)
+    private void OnNewShipments(ShipmentPacketHelper pckHelper)
+    {
+        var shipments = new NewShipmentEventArgs()
         {
-            NewShipmentEventArgs shipments = new NewShipmentEventArgs()
-            {
-                NewShipments = pckHelper.ShipmentPacket.Shipments
-            };
+            NewShipments = pckHelper.ShipmentPacket.Shipments
+        };
 
-            NewShipmentsReached?.Invoke(this, shipments);
-        }
+        NewShipmentsReached?.Invoke(this, shipments);
+    }
 
-        public void SendShipmentsRequest(params int[] requestedShipments)
+    public void SendShipmentsRequest(params int[] requestedShipments)
+    {
+        var pckHelper = new ShipmentPacketHelper("", CommonData.Topics[TopicType.Workerservice_Webservice]);
+        pckHelper.CreateNewShipmentsRequest(requestedShipments);
+
+        _client.SendData(pckHelper.GetPacketData());
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="shipment"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public void SendShipmentUpdate(Shipment? shipment)
+    {
+        if (shipment != null)
         {
             var pckHelper = new ShipmentPacketHelper("", CommonData.Topics[TopicType.Workerservice_Webservice]);
-            pckHelper.CreateNewShipmentsRequest(requestedShipments);
+            pckHelper.CreateUpdatedShipmentsResponse(shipment);
 
             _client.SendData(pckHelper.GetPacketData());
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="shipment"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public void SendShipmentUpdate(Shipment? shipment)
+        else
         {
-            if (shipment != null)
-            {
-                var pckHelper = new ShipmentPacketHelper("", CommonData.Topics[TopicType.Workerservice_Webservice]);
-                pckHelper.CreateUpdatedShipmentsResponse(shipment);
-
-                _client.SendData(pckHelper.GetPacketData());
-            }
-            else
-            {
-                _logger.LogError($"Shipment is null [at {nameof(SendShipmentUpdate)}]");
-                throw new ArgumentNullException(nameof(shipment));
-            }
+            _logger.LogError($"Shipment is null [at {nameof(SendShipmentUpdate)}]");
+            throw new ArgumentNullException(nameof(shipment));
         }
-
-        #endregion
-
-        #region destination
-
-        private void DistributeMessageFromWebserviceDestination(MessagePacketHelper packetHelper)
-        {
-            DestinationPacketHelper? destPackHelper = packetHelper as DestinationPacketHelper;
-
-            if (destPackHelper != null && destPackHelper.DestinationPacket != null)
-            {
-                if (destPackHelper.DestinationPacket.KeyCode == ActionKey.UpdatedEntity)
-                {
-                    if (destPackHelper.DestinationPacket.Destinations != null)
-                    {
-                        UpdateDestinationsEventArgs e = new()
-                        {
-                            UpdatedDestinations = destPackHelper.DestinationPacket.Destinations
-                        };
-
-                        UpdateDestinationsReached?.Invoke(this, e);
-                    } 
-                }
-                
-            }
-        }
-
-        public void SendDestinationsRequest()
-        {
-            var pckHelper = new DestinationPacketHelper("", 
-                CommonData.Topics[TopicType.Workerservice_Webservice_Destination]);
-            pckHelper.CreateDestinationRequest();
-
-            _client.SendData(pckHelper.GetPacketData());
-        }
-
-        public async void SendDestinationStatusToHub(params Destination?[]? destinations)
-        {
-            if (destinations is null || destinations.Length == 0 || _hubConnection is null || _hubConnection.State == HubConnectionState.Disconnected)
-                return;
-
-            var dests = destinations
-                .Select(d => new Destination { Id = d.Id, Active = d.Active }).ToList();
-
-            await _hubConnection.InvokeAsync("SendDestinationStatus", new DestinationStatus() { Destinations = dests });
-        }
-
-        #endregion
-
-        #region general
-
-        public void SendNoRead(NoRead noRead)
-        {
-            var pckHelper = new GeneralMessagePacketHelper("",
-                CommonData.Topics[TopicType.Workerservice_Webservice_General]);
-            pckHelper.ClearGeneralPacketContext();
-            pckHelper.CreateNoReadContext(noRead);
-
-            _client.SendData(pckHelper.GetPacketData());
-        }
-
-        #endregion
-
-        #region WeightScan
-
-        public void SendWeightScan(Scan scan)
-        {
-            var pckHelper = new WeightScanMessagePacketHelper("",
-                CommonData.Topics[TopicType.Workerservice_Webservice_WeightScan]);            
-            pckHelper.CreateNewWeightScanResponse(scan);
-
-            _client.SendData(pckHelper.GetPacketData());
-        }
-
-        #endregion
     }
+
+    #endregion
+
+    #region destination
+
+    private void DistributeMessageFromWebserviceDestination(MessagePacketHelper packetHelper)
+    {
+        var destPackHelper = packetHelper as DestinationPacketHelper;
+
+        if (destPackHelper != null && destPackHelper.DestinationPacket != null)
+        {
+            if (destPackHelper.DestinationPacket.KeyCode == ActionKey.UpdatedEntity)
+            {
+                if (destPackHelper.DestinationPacket.Destinations != null)
+                {
+                    UpdateDestinationsEventArgs e = new()
+                    {
+                        UpdatedDestinations = destPackHelper.DestinationPacket.Destinations
+                    };
+
+                    UpdateDestinationsReached?.Invoke(this, e);
+                } 
+            }
+                
+        }
+    }
+
+    public void SendDestinationsRequest()
+    {
+        var pckHelper = new DestinationPacketHelper("", 
+            CommonData.Topics[TopicType.Workerservice_Webservice_Destination]);
+        pckHelper.CreateDestinationRequest();
+
+        _client.SendData(pckHelper.GetPacketData());
+    }
+
+    public async void SendDestinationStatusToHub(params Destination?[]? destinations)
+    {
+        if (destinations is null || destinations.Length == 0 || _hubConnection is null || _hubConnection.State == HubConnectionState.Disconnected)
+            return;
+
+        var dests = destinations
+            .Select(d => new Destination { Id = d.Id, Active = d.Active }).ToList();
+
+        await _hubConnection.InvokeAsync("SendDestinationStatus", new DestinationStatus() { Destinations = dests });
+    }
+
+    #endregion
+
+    #region general
+
+    public void SendNoRead(NoRead noRead)
+    {
+        var pckHelper = new GeneralMessagePacketHelper("",
+            CommonData.Topics[TopicType.Workerservice_Webservice_General]);
+        pckHelper.ClearGeneralPacketContext();
+        pckHelper.CreateNoReadContext(noRead);
+
+        _client.SendData(pckHelper.GetPacketData());
+    }
+
+    #endregion
+
+    #region WeightScan
+
+    public void SendWeightScan(Scan scan)
+    {
+        var pckHelper = new WeightScanMessagePacketHelper("",
+            CommonData.Topics[TopicType.Workerservice_Webservice_WeightScan]);            
+        pckHelper.CreateNewWeightScanResponse(scan);
+
+        _client.SendData(pckHelper.GetPacketData());
+    }
+
+    #endregion
 }

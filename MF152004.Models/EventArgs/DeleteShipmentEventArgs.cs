@@ -1,7 +1,6 @@
-﻿namespace MF152004.Models.EventArgs
+﻿namespace MF152004.Models.EventArgs;
+
+public class DeleteShipmentEventArgs : System.EventArgs
 {
-    public class DeleteShipmentEventArgs : System.EventArgs
-    {
-        public int ShipmentId { get; set; }
-    }
+    public int ShipmentId { get; set; }
 }
