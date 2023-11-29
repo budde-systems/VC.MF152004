@@ -15,13 +15,10 @@ public class ConfigurationService
     /// <exception cref="ArgumentNullException"></exception>
     public ConfigurationService(Context context)
     {
-        if (context == null) 
-            throw new ArgumentNullException("context");
-
-        _context = context;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    public void UpdateCongigs(ServiceConfiguration? configuration)
+    public void UpdateConfigs(ServiceConfiguration? configuration)
     {
         if (configuration != null)
         {
@@ -33,6 +30,6 @@ public class ConfigurationService
 
     public bool ConfigHasEntities()
     {
-        return _context.Config != null && _context.Config.SealerRouteConfigs.Count > 0;
+        return _context.Config is {SealerRouteConfigs.Count: > 0};
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace MF152004.Models.Values.Types;
 
-public enum Errorcode : short
+public enum ErrorCode : short
 {
     EmergencyHold_Boxsealer = 1,
     EmergencyHold_Scale = 2,

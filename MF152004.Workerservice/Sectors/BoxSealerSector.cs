@@ -18,7 +18,7 @@ public class BoxSealerSector : Sector
     private const string NAME = "BoxSealer";
 
     private readonly ContextService _contextService;
-    private readonly PLC152004_PacketHelper _packetHelper = new PLC152004_PacketHelper();
+    private readonly PLC152004_PacketHelper _packetHelper = new();
     private readonly MessageDistributor _messageDistributor;
 
     public BoxSealerSector(MqttClient client, string baseposition, ContextService contextService, 
@@ -26,19 +26,19 @@ public class BoxSealerSector : Sector
     {
         _contextService = contextService;
         _messageDistributor = messageDistributor;
-        AddRelatedErrorcodes();
+        AddRelatedErrorCodes();
         BarcodeScanner = CreateScanner();
         Diverters = CreateDiverters();            
     }
 
-    public override void AddRelatedErrorcodes()
+    public override void AddRelatedErrorCodes()
     {
-        var errors = new List<Errorcode>
+        var errors = new List<ErrorCode>
         {
-            Errorcode.EmergencyHold_Boxsealer //TODO: weitere ergänzen
+            ErrorCode.EmergencyHold_Boxsealer //TODO: weitere ergänzen
         };
 
-        RelatedErrorcodes.AddRange(errors.Cast<short>());
+        RelatedErrorCodes.AddRange(errors.Cast<short>());
     }
 
     public override List<IDiverter> CreateDiverters()
@@ -52,7 +52,7 @@ public class BoxSealerSector : Sector
 
         flowSort.CreateTowards(new[]
         {
-            new Toward()
+            new Toward
             {
                 DriveDirection = Direction.Right,
                 FaultDirection = true,
@@ -63,7 +63,7 @@ public class BoxSealerSector : Sector
                 }
             },
 
-            new Toward()
+            new Toward
             {
                 DriveDirection = Direction.StraightAhead,
                 RoutePosition = new RoutePosition
@@ -203,7 +203,7 @@ public class BoxSealerSector : Sector
         }
     }
 
-    public override void UnsubscripedPacket(object? sender, UnsubscribedPacketEventArgs unsubscribedPacket)
+    public override void UnsubscribedPacket(object? sender, UnsubscribedPacketEventArgs unsubscribedPacket)
     {
         if (TrackedPacketExists(unsubscribedPacket.PacketTracing))
         {
@@ -216,13 +216,9 @@ public class BoxSealerSector : Sector
                     .First(_ => _.RoutePosition.Id == sealerRoute).RoutePosition.Name == DefaultRoute.BoxSealer.ToString();
 
                 if (toSealerRoute)
-                {
                     BoxLeftTheSealer(unsubscribedPacket);
-                }
                 else
-                {
                     BoxIsRedirected(unsubscribedPacket);
-                }
             }
         }
         else
@@ -254,14 +250,14 @@ public class BoxSealerSector : Sector
         RemoveTrackedPacket(unsubscribedPacket.PacketTracing);
     }
 
-    protected override void ErrorHandling(short errorcode)
+    protected override void ErrorHandling(short errorCode)
     {
         var errorMessage = string.Empty;
         var faultIslandDestination = false;
 
-        switch (errorcode)
+        switch (errorCode)
         {
-            case (short)Errorcode.EmergencyHold_Boxsealer:
+            case (short)ErrorCode.EmergencyHold_Boxsealer:
 
                 errorMessage = "";
                 faultIslandDestination = false; //not required
@@ -287,10 +283,8 @@ public class BoxSealerSector : Sector
             {
                 foreach (var shipment in shipments)
                 {
-                    if (faultIslandDestination)
-                    {
+                    if (faultIslandDestination) 
                         _contextService.SetTarget(shipment.Id, CommonData.FaultIsland);
-                    }
 
                     _contextService.SetMessage(errorMsg, shipment.Id);
                     _messageDistributor.SendShipmentUpdate(shipment);

@@ -8,34 +8,38 @@ using System.Collections.Concurrent;
 
 namespace MF152004.Common.Machines;
 
-public class Brandprinter : IMachine
+public class BrandPrinter : IMachine
 {
-    public IBrandPrinterSettings Settings { get; private set; }
+    public IBrandPrinterSettings Settings { get; }
+
     public ReaPi.ConnectionIdentifier ConnectionId { get; set; } = ReaPi.ConnectionIdentifier.UNKNOWN;
+    
     public string Id { get; set; } = Guid.NewGuid().ToString();
+    
     public string Name { get; set; }
+    
     public string BasePosition { get; set; }
+    
     public string SubPosition { get; set; }
 
     public List<int> TracedPackets { get; set; } = new();
+    
     public Scanner? RelatedScanner { get; set; }
+    
     public int JobId { get; private set; } = 1;
+    
     public bool IsConnected
     {
         get
         {
             lock (_lockConnect)
-            {
                 return _isConnected;
-            }
         }
 
         set
         {
-            lock (_lockConnect)
-            {
+            lock (_lockConnect) 
                 _isConnected = value;
-            }
         }
     }
     public bool ReadyForNextContent
@@ -43,17 +47,13 @@ public class Brandprinter : IMachine
         get
         {
             lock (_lockReadyForNextContent)
-            {
                 return _readyForNextContent;
-            }
         }
 
         set
         {
-            lock (_lockReadyForNextContent)
-            {
+            lock (_lockReadyForNextContent) 
                 _readyForNextContent = value;
-            }
         }
     }
     public bool QueueIsProcessed
@@ -61,63 +61,57 @@ public class Brandprinter : IMachine
         get
         {
             lock (_lockPrint)
-            {
                 return _queueIsProcessed;
-            }
         }
 
         private set
         {
-            lock (_lockPrint)
-            {
+            lock (_lockPrint) 
                 _queueIsProcessed = value;
-            }
         }
     }
     public bool JobIsStopped
     {
         get
         {
-            lock (_lockJobstatus)
-            {
+            lock (_lockJobStatus)
                 return _jobIsStopped;
-            }
         }
 
         set
         {
-            lock (_lockJobstatus)
-            {
+            lock (_lockJobStatus) 
                 _jobIsStopped = value;
-            }
         }
     }
     public bool ErrorInSettings { get; private set; }
+
     public bool NoJob { get; private set; }
+    
     public PrintJob CurrentJob { get; private set; }
 
 
-    private static object _lockReadyForNextContent = new object();
-    private static object _lockPrint = new object();
-    private static object _lockConnect = new object();
-    private static object _lockJobstatus = new object();
+    private static readonly object _lockReadyForNextContent = new();
+    private static readonly object _lockPrint = new();
+    private static readonly object _lockConnect = new();
+    private static readonly object _lockJobStatus = new();
 
-    private readonly ConcurrentQueue<PrintJob> _printJobs = new ConcurrentQueue<PrintJob>();
-    private readonly ILogger<Brandprinter> _logger;        
+    private readonly ConcurrentQueue<PrintJob> _printJobs = new();
+    private readonly ILogger<BrandPrinter> _logger;        
 
     private bool _readyForNextContent;
     private bool _queueIsProcessed;
     private bool _isConnected;
     private bool _jobIsStopped = true;
-    private PrintJob _jobBefore = new PrintJob() { ReferenceId = "0", ShipmentId = 0 };
+    private PrintJob _jobBefore = new() { ReferenceId = "0", ShipmentId = 0 };
 
-
-    public Brandprinter(IBrandPrinterSettings settings, ILogger<Brandprinter> logger)
+    public BrandPrinter(IBrandPrinterSettings settings, ILogger<BrandPrinter> logger)
     {
         Settings = settings;
         _logger = logger;
 
         ValidateSettings();
+
         CurrentJob = new()
         {
             ReferenceId = Settings.Configuration.NoPrintValue,
@@ -132,7 +126,7 @@ public class Brandprinter : IMachine
             || Settings.Port < 1
             || string.IsNullOrEmpty(Settings.Configuration.Job))
         {
-            _logger.LogError($"Invalid settings for brandprinter {this}");
+            _logger.LogError($"Invalid settings for brand printer {this}");
             ErrorInSettings = true;
         }
     }
@@ -175,6 +169,7 @@ public class Brandprinter : IMachine
                             Settings.Configuration.Object,
                             Settings.Configuration.Content,
                             job.ReferenceId);
+
                         ReaPi.SetLabelContent(ConnectionId, labelContent);
                     }
 
@@ -202,11 +197,5 @@ public class Brandprinter : IMachine
             await Task.Delay(80);
     }
 
-    public override string ToString()
-    {
-        if (!string.IsNullOrEmpty(Name))
-            return Name;
-        else
-            return "Undefined brandprinter";
-    }
+    public override string ToString() => !string.IsNullOrEmpty(Name) ? Name : "Undefined brand printer";
 }

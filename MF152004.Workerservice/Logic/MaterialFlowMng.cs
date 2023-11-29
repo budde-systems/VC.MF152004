@@ -32,7 +32,7 @@ public class MaterialFlowMng : MaterialFlowManager
     private readonly IServiceProvider _serviceProvider;
     private readonly BrandPrinterSettingsBack _brandPrinterSettingsBack;
     private readonly BrandPrinterSettingsFront _brandPrinterSettingsFront;
-    private readonly ILogger<Brandprinter> _brandPrinterLogger;
+    private readonly ILogger<BrandPrinter> _brandPrinterLogger;
     private readonly BrandingPrinterClient _brandingPrinterClient;
 
     private CancellationToken _cancellationToken;
@@ -63,10 +63,10 @@ public class MaterialFlowMng : MaterialFlowManager
         _destinationService = scope.ServiceProvider.GetRequiredService<DestinationService>();
         var msgDistributorLogger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<MessageDistributor>();
         var sectorServicesLogger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<SectorServices>();
-        _brandPrinterLogger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<Brandprinter>();
+        _brandPrinterLogger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<BrandPrinter>();
 
         SetTopics();
-        SetLabelprinterMessage();
+        SetLabelPrinterMessage();
         _sectorServices = new(sectorServicesLogger);
 
         _msgDistributor = new MessageDistributor(new List<MessagePacketHelper>
@@ -134,7 +134,7 @@ public class MaterialFlowMng : MaterialFlowManager
         };
     }
 
-    private void SetLabelprinterMessage()
+    private void SetLabelPrinterMessage()
     {
         var msg = _configuration["label_printer_no_match_procedure_msg"];
 
@@ -251,14 +251,14 @@ public class MaterialFlowMng : MaterialFlowManager
         _msgDistributor.WeightScanned += scale.Weight_Scanned;
         _msgDistributor.LabelPrinterRefRequest += labelPrinterSector.RepeatLastPrinterReferenceBroadcast;
 
-        _brandingPrinterClient.ConnectBrandprinter(GetFrontBrandPrinter());
-        _brandingPrinterClient.ConnectBrandprinter(GetBackBrandPrinter());
-        brandPrinterSector.AddBrandingprinterClient(_brandingPrinterClient);
+        _brandingPrinterClient.ConnectBrandPrinter(GetFrontBrandPrinter());
+        _brandingPrinterClient.ConnectBrandPrinter(GetBackBrandPrinter());
+        brandPrinterSector.AddBrandingPrinterClient(_brandingPrinterClient);
 
         labelPrinterSector.AddLabelPrinters(GetFrontLabelPrinter());
         labelPrinterSector.AddLabelPrinters(GetBackLabelPrinter());
 
-        List<Sector> sectors = new List<Sector>() //TODO: Design anpassen und Subscribes unterbringen! Ggf. allgemeines IncommíngData definieren
+        List<Sector> sectors = new() //TODO: Design anpassen und Subscribes unterbringen! Ggf. allgemeines IncommíngData definieren
         {
             boxSealer, brandPrinterSector, scale, exportSector, telescopeSectorA, telescopeSectorB, labelPrinterSector
         };
@@ -269,7 +269,7 @@ public class MaterialFlowMng : MaterialFlowManager
         sectors.ForEach(sector =>
         {
             _msgDistributor.BarcodeScanned += sector.Barcode_Scanned;
-            _msgDistributor.UnsubscribedPacket += sector.UnsubscripedPacket;
+            _msgDistributor.UnsubscribedPacket += sector.UnsubscribedPacket;
             _msgDistributor.ErrorCodeTriggered += sector.ErrorTriggered;
 
             sector.AddLogger(logger);
@@ -278,24 +278,24 @@ public class MaterialFlowMng : MaterialFlowManager
         return sectors;
     }
 
-    private Brandprinter GetFrontBrandPrinter()
+    private BrandPrinter GetFrontBrandPrinter()
     {
-        var brandPrinter = new Brandprinter(_brandPrinterSettingsFront, _brandPrinterLogger)
+        var brandPrinter = new BrandPrinter(_brandPrinterSettingsFront, _brandPrinterLogger)
         {
             Name = "Brandprinter front",
-            BasePosition = BrandprinterPosition.BP1.ToString(),
+            BasePosition = BrandPrinterPosition.BP1.ToString(),
             RelatedScanner = new("M3.1.189", "S3.1.190")
         };
 
         return brandPrinter;
     }
 
-    private Brandprinter GetBackBrandPrinter()
+    private BrandPrinter GetBackBrandPrinter()
     {
-        var brandPrinter = new Brandprinter(_brandPrinterSettingsBack, _brandPrinterLogger)
+        var brandPrinter = new BrandPrinter(_brandPrinterSettingsBack, _brandPrinterLogger)
         {
             Name = "Brandprinter back",
-            BasePosition = BrandprinterPosition.BP2.ToString(),
+            BasePosition = BrandPrinterPosition.BP2.ToString(),
             RelatedScanner = new("M3.1.211", "S3.1.401")
         };
 

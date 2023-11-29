@@ -9,16 +9,27 @@ namespace MF152004.Webservice.Data;
 public class ApplicationDbContext : DbContext
 {
     public DbSet<Shipment> Shipments { get; set; }
+
     public DbSet<SealerRoute> SealerRoutesConfigs { get; set; }
+
     public DbSet<BrandingPdf> BradingPdfCongigs { get; set; }
+
     public DbSet<LabelPrinter> LabelPrinterConfigs { get; set; }
+
     public DbSet<WeightTolerance> WeightToleranceConfigs { get; set; }
+
     public DbSet<Destination> Destinations { get; set; }
+
     public DbSet<Carrier> Carriers { get; set; }
+
     public DbSet<Country> Countries { get; set; }
+
     public DbSet<ClientReference> ClientReferences { get; set; }
+
     public DbSet<DeliveryService> DeliveryServices { get; set; }
+
     public DbSet<NoRead> NoReads { get; set; }
+
     public DbSet<Scan> WeightScans { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)  

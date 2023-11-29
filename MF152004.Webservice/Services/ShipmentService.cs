@@ -57,7 +57,7 @@ public class ShipmentService
     }
 
     /// <summary>
-    /// Shipmment will be updated: weight, status, received date, left error aisle date and the transportation reference. <br/>
+    /// Shipment will be updated: weight, status, received date, left error aisle date and the transportation reference. <br/>
     /// The fields label printed at and message will be removed. A new destination will be set.
     /// </summary>
     /// <param name="shipmentId"></param>

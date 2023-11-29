@@ -96,21 +96,17 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
             packetHelper.SetPacketData(messageEvent.Message);
 
             if (packetHelper.InTopic == CommonData.Topics[TopicType.PLC_Workerservice])
-            {
                 DistributeMessageFromPLC(packetHelper);
-            }
+
             else if (packetHelper.InTopic == CommonData.Topics[TopicType.WebService_Workerservice])
-            {
                 DistributeMessageFromWebservice(packetHelper);
-            }
+
             else if (packetHelper.InTopic == CommonData.Topics[TopicType.WebService_Workerservice_Config])
-            {
                 DistributeMessageFromWebserviceConfig(packetHelper);
-            }
+
             else if (packetHelper.InTopic == CommonData.Topics[TopicType.Webservice_Workerservice_Destination])
-            {
                 DistributeMessageFromWebserviceDestination(packetHelper);
-            }
+
             else if (packetHelper.InTopic == CommonData.Topics[TopicType.Webservice_Workerservice_General])
             {
                 //TODO: Noch offen
@@ -123,6 +119,7 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
     }
 
     #region plc
+
     private void DistributeMessageFromPLC(MessagePacketHelper packetHelper)
     {
         var pckHelper = packetHelper as PLC152004_PacketHelper;
@@ -130,44 +127,52 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
         switch (pckHelper.Command)
         {
             case PLC_Command.C001:
-
+            {
                 OnBarcodeScanned(pckHelper);
-
                 break;
+            }
 
             case PLC_Command.C003:
-
+            {
                 OnWeightScanned(pckHelper);
-
                 break;
+            }
 
             case PLC_Command.C004:
+            {
                 //TODO: Offen - mit Abranson besprechen
                 break;
+            }
 
             case PLC_Command.C005:
-
-                OnUnsubscripedPacket(pckHelper);
-
+            {
+                OnUnsubscribedPacket(pckHelper);
                 break;
+            }
 
             case PLC_Command.C006:
-
+            {
                 OnDockedTelescope(pckHelper);
-
                 break;
+            }
 
             case PLC_Command.C007:
-                OnErrorcodeTriggered(pckHelper);
+            {
+                OnErrorCodeTriggered(pckHelper);
                 break;
+            }
 
             case PLC_Command.C010:
+            {
                 OnLoadFactor(pckHelper);
                 break;
+            }
 
             case PLC_Command.C011:
+            {
                 LabelPrinterRefRequest?.Invoke(this, EventArgs.Empty);
                 break;
+            }
         }
     }
 
@@ -192,7 +197,7 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
         _ = byte.TryParse(pckHelper.Areas[3], out var validHeight);
         _ = double.TryParse(pckHelper.Areas[5], out var weight);
 
-        var scan = new WeightScanEventArgs_152004()
+        var scan = new WeightScanEventArgs_152004
         {
             Weight = weight,
             PacketTracing = packetTracing,
@@ -219,7 +224,7 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
         return barcodes;
     }
 
-    private void OnUnsubscripedPacket(PLC152004_PacketHelper pckHelper)
+    private void OnUnsubscribedPacket(PLC152004_PacketHelper pckHelper)
     {
         UnsubscribedPacketEventArgs packet = new();
 
@@ -240,11 +245,11 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
         DockedTelescopeReached?.Invoke(this, docked);
     }
 
-    private void OnErrorcodeTriggered(PLC152004_PacketHelper packetHelper)
+    private void OnErrorCodeTriggered(PLC152004_PacketHelper packetHelper)
     {
         ErrorcodeEventArgs error = new()
         {
-            Errorcodes = SplitErrorcodes(packetHelper.Areas[6])
+            Errorcodes = SplitErrorCodes(packetHelper.Areas[6])
         };
 
         if (error.Errorcodes.Count > 0)
@@ -253,25 +258,25 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
         }
     }
 
-    private ICollection<short> SplitErrorcodes(string data)
+    private ICollection<short> SplitErrorCodes(string data)
     {
-        var errorcodes = new List<short>();
+        var errorCodes = new List<short>();
 
         if (string.IsNullOrEmpty(data))
-            return errorcodes;
+            return errorCodes;
 
-        var existsErrorcodes = (Errorcode[])Enum.GetValues(typeof(Errorcode));
+        var existsErrorCodes = (ErrorCode[])Enum.GetValues(typeof(ErrorCode));
 
-        foreach (var splittedCode in data.Split(','))
+        foreach (var splitCode in data.Split(','))
         {
-            if (short.TryParse(splittedCode, out var validCode))
+            if (short.TryParse(splitCode, out var validCode))
             {
-                if (existsErrorcodes.Any(c => (short)c == validCode))
-                    errorcodes.Add(validCode);
+                if (existsErrorCodes.Any(c => (short)c == validCode))
+                    errorCodes.Add(validCode);
             }
         }
 
-        return errorcodes;
+        return errorCodes;
     }
 
     private void OnLoadFactor(PLC152004_PacketHelper packetHelper)
@@ -318,10 +323,10 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
         switch (pckHelper.ConfigurationPacket.KeyCode)
         {
             case ActionKey.NewEntity:
-
+            {
                 OnNewConfiguration(pckHelper.ConfigurationPacket.Configuration);
-
                 break;
+            }
         }
     }
 
@@ -353,16 +358,16 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
         switch (pckHelper.ShipmentPacket.KeyCode)
         {
             case ActionKey.UpdatedEntity:
-
+            {
                 OnUpdateShipments(pckHelper);
-
                 break;
+            }
 
             case ActionKey.NewEntity:
-
+            {
                 OnNewShipments(pckHelper);
-
                 break;
+            }
         }
     }
 
@@ -378,7 +383,7 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
 
     private void OnNewShipments(ShipmentPacketHelper pckHelper)
     {
-        var shipments = new NewShipmentEventArgs()
+        var shipments = new NewShipmentEventArgs
         {
             NewShipments = pckHelper.ShipmentPacket.Shipments
         };
@@ -421,30 +426,20 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
 
     private void DistributeMessageFromWebserviceDestination(MessagePacketHelper packetHelper)
     {
-        var destPackHelper = packetHelper as DestinationPacketHelper;
-
-        if (destPackHelper != null && destPackHelper.DestinationPacket != null)
+        if (packetHelper is DestinationPacketHelper {DestinationPacket: {KeyCode: ActionKey.UpdatedEntity, Destinations: not null}} destPackHelper)
         {
-            if (destPackHelper.DestinationPacket.KeyCode == ActionKey.UpdatedEntity)
+            UpdateDestinationsEventArgs e = new()
             {
-                if (destPackHelper.DestinationPacket.Destinations != null)
-                {
-                    UpdateDestinationsEventArgs e = new()
-                    {
-                        UpdatedDestinations = destPackHelper.DestinationPacket.Destinations
-                    };
+                UpdatedDestinations = destPackHelper.DestinationPacket.Destinations
+            };
 
-                    UpdateDestinationsReached?.Invoke(this, e);
-                } 
-            }
-                
+            UpdateDestinationsReached?.Invoke(this, e);
         }
     }
 
     public void SendDestinationsRequest()
     {
-        var pckHelper = new DestinationPacketHelper("", 
-            CommonData.Topics[TopicType.Workerservice_Webservice_Destination]);
+        var pckHelper = new DestinationPacketHelper("", CommonData.Topics[TopicType.Workerservice_Webservice_Destination]);
         pckHelper.CreateDestinationRequest();
 
         _client.SendData(pckHelper.GetPacketData());
@@ -458,7 +453,7 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
         var dests = destinations
             .Select(d => new Destination { Id = d.Id, Active = d.Active }).ToList();
 
-        await _hubConnection.InvokeAsync("SendDestinationStatus", new DestinationStatus() { Destinations = dests });
+        await _hubConnection.InvokeAsync("SendDestinationStatus", new DestinationStatus { Destinations = dests });
     }
 
     #endregion
@@ -467,8 +462,7 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
 
     public void SendNoRead(NoRead noRead)
     {
-        var pckHelper = new GeneralMessagePacketHelper("",
-            CommonData.Topics[TopicType.Workerservice_Webservice_General]);
+        var pckHelper = new GeneralMessagePacketHelper("", CommonData.Topics[TopicType.Workerservice_Webservice_General]);
         pckHelper.ClearGeneralPacketContext();
         pckHelper.CreateNoReadContext(noRead);
 
@@ -481,8 +475,7 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
 
     public void SendWeightScan(Scan scan)
     {
-        var pckHelper = new WeightScanMessagePacketHelper("",
-            CommonData.Topics[TopicType.Workerservice_Webservice_WeightScan]);            
+        var pckHelper = new WeightScanMessagePacketHelper("", CommonData.Topics[TopicType.Workerservice_Webservice_WeightScan]);            
         pckHelper.CreateNewWeightScanResponse(scan);
 
         _client.SendData(pckHelper.GetPacketData());

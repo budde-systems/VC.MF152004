@@ -12,8 +12,8 @@ namespace MF152004.Workerservice.Sectors.Gates;
 public class ExportGates : GatesSector //TODO: Gates können alle zusammengefasst werden. Scanner => Scanners : List<T>
 {
     private const string NAME = "Export Sector";
-    public ExportGates(IClient client, string baseposition, ContextService contextService,
-        MessageDistributor messageDistributor) : base(client, baseposition, NAME, contextService, messageDistributor)
+    public ExportGates(IClient client, string basePosition, ContextService contextService,
+        MessageDistributor messageDistributor) : base(client, basePosition, NAME, contextService, messageDistributor)
     {
         BarcodeScanner = CreateScanner();
         Diverters = CreateDiverters();
@@ -41,17 +41,17 @@ public class ExportGates : GatesSector //TODO: Gates können alle zusammengefass
         routePosition.SetRoutePosition(new Destination { Name = "Tor 1", Active = true }); //TODO: UI_Id verwebden
         flowSort.CreateTowards(new[]
         {
-            new Toward()
+            new Toward
             {
                 DriveDirection = Direction.Left,
                 RoutePosition = routePosition,
             },
 
-            new Toward()
+            new Toward
             {
                 DriveDirection = Direction.StraightAhead,
                 FaultDirection = true,
-                RoutePosition = new RoutePosition()
+                RoutePosition = new RoutePosition
                 {
                     Id = "1",
                     Name = DefaultRoute.ToGates.ToString(),
@@ -77,17 +77,17 @@ public class ExportGates : GatesSector //TODO: Gates können alle zusammengefass
         routePosition.SetRoutePosition(new Destination { Name = "Tor 2", Active = true });
         flowSort.CreateTowards(new[]
         {
-            new Toward()
+            new Toward
             {
                 DriveDirection = Direction.Left,
                 RoutePosition = routePosition,
             },
 
-            new Toward()
+            new Toward
             {
                 DriveDirection = Direction.StraightAhead,
                 FaultDirection = true,
-                RoutePosition = new RoutePosition()
+                RoutePosition = new RoutePosition
                 {
                     Id = "2",
                     Name = DefaultRoute.ToGates.ToString(),
@@ -113,17 +113,17 @@ public class ExportGates : GatesSector //TODO: Gates können alle zusammengefass
         routePosition.SetRoutePosition(new Destination { Name = "Tor 3", Active = true });
         flowSort.CreateTowards(new[]
         {
-            new Toward()
+            new Toward
             {
                 DriveDirection = Direction.Left,
                 RoutePosition = routePosition,
             },
 
-            new Toward()
+            new Toward
             {
                 DriveDirection = Direction.StraightAhead,
                 FaultDirection = true,
-                RoutePosition = new RoutePosition()
+                RoutePosition = new RoutePosition
                 {
                     Id = "3",
                     Name = DefaultRoute.ToGates.ToString(),
@@ -136,6 +136,5 @@ public class ExportGates : GatesSector //TODO: Gates können alle zusammengefass
         return flowSort;
     }
 
-    public override Scanner CreateScanner() =>
-        new("M5.1.202", "S5.1.203");
+    public override Scanner CreateScanner() => new("M5.1.202", "S5.1.203");
 }

@@ -23,43 +23,43 @@ public class BrandPrinterSector : Sector //TODO: Sector als Base verwenden, dann
 
     private BrandingPrinterClient _brandingPrinterClient;
 
-    public BrandPrinterSector(IClient client, string baseposition, ContextService contextService,
-        MessageDistributor messageDistributor) : base(client, NAME, baseposition)
+    public BrandPrinterSector(IClient client, string basePosition, ContextService contextService,
+        MessageDistributor messageDistributor) : base(client, NAME, basePosition)
     {
         _contextService = contextService;
         _messageDistributor = messageDistributor;
-        AddRelatedErrorcodes();
+        AddRelatedErrorCodes();
         IsActive = true;
     }
 
-    public override void AddRelatedErrorcodes()
+    public override void AddRelatedErrorCodes()
     {
-        var errors = new List<Errorcode>
+        var errors = new List<ErrorCode>
         {
-            Errorcode.EmergencyHold_BrandPrinter1,
-            Errorcode.EmergencyHold_Brandprinter2,
-            Errorcode.LowPrinterToner1,
-            Errorcode.LowPrinterToner2, //TODO: weitere ergänzen
+            ErrorCode.EmergencyHold_BrandPrinter1,
+            ErrorCode.EmergencyHold_Brandprinter2,
+            ErrorCode.LowPrinterToner1,
+            ErrorCode.LowPrinterToner2, //TODO: weitere ergänzen
         };
 
-        RelatedErrorcodes.AddRange(errors.Cast<short>());
+        RelatedErrorCodes.AddRange(errors.Cast<short>());
     }
 
-    public void AddBrandingprinterClient(BrandingPrinterClient brandPrinterClient)
+    public void AddBrandingPrinterClient(BrandingPrinterClient brandPrinterClient)
     {
         if (brandPrinterClient != null)
         {
-            if (brandPrinterClient.Brandprinters.Any())
+            if (brandPrinterClient.BrandPrinters.Any())
             {
                 BarcodeScanners ??= new();
-                BarcodeScanners.AddRange(brandPrinterClient.Brandprinters.Select(x => x.RelatedScanner));
+                BarcodeScanners.AddRange(brandPrinterClient.BrandPrinters.Select(x => x.RelatedScanner));
                 _brandingPrinterClient = brandPrinterClient;
                 _brandingPrinterClient.EndOfPrint += UpdateShipment;
             }
         }
     }
 
-    public override List<IDiverter> CreateDiverters() => new List<IDiverter>(); //no diverters required in this sector
+    public override List<IDiverter> CreateDiverters() => new(); //no diverters required in this sector
 
     public override Scanner CreateScanner() => new("", ""); //not required because of many scanners
 
@@ -69,7 +69,7 @@ public class BrandPrinterSector : Sector //TODO: Sector als Base verwenden, dann
         {
             if (!IsActive)
             {
-                _logger.LogInformation("Brandprinters are deactivated");
+                _logger.LogInformation("BrandPrinters are deactivated");
                 return;
             }
 
@@ -105,10 +105,12 @@ public class BrandPrinterSector : Sector //TODO: Sector als Base verwenden, dann
     {
         if (finishedJob != null)
         {
-            if (finishedJob.BasePositionBrandPrinter == BrandprinterPosition.BP1.ToString())
+            if (finishedJob.BasePositionBrandPrinter == BrandPrinterPosition.BP1.ToString())
                 _contextService.BoxHasBeenBranded_1(finishedJob.Job.ShipmentId);
-            else if (finishedJob.BasePositionBrandPrinter == BrandprinterPosition.BP2.ToString())
+            
+            else if (finishedJob.BasePositionBrandPrinter == BrandPrinterPosition.BP2.ToString())
                 _contextService.BoxHasBeenBranded_1(finishedJob.Job.ShipmentId);
+
             else
                 return;
 
@@ -128,7 +130,7 @@ public class BrandPrinterSector : Sector //TODO: Sector als Base verwenden, dann
         return _contextService.GetShipmentId(barcodes);
     }
 
-    public override void UnsubscripedPacket(object? sender, UnsubscribedPacketEventArgs unsubscribedPacket)
+    public override void UnsubscribedPacket(object? sender, UnsubscribedPacketEventArgs unsubscribedPacket)
     {
         //NOT REQUIRED
 
@@ -152,7 +154,7 @@ public class BrandPrinterSector : Sector //TODO: Sector als Base verwenden, dann
         //}            
     }
 
-    private void ErrorHandling(object? sender, BrandprinterErrorEventArgs error)
+    private void ErrorHandling(object? sender, BrandPrinterErrorEventArgs error)
     {
         //NOT REQUIRED
 
@@ -176,7 +178,7 @@ public class BrandPrinterSector : Sector //TODO: Sector als Base verwenden, dann
         }
     }
 
-    protected override void ErrorHandling(short errorcode)
+    protected override void ErrorHandling(short errorCode)
     {
         //TODO: Offen
     }

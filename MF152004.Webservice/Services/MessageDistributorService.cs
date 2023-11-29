@@ -84,14 +84,9 @@ public class MessageDistributorService : MessageDistributor
         var key = configuration["key"] ?? string.Empty;
 
         if (string.IsNullOrEmpty(key))
-        {
             _logger.LogWarning("The api key is empty");
-        }
         else
-        {
             _wmsClient?.AddHeader("x-api-key", key);
-        }
-                
     }
 
     public override void DistributeIncomingMessages(object? sender, MessagePacketEventArgs messageEvent)
@@ -106,40 +101,31 @@ public class MessageDistributorService : MessageDistributor
             pckHelper.SetPacketData(messageEvent.Message);
 
             if (messageEvent.Message.Topic == CommonData.Topics[TopicType.Workerservice_Webservice_Config])
-            {
                 OnConfigurationMessage(pckHelper);
-            }
+            
             else if (messageEvent.Message.Topic == CommonData.Topics[TopicType.Workerservice_Webservice])
-            {
                 OnShipmentMessage(pckHelper);
-            }
+
             else if (messageEvent.Message.Topic == CommonData.Topics[TopicType.Workerservice_Webservice_Destination])
-            {
                 OnDestinationMessage(pckHelper);
-            }
+
             else if (messageEvent.Message.Topic == CommonData.Topics[TopicType.Workerservice_Webservice_General])
-            {
                 OnGeneralPacket(pckHelper);
-            }
-            else if (messageEvent.Message.Topic == CommonData.Topics[TopicType.Workerservice_Webservice_WeightScan])
-            {
+
+            else if (messageEvent.Message.Topic == CommonData.Topics[TopicType.Workerservice_Webservice_WeightScan]) 
                 OnWeightScan(pckHelper);
-            }
         }
     }
 
     private async void OnShipmentMessage(MessagePacketHelper pckHelper)
     {
-        var packetHelper = pckHelper as ShipmentPacketHelper;
-            
-        if (packetHelper != null)
+        if (pckHelper is ShipmentPacketHelper packetHelper)
         {
             if (packetHelper.ShipmentPacket.KeyCode == ActionKey.RequestedEntity)
             {
                 List<Shipment> shipments;
 
-                if (packetHelper.ShipmentPacket.RequestedShipments != null &&
-                    packetHelper.ShipmentPacket.RequestedShipments.Count > 0)
+                if (packetHelper.ShipmentPacket.RequestedShipments is {Count: > 0})
                 {
                     shipments = await _shipmentService.GetShipments(packetHelper.ShipmentPacket.RequestedShipments);
                     SendUpdatedShipments(shipments.ToArray());
@@ -153,13 +139,9 @@ public class MessageDistributorService : MessageDistributor
             else if (packetHelper.ShipmentPacket.KeyCode == ActionKey.UpdatedEntity)
             {
                 if (packetHelper.ShipmentPacket is null || packetHelper.ShipmentPacket.Shipments is null)
-                {
-                    _logger.LogWarning("The shipment packet or the shipments of the shipment packet is null.");                        
-                }
+                    _logger.LogWarning("The shipment packet or the shipments of the shipment packet is null.");
                 else
-                {
                     PatchShipments(packetHelper.ShipmentPacket.Shipments);
-                }
             }
         }
     }
@@ -225,14 +207,10 @@ public class MessageDistributorService : MessageDistributor
 
     private async void OnDestinationMessage(MessagePacketHelper messagePacketHelper)
     {
-        var pckHelper = messagePacketHelper as DestinationPacketHelper;
-
-        if (pckHelper != null && pckHelper.DestinationPacket != null)
+        if (messagePacketHelper is DestinationPacketHelper {DestinationPacket: not null} pckHelper)
         {
-            if (pckHelper.DestinationPacket.KeyCode == ActionKey.RequestedEntity)
-            {
+            if (pckHelper.DestinationPacket.KeyCode == ActionKey.RequestedEntity) 
                 SendUpdatedDestinations((await _destinationService.GetDestinationsAsync()).ToArray());
-            }
         }
         else
         {
@@ -254,9 +232,7 @@ public class MessageDistributorService : MessageDistributor
 
     private void OnGeneralPacket(MessagePacketHelper packetHelper)
     {
-        var pckHelper = packetHelper as GeneralMessagePacketHelper;
-
-        if (pckHelper != null && pckHelper.GeneralPacket != null)
+        if (packetHelper is GeneralMessagePacketHelper {GeneralPacket: not null} pckHelper)
         {
             if (pckHelper.GeneralPacket.KeyCode == ActionKey.NewEntity)
             {
@@ -278,7 +254,7 @@ public class MessageDistributorService : MessageDistributor
 
     private void OnWeightScan(MessagePacketHelper packetHelper)
     {
-        if (packetHelper is WeightScanMessagePacketHelper pckHelper && pckHelper.WeightScanPacket != null)
+        if (packetHelper is WeightScanMessagePacketHelper {WeightScanPacket: not null} pckHelper)
         {
             if (pckHelper.WeightScanPacket.KeyCode == ActionKey.NewEntity)
             {
@@ -329,14 +305,9 @@ public class MessageDistributorService : MessageDistributor
                 stream = await _wmsClient.GetStream($"{CommonData.Endpoints[API_Endpoint.GET_Labels]}/{shipmentId}/download");
 
                 if (stream != null)
-                {
                     FileManager.SetZplFile(stream, shipmentId);
-                }
                 else
-                {
                     await Task.Delay(TimeSpan.FromSeconds(30));
-                }
-
             }
 
             _logger.LogInformation($"The label request runs {times} time/s");

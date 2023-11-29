@@ -18,8 +18,8 @@ public class Worker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var srvs = _services.CreateScope();
-        var broker = srvs.ServiceProvider.GetService<MqttBroker>();
+        var serviceScope = _services.CreateScope();
+        var broker = serviceScope.ServiceProvider.GetService<MqttBroker>();
 
         if (broker != null)
             await broker.RunBrokerAsync();

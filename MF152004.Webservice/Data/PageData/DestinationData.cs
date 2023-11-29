@@ -3,5 +3,6 @@
 public class DestinationData
 {
     public string? DestinationName { get; set; }
+
     public DateTime AtTime { get; set; }
 }

@@ -21,26 +21,26 @@ public class ScaleSector : Sector
     private const string NAME = "ScaleSection";
 
     private readonly ContextService _contextService;
-    private readonly PLC152004_PacketHelper _packetHelper = new PLC152004_PacketHelper();
+    private readonly PLC152004_PacketHelper _packetHelper = new();
     private readonly MessageDistributor _messageDistributor;
 
-    public ScaleSector(IClient client, string baseposition, ContextService contextService,
-        MessageDistributor messageDistributor) : base(client, NAME, baseposition)
+    public ScaleSector(IClient client, string basePosition, ContextService contextService,
+        MessageDistributor messageDistributor) : base(client, NAME, basePosition)
     {
         _contextService = contextService;
         _messageDistributor = messageDistributor;
-        AddRelatedErrorcodes();
+        AddRelatedErrorCodes();
         Diverters = CreateDiverters();
     }
 
-    public override void AddRelatedErrorcodes()
+    public override void AddRelatedErrorCodes()
     {
-        var errors = new List<Errorcode>
+        var errors = new List<ErrorCode>
         {
-            Errorcode.EmergencyHold_Scale //TODO: weitere ergänzen
+            ErrorCode.EmergencyHold_Scale //TODO: weitere ergänzen
         };
 
-        RelatedErrorcodes.AddRange(errors.Cast<short>());
+        RelatedErrorCodes.AddRange(errors.Cast<short>());
     }
 
     public override ICollection<IDiverter> CreateDiverters()
@@ -57,14 +57,14 @@ public class ScaleSector : Sector
 
         flowSort.CreateTowards(new[]
         {
-            new Toward()
+            new Toward
             {
                 DriveDirection = Direction.Left,
                 FaultDirection = true,
                 RoutePosition = routePosition
             },
 
-            new Toward()
+            new Toward
             {
                 DriveDirection = Direction.StraightAhead,
                 RoutePosition = new RoutePosition
@@ -75,7 +75,7 @@ public class ScaleSector : Sector
             }
         });
 
-        List<IDiverter> diverters = new List<IDiverter> { flowSort };
+        List<IDiverter> diverters = new() { flowSort };
 
         return diverters;
     }
@@ -115,10 +115,6 @@ public class ScaleSector : Sector
             }
 
             OnFaultyBarcodes(specialScan); //handling of noreads
-        }
-        else
-        {
-
         }
     }
 
@@ -168,8 +164,8 @@ public class ScaleSector : Sector
     {
         if (barcodes is null || barcodes.Length == 0)
             return -1; //TODO: Logging
-        else
-            return _contextService.GetShipmentId(barcodes);
+        
+        return _contextService.GetShipmentId(barcodes);
     }
 
     private bool InvalidShipmentId(int shipmentId, string[]? barcodes)
@@ -221,9 +217,9 @@ public class ScaleSector : Sector
         if (!validHeight)
         {
             var msg = "The package has not passed the height test";
-            var errorcode = "1005";
+            var errorCode = "1005";
 
-            _contextService.SetMessage(errorcode + msg, shipmentId);
+            _contextService.SetMessage(errorCode + msg, shipmentId);
             _contextService.SetTarget(shipmentId, CommonData.FaultIsland);
 
             _logger.LogWarning($"{msg}. (ID: {shipmentId}, sector: {this})");
@@ -237,9 +233,9 @@ public class ScaleSector : Sector
         if (!FileManager.ZplExists(shipmentId))
         {
             var msg = "No zpl file has been found";
-            var errorcode = "1006";
+            var errorCode = "1006";
 
-            _contextService.SetMessage(errorcode + msg, shipmentId);
+            _contextService.SetMessage(errorCode + msg, shipmentId);
             _contextService.SetTarget(shipmentId, CommonData.FaultIsland);
 
             _logger.LogWarning(msg + $" Shipment ID: {shipmentId}, sector: {this}");
@@ -274,7 +270,7 @@ public class ScaleSector : Sector
     {
         if (shipmentId > 0)
         {
-            var scan = new Scan()
+            var scan = new Scan
             {
                 ScanTime = scanningTime,
                 ShipmentId = shipmentId,
@@ -287,7 +283,7 @@ public class ScaleSector : Sector
         }
     }
 
-    public override void UnsubscripedPacket(object? sender, UnsubscribedPacketEventArgs unsubscribedPacket)
+    public override void UnsubscribedPacket(object? sender, UnsubscribedPacketEventArgs unsubscribedPacket)
     {
         if (TrackedPacketExists(unsubscribedPacket.PacketTracing))
         {
@@ -299,14 +295,14 @@ public class ScaleSector : Sector
             _logger.LogWarning($"The packet tracing ID {unsubscribedPacket.PacketTracing} could not be found in sector {this}");
     }
 
-    protected override void ErrorHandling(short errorcode)
+    protected override void ErrorHandling(short errorCode)
     {
         var errorMessage = string.Empty;
         var faultIslandDestination = false;
 
-        switch (errorcode)
+        switch (errorCode)
         {
-            case (short)Errorcode.EmergencyHold_Scale:
+            case (short)ErrorCode.EmergencyHold_Scale:
 
                 errorMessage = "";
                 faultIslandDestination = false; //not required

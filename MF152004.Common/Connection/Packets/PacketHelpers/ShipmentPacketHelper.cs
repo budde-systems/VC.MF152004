@@ -31,7 +31,7 @@ public class ShipmentPacketHelper : MessagePacketHelper
 
     public override MessagePacket GetPacketData()
     {
-        var packet = new MessagePacket() 
+        var packet = new MessagePacket
         { 
             Topic = OutTopic,
             Data = JsonSerializer.Serialize(ShipmentPacket),

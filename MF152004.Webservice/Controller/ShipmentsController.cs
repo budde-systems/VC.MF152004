@@ -64,12 +64,14 @@ public class ShipmentsController : ControllerBase
             _logger.LogError("Entity set 'ApplicationDbContext.Shipments' is null.");
             return StatusCode(500);
         }
-        else if (result.Item1 == false)
+
+        if (result.Item1 == false)
         {
             _logger.LogWarning($"Not passed validation for shipment: {shipment}");
             return BadRequest(result.Item2);
         }
-        else if (await ShipmentExists(shipment.Id))
+
+        if (await ShipmentExists(shipment.Id))
         {
             _logger.LogWarning($"Shipment {shipment} already exists.");
             return Conflict($"The shipment {shipment} already exists. Use Http-PUT to update entity."); //409
@@ -93,28 +95,17 @@ public class ShipmentsController : ControllerBase
 
     private (bool, string) ValidateShipment(Shipment shipment)
     {
-        if (shipment.Id <= 0)
-            return new(false, "The id of shipment cannot be zero or less.");
-        else if (string.IsNullOrEmpty(shipment.ClientReference))
-            return new(false, GetDefaultMessage(nameof(shipment.ClientReference)));
-        else if (string.IsNullOrEmpty(shipment.BoxBarcodeReference))
-            return new(false, GetDefaultMessage(nameof(shipment.BoxBarcodeReference)));
-        else if (string.IsNullOrEmpty(shipment.TransportationReference))
-            return new(false, GetDefaultMessage(nameof(shipment.TransportationReference)));
-        else if (string.IsNullOrEmpty(shipment.Carrier))
-            return new(false, GetDefaultMessage(nameof(shipment.Carrier)));
-        else if (string.IsNullOrEmpty(shipment.Country))
-            return new(false, GetDefaultMessage(nameof(shipment.Country)));
-        else if (string.IsNullOrEmpty(shipment.Status))
-            return new(false, GetDefaultMessage(nameof(shipment.Status)));
-        else if (shipment.Weight <= 0)
-            return new(false, $"The value of the field {nameof(shipment.Weight)} cannot be zero or less.");
-        else if (string.IsNullOrEmpty(shipment.TrackingCode))
-            return new(false, GetDefaultMessage(nameof(shipment.TrackingCode)));
-
-        return new(true, string.Empty);
+        return shipment.Id <= 0 ? new(false, "The id of shipment cannot be zero or less.")
+            : string.IsNullOrEmpty(shipment.ClientReference) ? new(false, GetDefaultMessage(nameof(shipment.ClientReference)))
+            : string.IsNullOrEmpty(shipment.BoxBarcodeReference) ? new(false, GetDefaultMessage(nameof(shipment.BoxBarcodeReference)))
+            : string.IsNullOrEmpty(shipment.TransportationReference) ? new(false, GetDefaultMessage(nameof(shipment.TransportationReference)))
+            : string.IsNullOrEmpty(shipment.Carrier) ? new(false, GetDefaultMessage(nameof(shipment.Carrier)))
+            : string.IsNullOrEmpty(shipment.Country) ? new(false, GetDefaultMessage(nameof(shipment.Country)))
+            : string.IsNullOrEmpty(shipment.Status) ? new(false, GetDefaultMessage(nameof(shipment.Status)))
+            : shipment.Weight <= 0 ? new(false, $"The value of the field {nameof(shipment.Weight)} cannot be zero or less.")
+            : string.IsNullOrEmpty(shipment.TrackingCode) ? new(false, GetDefaultMessage(nameof(shipment.TrackingCode)))
+            : new(true, string.Empty);
     }
 
-    private string GetDefaultMessage(string nameOfField) =>
-        $"The {nameOfField} field cannot be empty or null.";
+    private string GetDefaultMessage(string nameOfField) => $"The {nameOfField} field cannot be empty or null.";
 }

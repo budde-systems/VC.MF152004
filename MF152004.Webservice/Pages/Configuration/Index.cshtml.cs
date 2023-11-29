@@ -24,7 +24,7 @@ public class IndexModel : PageModel
 
     private async Task GetConfigurationData()
     {
-        ConfigurationData = new ConfigurationDTO()
+        ConfigurationData = new ConfigurationDTO
         {
             Carriers = await _context.Carriers
                 .GroupBy(_ => _.Name)

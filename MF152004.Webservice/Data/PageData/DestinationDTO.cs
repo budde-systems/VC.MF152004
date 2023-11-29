@@ -6,8 +6,11 @@ namespace MF152004.Webservice.Data.PageData;
 public class DestinationDTO : Destination
 {
     public Carrier SelectedCarrier { get; set; }
+
     public int[] SelectedCountries { get; set; }
+
     public int[] SelectedClientIds { get; set; }
+
     public int GateId { get; set; }
 
     public DestinationDTO(Destination destination)
@@ -29,45 +32,32 @@ public class DestinationDTO : Destination
     public List<SelectListItem> GetCarriersSelectList()
     {
         if (Carriers == null || !Carriers.Any())
-        {
             return GetDefaultList();
-        }
-        else
-        {
-            var list = new List<SelectListItem>();
-            list.AddRange(Carriers.Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }));
-            return list;
-        }
+
+        var list = new List<SelectListItem>();
+        list.AddRange(Carriers.Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }));
+        return list;
     }
 
     public List<SelectListItem> GetCountriesSelectList()
     {
         if (Countries is null || !Countries.Any())
-        {
             return GetDefaultList();
-        }
-        else
-        {
-            var list = new List<SelectListItem>();
-            list.AddRange(Countries.Select(x => new SelectListItem(x.Name, x.Id.ToString())));
-            return list;
-        }
+
+        var list = new List<SelectListItem>();
+        list.AddRange(Countries.Select(x => new SelectListItem(x.Name, x.Id.ToString())));
+        return list;
     }
 
     public List<SelectListItem> GetClientReferencesSelectList()
     {
         if (ClientReferences is null || !ClientReferences.Any())
-        {
             return GetDefaultList();
-        }
-        else
-        {
-            var list = new List<SelectListItem>();
-            list.AddRange(ClientReferences.Select(x => new SelectListItem(x.Name, x.Id.ToString())));
-            return list;
-        }
+
+        var list = new List<SelectListItem>();
+        list.AddRange(ClientReferences.Select(x => new SelectListItem(x.Name, x.Id.ToString())));
+        return list;
     }
 
-    private List<SelectListItem> GetDefaultList() =>
-        new List<SelectListItem>() { new SelectListItem("keine Daten vorhanden", "0") };
+    private List<SelectListItem> GetDefaultList() => new() { new SelectListItem("keine Daten vorhanden", "0") };
 }

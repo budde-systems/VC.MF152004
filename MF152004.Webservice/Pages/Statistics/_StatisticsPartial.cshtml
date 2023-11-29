@@ -31,7 +31,7 @@ else
                     </div>
 
                     <div style="overflow:auto; min-height:20rem; max-height:20rem">
-                        @if (Model != null && Model.DestinationDayStatistic != null)
+                        @if (Model is {DestinationDayStatistic: not null })
                         {
                             @foreach (var st in Model.DestinationDayStatistic)
                             {
@@ -67,7 +67,7 @@ else
 
                             <tbody>
 
-                                @if (Model != null && Model.DaysDestinationsData != null)
+                                @if (Model is {DaysDestinationsData: not null })
                                 {
                                     foreach (var dayData in Model.DaysDestinationsData)
                                     {
@@ -100,7 +100,7 @@ else
                     </div>
 
                     <div style="overflow:auto; min-height:20rem; max-height:20rem">
-                        @if (Model != null && Model.DestinationWeekStatistic != null)
+                        @if (Model is {DestinationWeekStatistic: not null })
                         {
                             @foreach (var st in Model.DestinationWeekStatistic)
                             {
@@ -136,7 +136,7 @@ else
 
                             <tbody>
 
-                                @if (Model != null && Model.WeekDestinationsData != null)
+                                @if (Model is {WeekDestinationsData: not null })
                                 {
                                     foreach (var dayData in Model.WeekDestinationsData)
                                     {
@@ -169,7 +169,7 @@ else
                     </div>
 
                     <div style="overflow:auto; min-height:20rem; max-height:20rem">
-                        @if (Model != null && Model.DestinationMonthStatistic != null)
+                        @if (Model is {DestinationMonthStatistic: not null })
                         {
                             @foreach (var st in Model.DestinationMonthStatistic)
                             {
@@ -205,7 +205,7 @@ else
 
                             <tbody>
 
-                                @if (Model != null && Model.MonthDestinationsData != null)
+                                @if (Model is {MonthDestinationsData: not null })
                                 {
                                     foreach (var dayData in Model.MonthDestinationsData)
                                     {
@@ -246,7 +246,7 @@ else
                     </div>
 
                     <div style="overflow:auto; min-height:20rem; max-height:20rem">
-                        @if (Model != null && Model.ScannerDayNoReadStatistics != null)
+                        @if (Model is {ScannerDayNoReadStatistics: not null })
                         {
                             @foreach (var st in Model.ScannerDayNoReadStatistics)
                             {
@@ -282,7 +282,7 @@ else
 
                             <tbody>
 
-                                @if (Model != null && Model.DayNoReads != null)
+                                @if (Model is {DayNoReads: not null })
                                 {
                                     foreach (var noRead in Model.DayNoReads)
                                     {
@@ -313,7 +313,7 @@ else
                     </div>
 
                     <div style="overflow:auto; min-height:20rem; max-height:20rem">
-                        @if (Model != null && Model.ScannerWeekNoReadStatistics != null)
+                        @if (Model is {ScannerWeekNoReadStatistics: not null })
                         {
                             @foreach (var st in Model.ScannerWeekNoReadStatistics)
                             {
@@ -349,7 +349,7 @@ else
 
                             <tbody>
 
-                                @if (Model != null && Model.WeekNoReads != null)
+                                @if (Model is {WeekNoReads: not null })
                                 {
                                     foreach (var noRead in Model.WeekNoReads)
                                     {
@@ -380,7 +380,7 @@ else
                     </div>
 
                     <div style="overflow:auto; min-height:20rem; max-height:20rem">
-                        @if (Model != null && Model.ScannerMonthNoReadStatistics != null)
+                        @if (Model is {ScannerMonthNoReadStatistics: not null })
                         {
                             @foreach (var st in Model.ScannerMonthNoReadStatistics)
                             {
@@ -416,7 +416,7 @@ else
 
                             <tbody>
 
-                                @if (Model != null && Model.MonthNoReads != null)
+                                @if (Model is {MonthNoReads: not null })
                                 {
                                     foreach (var noRead in Model.MonthNoReads)
                                     {

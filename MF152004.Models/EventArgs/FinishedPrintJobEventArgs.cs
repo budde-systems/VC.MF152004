@@ -5,5 +5,6 @@ namespace MF152004.Models.EventArgs;
 public class FinishedPrintJobEventArgs
 {
     public PrintJob Job { get; set; }
+
     public string BasePositionBrandPrinter { get; set; }
 }

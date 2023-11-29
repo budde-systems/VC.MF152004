@@ -16,8 +16,7 @@ public class DestinationService
         _logger = logger;
     }
 
-    public void SetSectors(List<Sector> sectors) =>
-        _sectors = sectors;
+    public void SetSectors(List<Sector> sectors) => _sectors = sectors;
 
     /// <summary>
     /// This will only work if sectors is set
@@ -59,7 +58,7 @@ public class DestinationService
 
     internal IEnumerable<Destination?>? GetSectorsDestinations() =>
         GetSectorsRoutePositions()?
-            .Where(_ => _ != null && _.Destination != null)
+            .Where(_ => _ is {Destination: not null})
             .Select(_ => _?.Destination);
 
 
@@ -74,7 +73,7 @@ public class DestinationService
             foreach (var gate in docked.Gates)
             {
                 var destination = destinations
-                    .FirstOrDefault(_ => _ != null && _.UI_Id != null && string
+                    .FirstOrDefault(_ => _ is {UI_Id: not null} && string
                         .Concat(_.UI_Id.Where(char.IsDigit)) == gate);
 
                 if (destination != null)
@@ -98,7 +97,7 @@ public class DestinationService
             foreach (var loadFactor in e.LoadFactors)
             {
                 var destination = destinations
-                    .FirstOrDefault(_ => _ != null && _.UI_Id != null && string
+                    .FirstOrDefault(_ => _ is {UI_Id: not null} && string
                         .Concat(_.UI_Id.Where(char.IsDigit)) == loadFactor.Gate);
 
                 if (destination != null)

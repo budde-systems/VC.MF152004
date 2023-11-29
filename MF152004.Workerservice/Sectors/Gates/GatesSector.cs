@@ -1,5 +1,4 @@
 ﻿using BlueApps.MaterialFlow.Common.Connection.Client;
-using BlueApps.MaterialFlow.Common.Machines.BaseMachines;
 using BlueApps.MaterialFlow.Common.Models;
 using BlueApps.MaterialFlow.Common.Models.EventArgs;
 using BlueApps.MaterialFlow.Common.Sectors;
@@ -17,22 +16,22 @@ public abstract class GatesSector : Sector
     protected readonly MessageDistributor _messageDistributor;
     protected readonly PLC152004_PacketHelper _packetHelper = new();
 
-    public GatesSector(IClient client, string baseposition, string name, ContextService contextService,
-        MessageDistributor messageDistributor) : base(client, name, baseposition)
+    protected GatesSector(IClient client, string basePosition, string name, ContextService contextService,
+        MessageDistributor messageDistributor) : base(client, name, basePosition)
     {
         _contextService = contextService;
         _messageDistributor = messageDistributor;
-        AddRelatedErrorcodes();
+        AddRelatedErrorCodes();
     }
 
-    public override void AddRelatedErrorcodes()
+    public override void AddRelatedErrorCodes()
     {
-        var errors = new List<Errorcode>
+        var errors = new List<ErrorCode>
         {
-            Errorcode.EmergencyHold_TelescopicConveyor //TODO: Anpassen, ergänzen
+            ErrorCode.EmergencyHold_TelescopicConveyor //TODO: Anpassen, ergänzen
         };
 
-        RelatedErrorcodes.AddRange(errors.Cast<short>());
+        RelatedErrorCodes.AddRange(errors.Cast<short>());
     }
 
     public override void Barcode_Scanned(object? sender, BarcodeScanEventArgs scan)
@@ -84,7 +83,7 @@ public abstract class GatesSector : Sector
 
         if (ValidShipmentId(shipmentId, scan.Barcodes?.ToArray()))
         {
-            string[] destinationReferences = _contextService.GetDestinations(shipmentId);
+            var destinationReferences = _contextService.GetDestinations(shipmentId);
 
             foreach (var diverter in Diverters)
             {
@@ -123,9 +122,9 @@ public abstract class GatesSector : Sector
         if (!_contextService.IsShipped(shipmentId))
         {
             var msg = $"The package with ID {shipmentId} has the wrong status";
-            var errorcode = "1007";
+            var errorCode = "1007";
 
-            _logger.LogWarning(errorcode + msg + $" in sector {this} ({toward.RoutePosition.Name})");
+            _logger.LogWarning(errorCode + msg + $" in sector {this} ({toward.RoutePosition.Name})");
             _contextService.SetMessage(msg, shipmentId);
             _contextService.SetTarget(shipmentId, CommonData.FaultIsland);
             return false;
@@ -158,7 +157,6 @@ public abstract class GatesSector : Sector
         return false;
     }
             
-
     private bool TowardIsActive(Toward toward)
     {
         if (!toward.RoutePosition.Destination.Active)
@@ -169,8 +167,7 @@ public abstract class GatesSector : Sector
 
         return true;
     }
-
-
+    
     private void ShipmentErrorHandling(int shipmentId)
     {
         var shipment = _contextService.GetShipment(shipmentId);
@@ -187,6 +184,7 @@ public abstract class GatesSector : Sector
         {
             _logger.LogWarning($"Barcodes is null on {this}");
         }
+    
         else if (scan.Barcodes.Contains(CommonData.NoRead))
         {
             NoRead noRead = new()
@@ -201,7 +199,7 @@ public abstract class GatesSector : Sector
         }
     }
 
-    public override void UnsubscripedPacket(object? sender, UnsubscribedPacketEventArgs unsubscribedPacket)
+    public override void UnsubscribedPacket(object? sender, UnsubscribedPacketEventArgs unsubscribedPacket)
     {
         if (TrackedPacketExists(unsubscribedPacket.PacketTracing))
         {
@@ -225,7 +223,7 @@ public abstract class GatesSector : Sector
             _logger.LogWarning($"The packet tracing ID {unsubscribedPacket.PacketTracing} could not be found in sector {this}");
     }
 
-    protected override void ErrorHandling(short errorcode)
+    protected override void ErrorHandling(short errorCode)
     {
 
     }

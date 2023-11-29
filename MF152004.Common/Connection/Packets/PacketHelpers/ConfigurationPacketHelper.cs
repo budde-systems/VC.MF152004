@@ -29,7 +29,7 @@ public class ConfigurationPacketHelper : MessagePacketHelper
         if (ConfigurationPacket == null) 
             throw new InvalidOperationException();
 
-        var packet = new MessagePacket()
+        var packet = new MessagePacket
         {
             Topic = OutTopic,
             Data = JsonSerializer.Serialize(ConfigurationPacket)

@@ -20,11 +20,8 @@ public class Program
             var host = Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services)=>
                 {
-                    services.Configure<BrandPrinterSettingsFront>(hostContext.Configuration
-                        .GetSection("brand_printer_config_front"));
-                    services.Configure<BrandPrinterSettingsBack>(hostContext.Configuration
-                        .GetSection("brand_printer_config_back"));
-
+                    services.Configure<BrandPrinterSettingsFront>(hostContext.Configuration.GetSection("brand_printer_config_front"));
+                    services.Configure<BrandPrinterSettingsBack>(hostContext.Configuration.GetSection("brand_printer_config_back"));
                     services.AddWindowsService(options => options.ServiceName = "BlueApps_MaterialFlow");                        
                     services.AddScoped<MqttBroker>();
                     services.AddScoped<DestinationService>();

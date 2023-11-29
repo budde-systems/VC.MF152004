@@ -22,7 +22,7 @@ public class GeneralPacketService
         _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         _messageDistributorService.GeneralPacketReceived += OnGeneralPacketReceive;
-        _logger.LogInformation("The general packet service has been startet successfully");
+        _logger.LogInformation("The general packet service has been started successfully");
 
         RemoveOldEntries();
     }

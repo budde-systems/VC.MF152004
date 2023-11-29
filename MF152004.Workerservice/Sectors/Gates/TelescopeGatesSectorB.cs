@@ -13,8 +13,8 @@ public class TelescopeGatesSectorB : GatesSector
 {
     private const string NAME = "Telescope Sector 2";
 
-    public TelescopeGatesSectorB(IClient client, string baseposition, ContextService contextService, 
-        MessageDistributor messageDistributor) : base(client, baseposition, NAME, contextService, messageDistributor)
+    public TelescopeGatesSectorB(IClient client, string basePosition, ContextService contextService, 
+        MessageDistributor messageDistributor) : base(client, basePosition, NAME, contextService, messageDistributor)
     {
         BarcodeScanner = CreateScanner();
         Diverters = CreateDiverters();
@@ -41,25 +41,23 @@ public class TelescopeGatesSectorB : GatesSector
 
         RoutePosition routePosition = new();
         routePosition.SetRoutePosition(new Destination { Name = "Tor 7" });
-        flowSort.CreateTowards(new[]
-        {
-            new Toward()
+        
+        flowSort.CreateTowards(
+            new Toward
             {
                 DriveDirection = Direction.Left,
                 RoutePosition = routePosition,
             },
-
-            new Toward()
+            new Toward
             {
                 DriveDirection = Direction.StraightAhead,
                 FaultDirection = true,
-                RoutePosition = new RoutePosition()
+                RoutePosition = new RoutePosition
                 {
                     Id = "1",
                     Name = DefaultRoute.ToGates.ToString(),
                 }
-            }
-        });
+            });
 
         flowSort.SetRelatedScanner(BarcodeScanner);
 
@@ -77,25 +75,23 @@ public class TelescopeGatesSectorB : GatesSector
 
         RoutePosition routePosition = new();
         routePosition.SetRoutePosition(new Destination { Name = "Tor 8" });
-        flowSort.CreateTowards(new[]
-        {
-            new Toward()
+
+        flowSort.CreateTowards(
+            new Toward
             {
                 DriveDirection = Direction.Left,
                 RoutePosition = routePosition,
-            },
-
-            new Toward()
+            }, 
+            new Toward
             {
                 DriveDirection = Direction.StraightAhead,
                 FaultDirection = true,
-                RoutePosition = new RoutePosition()
+                RoutePosition = new RoutePosition
                 {
                     Id = "2",
                     Name = DefaultRoute.ToGates.ToString(),
                 }
-            }
-        });
+            });
 
         flowSort.SetRelatedScanner(BarcodeScanner);
 
@@ -113,25 +109,23 @@ public class TelescopeGatesSectorB : GatesSector
 
         RoutePosition routePosition = new();
         routePosition.SetRoutePosition(new Destination { Name = "Tor 9" });
-        flowSort.CreateTowards(new[]
-        {
-            new Toward()
+
+        flowSort.CreateTowards(
+            new Toward
             {
                 DriveDirection = Direction.Left,
                 RoutePosition = routePosition,
             },
-
-            new Toward()
+            new Toward
             {
                 DriveDirection = Direction.StraightAhead,
                 FaultDirection = true,
-                RoutePosition = new RoutePosition()
+                RoutePosition = new RoutePosition
                 {
                     Id = "3",
                     Name = DefaultRoute.ToGates.ToString(),
                 }
-            }
-        });
+            });
 
         flowSort.SetRelatedScanner(BarcodeScanner);
 
@@ -149,31 +143,28 @@ public class TelescopeGatesSectorB : GatesSector
 
         RoutePosition routePosition = new();
         routePosition.SetRoutePosition(new Destination { Name = "Tor 10" });
-        flowSort.CreateTowards(new[]
-        {
-            new Toward()
+
+        flowSort.CreateTowards(
+            new Toward
             {
                 DriveDirection = Direction.Left,
                 RoutePosition = routePosition,
             },
-
-            new Toward()
+            new Toward
             {
                 DriveDirection = Direction.StraightAhead,
                 FaultDirection = true,
-                RoutePosition = new RoutePosition()
+                RoutePosition = new RoutePosition
                 {
                     Id = "4",
                     Name = DefaultRoute.ToGates.ToString(),
                 }
-            }
-        });
+            });
 
         flowSort.SetRelatedScanner(BarcodeScanner);
 
         return flowSort;
     }
 
-    public override Scanner CreateScanner() =>
-        new("M7.1.208", "S7.1.209");
+    public override Scanner CreateScanner() => new("M7.1.208", "S7.1.209");
 }

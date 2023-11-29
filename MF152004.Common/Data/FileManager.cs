@@ -2,9 +2,9 @@
 
 public static class FileManager
 {
-    private static string _companyFolder = "C:\\BlueApplications";
-    private static string _applicationFolder = "\\MF152004";
-    private static string _mainFolder = "\\Files";
+    private static readonly string _companyFolder = "C:\\BlueApplications";
+    private static readonly string _applicationFolder = "\\MF152004";
+    private static readonly string _mainFolder = "\\Files";
 
     static FileManager() 
     {
@@ -27,8 +27,8 @@ public static class FileManager
     {
         var path = _companyFolder + _applicationFolder + _mainFolder;
         var filePath = Path.Combine(path, shipmentId.ToString() + ".zpl");
-            
-        using var fileStream = File.Create(filePath);
+
+        await using var fileStream = File.Create(filePath);
         await file.CopyToAsync(fileStream);
     }
 
@@ -47,12 +47,9 @@ public static class FileManager
     public static byte[] GetZplFile(int shipmentId) //TODO: Dateien nach einem best. t löschen
     {
         var path = _companyFolder + _applicationFolder + _mainFolder;
-        var filePath = Path.Combine(path, shipmentId.ToString() + ".zpl");
+        var filePath = Path.Combine(path, $"{shipmentId}.zpl");
 
-        if (File.Exists(filePath))
-            return File.ReadAllBytes(filePath);
-        else
-            return Array.Empty<byte>();
+        return File.Exists(filePath) ? File.ReadAllBytes(filePath) : Array.Empty<byte>();
     }
 
     /// <summary>
@@ -71,7 +68,7 @@ public static class FileManager
             var files = Directory.EnumerateFiles(path)
                 .Where(file => File.GetCreationTime(file) <= DateTime.Now.AddDays(-daysOlderThan));
 
-            if (shipmentIds != null && shipmentIds.Length > 0)
+            if (shipmentIds is {Length: > 0})
                 files = files
                     .Where(file => shipmentIds != null && shipmentIds.Contains(Path.GetFileNameWithoutExtension(file)));
 

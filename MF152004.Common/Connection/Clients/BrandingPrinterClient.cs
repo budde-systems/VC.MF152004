@@ -7,11 +7,13 @@ namespace MF152004.Common.Connection.Clients;
 
 public class BrandingPrinterClient
 {
-    public List<Brandprinter> Brandprinters { get; } = new();
+    public List<BrandPrinter> BrandPrinters { get; } = new();
         
     private readonly ILogger<BrandingPrinterClient> _logger;
     private ReaPi.ResponseHandle _responseHandle;
 
+    // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
+    // These local references keep the delegates from being garbage collected
     private readonly ReaPi.connectionCallbackPtr _connectionCallback;
     private readonly ReaPi.eventCallbackPtr _eventCallback;
     private readonly ReaPi.responseCallbackPtr _responseCallback;
@@ -29,188 +31,175 @@ public class BrandingPrinterClient
         ReaPi.RegisterConnectionCallback(_connectionCallback, 0);
     }
 
-    private void OnConnectionCallback(ReaPi.ConnectionIdentifier connectionid, ReaPi.EConnState state, ReaPi.EErrorCode errorcode, nint context)
+    private void OnConnectionCallback(ReaPi.ConnectionIdentifier connectionId, ReaPi.EConnState state, ReaPi.EErrorCode errorCode, nint context)
     {
-        if (errorcode != ReaPi.EErrorCode.OK)
-            _logger.LogWarning($"Received an errorcode {errorcode} in connection callback");
+        if (errorCode != ReaPi.EErrorCode.OK)
+            _logger.LogWarning("Received an errorCode {errorCode} in connection callback", errorCode);
             
-        if (connectionid > 0 && state == ReaPi.EConnState.CONNECT)
+        if (connectionId > 0 && state == ReaPi.EConnState.CONNECT)
         {
-            ReaPi.RegisterEventCallback(connectionid, _eventCallback, 0);
-            ReaPi.RegisterResponseCallback(connectionid, _responseCallback, 0);
+            ReaPi.RegisterEventCallback(connectionId, _eventCallback, 0);
+            ReaPi.RegisterResponseCallback(connectionId, _responseCallback, 0);
 
-            ReaPi.GetNetworkConfig(connectionid);
+            ReaPi.GetNetworkConfig(connectionId);
         }
         else if (state == ReaPi.EConnState.DISCONNECT)
         {
-            DisconnectBrandprinter(connectionid);
+            DisconnectBrandPrinter(connectionId);
         }
         else if (state == ReaPi.EConnState.CONNECTIONERROR)
         {
-            DisconnectBrandprinter(connectionid, true);
+            DisconnectBrandPrinter(connectionId, true);
         }
     }
 
-    private void DisconnectBrandprinter(ReaPi.ConnectionIdentifier connectionid, bool reconnect = false)
+    private void DisconnectBrandPrinter(ReaPi.ConnectionIdentifier connectionId, bool reconnect = false)
     {
-        ReaPi.RegisterEventCallback(connectionid, null, 0);
-        ReaPi.RegisterResponseCallback(connectionid, null, 0);
+        ReaPi.RegisterEventCallback(connectionId, null, 0);
+        ReaPi.RegisterResponseCallback(connectionId, null, 0);
 
-        var brandprinter = Brandprinters
-            .FirstOrDefault(b => b.ConnectionId == connectionid);
+        var brandPrinter = BrandPrinters
+            .FirstOrDefault(b => b.ConnectionId == connectionId);
 
-        if (brandprinter != null)
+        if (brandPrinter != null)
         {
-            brandprinter.IsConnected = false;
-            brandprinter.ConnectionId = ReaPi.ConnectionIdentifier.UNKNOWN;
+            brandPrinter.IsConnected = false;
+            brandPrinter.ConnectionId = ReaPi.ConnectionIdentifier.UNKNOWN;
 
             if (reconnect)
-                ReconnectPrinter(brandprinter);
+                ReconnectPrinter(brandPrinter);
         }
     }
 
-    private void SetBrandprinter(ReaPi.ConnectionIdentifier connectionid, string ipAddress)
+    private void SetBrandPrinter(ReaPi.ConnectionIdentifier connectionId, string ipAddress)
     {
-        var brandprinter = Brandprinters
+        var brandPrinter = BrandPrinters
             .FirstOrDefault(b => b.Settings.IPAddress == ipAddress);
 
-        if (brandprinter != null)
+        if (brandPrinter != null)
         {
-            brandprinter.ConnectionId = connectionid;
-            brandprinter.IsConnected = true;
+            brandPrinter.ConnectionId = connectionId;
+            brandPrinter.IsConnected = true;
                 
-
-            ReaPi.SubscribeJobSet(connectionid, brandprinter.JobId); //this is calling the eventCallback/jobset 
+            ReaPi.SubscribeJobSet(connectionId, brandPrinter.JobId); //this is calling the eventCallback/jobset 
         }
     }
 
-    private void OnResponseCallback(ReaPi.ResponseHandle response, ReaPi.ConnectionIdentifier connection, ReaPi.ECommandId commandid, ReaPi.EErrorCode errorcode, nint context)
+    private void OnResponseCallback(ReaPi.ResponseHandle response, ReaPi.ConnectionIdentifier connectionId, ReaPi.ECommandId commandId, ReaPi.EErrorCode errorCode, nint context)
     {
         _responseHandle = response;
 
-        if (errorcode != ReaPi.EErrorCode.OK)
-            _logger.LogWarning($"Responsed an error on {this}. Error: {errorcode}");
+        if (errorCode != ReaPi.EErrorCode.OK)
+            _logger.LogWarning($"Error response received by {this}. Error: {errorCode}");
 
-        if (commandid == ReaPi.ECommandId.CMD_GETNETWORKCONFIG)
+        if (commandId == ReaPi.ECommandId.CMD_GETNETWORKCONFIG)
         {
             var ipAddress = ReaPi.GetIPAddress(response, out var error);
                 
-            if (error == 0 && !string.IsNullOrEmpty(ipAddress))
-            {
-                SetBrandprinter(connection, ipAddress); 
-            }
+            if (error == 0 && !string.IsNullOrEmpty(ipAddress)) 
+                SetBrandPrinter(connectionId, ipAddress);
         }
     }
 
-    private void OnEventCallback(ReaPi.ResponseHandle response, ReaPi.ConnectionIdentifier connection, ReaPi.EEventId eventid, nint context)
+    private void OnEventCallback(ReaPi.ResponseHandle response, ReaPi.ConnectionIdentifier connection, ReaPi.EEventId eventId, nint context)
     {
         _responseHandle = response;
 
-        var brandprinter = Brandprinters.FirstOrDefault(b => b.ConnectionId == connection);
+        var brandPrinter = BrandPrinters.FirstOrDefault(b => b.ConnectionId == connection);
 
-        if (brandprinter is null) 
+        if (brandPrinter is null) 
         {
-            _logger.LogWarning($"An event has been received with an unknown connection identifier {connection}." +
-                               $" Event: {eventid}");
+            _logger.LogWarning($"An event has been received with an unknown connection identifier {connection}. Event: {eventId}");
             return;
         }
 
-        switch (eventid)
+        switch (eventId)
         {
             case ReaPi.EEventId.JOBSET:
 
                 var filename = ReaPi.GetJobFilename(_responseHandle, out var error);
 
-                _logger.LogWarning($"Errorcode at filename is {error}");
+                _logger.LogWarning($"ErrorCode at filename is {error}");
 
-                if (string.IsNullOrEmpty(filename) || filename != brandprinter.Settings.Configuration.Job)
+                if (string.IsNullOrEmpty(filename) || filename != brandPrinter.Settings.Configuration.Job)
                 {
-                    ReaPi.SetJob(connection, brandprinter.JobId, brandprinter.Settings.Configuration.Job);
+                    ReaPi.SetJob(connection, brandPrinter.JobId, brandPrinter.Settings.Configuration.Job);
                 }
-                else //else job is already available, jobevents will be subscribed
+                else //else job is already available, job events will be subscribed
                 {
-                    _logger.LogInformation($"A job {brandprinter.Settings.Configuration.Job} has been " +
-                                           $"set for {brandprinter}");
+                    _logger.LogInformation($"A job {brandPrinter.Settings.Configuration.Job} has been set for {brandPrinter}");
 
-                    ReaPi.SubscribeJobStarted(connection, brandprinter.JobId); //in event jobset verschieben
-                    ReaPi.SubscribeJobStopped(connection, brandprinter.JobId);
-                    ReaPi.SubscribeReadyForNextContent(connection, brandprinter.JobId, brandprinter.Settings.Configuration.Group);
-                    ReaPi.SubscribePrintStart(connection, brandprinter.JobId);
-                    ReaPi.SubscribePrintEnd(connection, brandprinter.JobId);
-                    ReaPi.SubscribePrintAborted(connection, brandprinter.JobId);
-                    ReaPi.StartJob(connection, brandprinter.JobId);
+                    ReaPi.SubscribeJobStarted(connection, brandPrinter.JobId); //in event jobset verschieben
+                    ReaPi.SubscribeJobStopped(connection, brandPrinter.JobId);
+                    ReaPi.SubscribeReadyForNextContent(connection, brandPrinter.JobId, brandPrinter.Settings.Configuration.Group);
+                    ReaPi.SubscribePrintStart(connection, brandPrinter.JobId);
+                    ReaPi.SubscribePrintEnd(connection, brandPrinter.JobId);
+                    ReaPi.SubscribePrintAborted(connection, brandPrinter.JobId);
+                    ReaPi.StartJob(connection, brandPrinter.JobId);
                 }
 
                 break;
 
             case ReaPi.EEventId.PRINTSTART:
 
-                _logger.LogInformation($"{brandprinter}: print started for shipment: {brandprinter.CurrentJob.ShipmentId} " +
-                                       $"with reference {brandprinter.CurrentJob.ReferenceId}");
-
+                _logger.LogInformation($"{brandPrinter}: print started for shipment: {brandPrinter.CurrentJob.ShipmentId} with reference {brandPrinter.CurrentJob.ReferenceId}");
                 break;
 
             case ReaPi.EEventId.PRINTEND:
 
                 EndOfPrint?.Invoke(this, new()
                 {
-                    Job = brandprinter.CurrentJob,
-                    BasePositionBrandPrinter = brandprinter.BasePosition
+                    Job = brandPrinter.CurrentJob,
+                    BasePositionBrandPrinter = brandPrinter.BasePosition
                 });
 
                 break;
 
             case ReaPi.EEventId.PRINTABORTED:
-
-                _logger.LogInformation($"{brandprinter}: Print has been aborted");
-
-
+                
+                _logger.LogInformation($"{brandPrinter}: Print has been aborted");
                 break;
 
             case ReaPi.EEventId.JOBSTARTED:
 
-                brandprinter.JobIsStopped = false;
-                _logger.LogInformation($"{brandprinter}: Job has been started");
+                brandPrinter.JobIsStopped = false;
+                _logger.LogInformation($"{brandPrinter}: Job has been started");
 
                 break;
 
             case ReaPi.EEventId.JOBSTOPPED:
 
-                brandprinter.JobIsStopped = true;
-                _logger.LogInformation($"{brandprinter}: Job has been stopped. All printjobs will be removed.");
-                brandprinter.ClearJobs();
+                brandPrinter.JobIsStopped = true;
+                _logger.LogInformation($"{brandPrinter}: Job has been stopped. All print jobs will be removed.");
+                brandPrinter.ClearJobs();
 
                 break;
 
             case ReaPi.EEventId.READYFORNEXTCONTENT:
-                brandprinter.ReadyForNextContent = true;
+                brandPrinter.ReadyForNextContent = true;
                 break;
         }
     }
 
-    private async void ReconnectPrinter(Brandprinter brandprinter)
+    private async void ReconnectPrinter(BrandPrinter brandPrinter)
     {
         await Task.Delay(TimeSpan.FromSeconds(5));
 
-        ConnectBrandprinter(brandprinter);
+        ConnectBrandPrinter(brandPrinter);
     }
 
-    public void ConnectBrandprinter(Brandprinter brandprinter) //settings are already checked in the printerobject
+    public void ConnectBrandPrinter(BrandPrinter? brandPrinter) //settings are already checked in the printer object
     {
-        if (brandprinter is null)
+        if (brandPrinter is null) 
             return;
 
-        if (!Brandprinters.Any(b => b.BasePosition == brandprinter.BasePosition))
-            Brandprinters.Add(brandprinter);
+        if (BrandPrinters.All(b => b.BasePosition != brandPrinter.BasePosition))
+            BrandPrinters.Add(brandPrinter);
 
-        if (!brandprinter.ErrorInSettings)
-        {
-            ReaPi.Connect($"TCP://{brandprinter.Settings.IPAddress}:{brandprinter.Settings.Port}");
-        }
+        if (!brandPrinter.ErrorInSettings)
+            ReaPi.Connect($"TCP://{brandPrinter.Settings.IPAddress}:{brandPrinter.Settings.Port}");
         else
-        {
-            _logger.LogWarning($"Brandprinter {brandprinter} will not be connected. Wrong settings");
-        }
+            _logger.LogWarning($"BrandPrinter {brandPrinter} will not be connected. Wrong settings");
     }
 
     /// <summary>
@@ -225,12 +214,12 @@ public class BrandingPrinterClient
         if (scannerBasePosition is null)
             return false;
 
-        var brandprinter = Brandprinters
+        var brandPrinter = BrandPrinters
             .FirstOrDefault(b => b.RelatedScanner != null && b.RelatedScanner.BasePosition == scannerBasePosition);
 
-        if (BrandPrinterIsReady(brandprinter))
+        if (BrandPrinterIsReady(brandPrinter))
         {
-            brandprinter?.Print(referenceId, shipmentId);
+            brandPrinter?.Print(referenceId, shipmentId);
             return true;
         }
 
@@ -248,23 +237,23 @@ public class BrandingPrinterClient
         if (scannerBasePosition is null)
             return false;
 
-        var brandprinter = Brandprinters
+        var brandPrinter = BrandPrinters
             .FirstOrDefault(b => b.RelatedScanner != null && b.RelatedScanner.BasePosition == scannerBasePosition);
 
-        if (BrandPrinterIsReady(brandprinter))
+        if (BrandPrinterIsReady(brandPrinter))
         {
-            brandprinter?.TransparentPrint(shipmentId);
+            brandPrinter?.TransparentPrint(shipmentId);
             return true;
         }
 
         return false;
     }
 
-    private bool BrandPrinterIsReady(Brandprinter? brandPrinter)
+    private bool BrandPrinterIsReady(BrandPrinter? brandPrinter)
     {
         if (brandPrinter is null)
         {
-            _logger.LogError($"No brandprinter could be found");
+            _logger.LogError("No brand printer could be found");
             return false;
         }
 
@@ -276,9 +265,7 @@ public class BrandingPrinterClient
 
         if (brandPrinter.JobIsStopped)
         {
-            _logger.LogWarning($"{brandPrinter}: print cannot be executed. " +
-                               $"The printer has the status: JOB-STOPPED");
-
+            _logger.LogWarning($"{brandPrinter}: print cannot be executed. The printer has the status: JOB-STOPPED");
             return false;
         }
 
@@ -289,13 +276,10 @@ public class BrandingPrinterClient
     {
         ReaPi.RegisterConnectionCallback(null, 0);
 
-        if (Brandprinters != null)
+        foreach (var printer in BrandPrinters)
         {
-            foreach (var printer in Brandprinters)
-            {
-                ReaPi.RegisterEventCallback(printer.ConnectionId, null, 0);
-                ReaPi.RegisterResponseCallback(printer.ConnectionId, null, 0);
-            } 
+            ReaPi.RegisterEventCallback(printer.ConnectionId, null, 0);
+            ReaPi.RegisterResponseCallback(printer.ConnectionId, null, 0);
         }
     }
 }

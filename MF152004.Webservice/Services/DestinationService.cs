@@ -54,32 +54,10 @@ public class DestinationService
 
     private Destination UpdateCache(int id, Destination destination)
     {
-        Destination? old;
-
-        if (_cachedDestinations != null)
-        {
-            if (_cachedDestinations.TryGetValue(id, out old))
-            {
-                if (_cachedDestinations.TryUpdate(id, destination, old))
-                {
-                    return destination;
-                }
-            }
-        }
-
-        return null!;
+        return _cachedDestinations != null && _cachedDestinations.TryGetValue(id, out var old) && _cachedDestinations.TryUpdate(id, destination, old) ? destination : null!;
     }
 
-    public List<Destination> Destinations
-    {
-        get
-        {
-            if (_cachedDestinations == null)
-                return new();
-            else
-                return _cachedDestinations.Values.ToList();
-        }
-    }
+    public List<Destination> Destinations => _cachedDestinations == null ? new() : _cachedDestinations.Values.ToList();
 
     public async Task<Destination?> GetDestinationAsync(int? id)
     {
@@ -107,11 +85,11 @@ public class DestinationService
     }
 
     public async Task<Destination> GetFaultDestinationAsync() =>
-        (await _context.Destinations
-            .SingleOrDefaultAsync(_ => _.Name == "Fehlerinsel")) ?? new Destination() { Name = "Fehlerinsel" };
+        await _context.Destinations
+            .SingleOrDefaultAsync(_ => _.Name == "Fehlerinsel") ?? new Destination { Name = "Fehlerinsel" };
         
     public Destination GetFaultDestination() =>
-        Destinations.SingleOrDefault(_ => _.Name == "Fehlerinsel") ?? new Destination() { Name = "Fehlerinsel" };
+        Destinations.SingleOrDefault(_ => _.Name == "Fehlerinsel") ?? new Destination { Name = "Fehlerinsel" };
 
 
     /// <summary>
@@ -139,9 +117,9 @@ public class DestinationService
 
         var destinationNames = destinations
             .Where(d => d.Carriers
-                .Any(c => c.Name.ToLower() == carrier.ToLower() && c.Active) && d.Countries
-                .Any(c => c.Name.ToLower() == country.ToLower() && c.Active) && d.ClientReferences
-                .Any(c => c.Name.ToLower() == clientId.ToLower() && c.Active))?.Select(_ => _.Name);
+                .Any(c => string.Equals(c.Name, carrier, StringComparison.CurrentCultureIgnoreCase) && c.Active) && d.Countries
+                .Any(c => string.Equals(c.Name, country, StringComparison.CurrentCultureIgnoreCase) && c.Active) && d.ClientReferences
+                .Any(c => string.Equals(c.Name, clientId, StringComparison.CurrentCultureIgnoreCase) && c.Active))?.Select(_ => _.Name);
 
         return destinationNames != null ? string.Join(";", destinationNames) : GetFaultDestination()?.Name;
     }

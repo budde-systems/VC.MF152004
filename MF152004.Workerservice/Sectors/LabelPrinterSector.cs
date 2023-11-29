@@ -35,14 +35,14 @@ public class LabelPrinterSector : Sector
 
     public LabelPrinterSector(
         IClient client, 
-        string baseposition, 
+        string basePosition, 
         ContextService contextService, 
         MessageDistributor messageDistributor,
-        string? hubUrl) : base(client, NAME, baseposition)
+        string? hubUrl) : base(client, NAME, basePosition)
     {
         _contextService = contextService;
         _messageDistributor = messageDistributor;
-        AddRelatedErrorcodes();
+        AddRelatedErrorCodes();
         BarcodeScanners = new();
         BarcodeScanners.AddRange(CreateScanners());
 
@@ -79,17 +79,17 @@ public class LabelPrinterSector : Sector
         }
     }
 
-    public override void AddRelatedErrorcodes()
+    public override void AddRelatedErrorCodes()
     {
-        var errors = new List<Errorcode>
+        var errors = new List<ErrorCode>
         {
-            Errorcode.EmergencyHold_Labelprinter1,
-            Errorcode.EmergencyHold_Labelprinter2,
-            Errorcode.NoLabel1,
-            Errorcode.NoLabel2, //TODO: weitere ergänzen
+            ErrorCode.EmergencyHold_Labelprinter1,
+            ErrorCode.EmergencyHold_Labelprinter2,
+            ErrorCode.NoLabel1,
+            ErrorCode.NoLabel2, //TODO: weitere ergänzen
         };
 
-        RelatedErrorcodes.AddRange(errors.Cast<short>());
+        RelatedErrorCodes.AddRange(errors.Cast<short>());
     }
 
     public void AddLabelPrinters(LabelPrinter labelPrinter)
@@ -257,8 +257,8 @@ public class LabelPrinterSector : Sector
                 msg += " The package will continue";
             }
 
-            var errorcode = "1007";
-            _contextService.SetMessage(errorcode + msg, shipmentId);
+            var errorCode = "1007";
+            _contextService.SetMessage(errorCode + msg, shipmentId);
             _contextService.SetTarget(shipmentId, CommonData.FaultIsland);
 
             _contextService.LabelPrintedAt(shipmentId, true);
@@ -340,12 +340,12 @@ public class LabelPrinterSector : Sector
         return new() { scanner2 };
     }
 
-    public override void UnsubscripedPacket(object? sender, UnsubscribedPacketEventArgs unsubscribedPacket)
+    public override void UnsubscribedPacket(object? sender, UnsubscribedPacketEventArgs unsubscribedPacket)
     {
 
     }
 
-    protected override void ErrorHandling(short errorcode)
+    protected override void ErrorHandling(short errorCode)
     {
 
     }

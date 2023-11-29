@@ -116,18 +116,18 @@ public class ConfigurationService
 
         var existingSealerRouteConfigs = await _context.SealerRoutesConfigs.ToListAsync();
 
-        foreach (var incommingSealerRoute in sealerRouteConfigs)
+        foreach (var incomingSealerRoute in sealerRouteConfigs)
         {
             var existsSealerRouteConfig = existingSealerRouteConfigs
-                .FirstOrDefault(_ => _.BoxBarcodeReference == incommingSealerRoute.BoxBarcodeReference);
+                .FirstOrDefault(_ => _.BoxBarcodeReference == incomingSealerRoute.BoxBarcodeReference);
 
             if (existsSealerRouteConfig is null)
             {
-                await _context.SealerRoutesConfigs.AddAsync(incommingSealerRoute);
+                await _context.SealerRoutesConfigs.AddAsync(incomingSealerRoute);
             }
             else
             {
-                existsSealerRouteConfig.SealerRouteReference = incommingSealerRoute.SealerRouteReference;
+                existsSealerRouteConfig.SealerRouteReference = incomingSealerRoute.SealerRouteReference;
                 _context.SealerRoutesConfigs.Update(existsSealerRouteConfig);
             }
         }
@@ -149,35 +149,35 @@ public class ConfigurationService
         if (brandingConfigs is null || brandingConfigs.Count == 0)
             return;
 
-        var exisitingBrandingCongigs = await _context.BradingPdfCongigs.ToListAsync();
+        var existingBrandingConfigs = await _context.BradingPdfCongigs.ToListAsync();
 
-        foreach (var incommingBrandingConfig in brandingConfigs)
+        foreach (var incomingBrandingConfig in brandingConfigs)
         {
-            var existsBrandingConfig = exisitingBrandingCongigs
-                .FirstOrDefault(_ => _.BoxBarcodeReference == incommingBrandingConfig.BoxBarcodeReference && 
-                                     _.ClientReference == incommingBrandingConfig.ClientReference);
+            var existsBrandingConfig = existingBrandingConfigs
+                .FirstOrDefault(_ => _.BoxBarcodeReference == incomingBrandingConfig.BoxBarcodeReference && 
+                                     _.ClientReference == incomingBrandingConfig.ClientReference);
 
             if (existsBrandingConfig is null)
             {
-                await _context.BradingPdfCongigs.AddAsync(incommingBrandingConfig);
+                await _context.BradingPdfCongigs.AddAsync(incomingBrandingConfig);
             }
             else
             {
-                existsBrandingConfig.BrandingPdfReference = incommingBrandingConfig.BrandingPdfReference;
+                existsBrandingConfig.BrandingPdfReference = incomingBrandingConfig.BrandingPdfReference;
                 _context.BradingPdfCongigs.Update(existsBrandingConfig);
             }
         }
 
         await _context.SaveChangesAsync();
-        var newListOfExistingBradningConfigs = await _context.BradingPdfCongigs.ToListAsync();
+        var newListOfExistingBrandingConfigs = await _context.BradingPdfCongigs.ToListAsync();
 
-        newListOfExistingBradningConfigs.ForEach(_ => _.ConfigurationInUse = false);
-        newListOfExistingBradningConfigs
+        newListOfExistingBrandingConfigs.ForEach(_ => _.ConfigurationInUse = false);
+        newListOfExistingBrandingConfigs
             .Where(x => brandingConfigs.Any(y => y.BoxBarcodeReference == x.BoxBarcodeReference && y.ClientReference == x.ClientReference))
             .ToList()
             .ForEach(_ => _.ConfigurationInUse = true);
 
-        _context.UpdateRange(newListOfExistingBradningConfigs);
+        _context.UpdateRange(newListOfExistingBrandingConfigs);
     }
 
     private async Task UpdateLabelPrinterConfigs(List<LabelPrinter> labelPrinterConfigs)
@@ -187,18 +187,18 @@ public class ConfigurationService
 
         var existingLabelPrinterConfigs = await _context.LabelPrinterConfigs.ToListAsync();
 
-        foreach (var incommingLabelPrinterConfig in labelPrinterConfigs)
+        foreach (var incomingLabelPrinterConfig in labelPrinterConfigs)
         {
             var existsLabelPrinterConfig = existingLabelPrinterConfigs
-                .FirstOrDefault(_ => _.BoxBarcodeReference == incommingLabelPrinterConfig.BoxBarcodeReference);
+                .FirstOrDefault(_ => _.BoxBarcodeReference == incomingLabelPrinterConfig.BoxBarcodeReference);
 
             if (existsLabelPrinterConfig is null)
             {
-                await _context.LabelPrinterConfigs.AddAsync(incommingLabelPrinterConfig);
+                await _context.LabelPrinterConfigs.AddAsync(incomingLabelPrinterConfig);
             }
             else
             {
-                existsLabelPrinterConfig.LabelPrinterReference = incommingLabelPrinterConfig.LabelPrinterReference;
+                existsLabelPrinterConfig.LabelPrinterReference = incomingLabelPrinterConfig.LabelPrinterReference;
                 _context.LabelPrinterConfigs.Update(existsLabelPrinterConfig);
             }
         }
@@ -217,12 +217,13 @@ public class ConfigurationService
 
     public async Task<ServiceConfiguration> GetActiveConfiguration()
     {
-        ServiceConfiguration activeConfiguration = new();
-
-        activeConfiguration.WeightToleranceConfig = await _context.WeightToleranceConfigs.FirstOrDefaultAsync(_ => _.ConfigurationInUse);
-        activeConfiguration.SealerRouteConfigs = await _context.SealerRoutesConfigs.Where(_ => _.ConfigurationInUse).ToListAsync();
-        activeConfiguration.BrandingPdfConfigs = await _context.BradingPdfCongigs.Where(_ => _.ConfigurationInUse).ToListAsync();
-        activeConfiguration.LablePrinterConfigs = await _context.LabelPrinterConfigs.Where(_ => _.ConfigurationInUse).ToListAsync();
+        ServiceConfiguration activeConfiguration = new()
+        {
+            WeightToleranceConfig = await _context.WeightToleranceConfigs.FirstOrDefaultAsync(_ => _.ConfigurationInUse),
+            SealerRouteConfigs = await _context.SealerRoutesConfigs.Where(_ => _.ConfigurationInUse).ToListAsync(),
+            BrandingPdfConfigs = await _context.BradingPdfCongigs.Where(_ => _.ConfigurationInUse).ToListAsync(),
+            LablePrinterConfigs = await _context.LabelPrinterConfigs.Where(_ => _.ConfigurationInUse).ToListAsync()
+        };
 
         return activeConfiguration;
     }

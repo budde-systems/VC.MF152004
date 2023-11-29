@@ -31,7 +31,7 @@ public class IndexModel : PageModel
             .Where(_ => _.AtTime.Month == DateTime.Now.Month && _.AtTime.Year == DateTime.Now.Year)
             .ToListAsync();
 
-        Statistics = new StatisticsDTO()
+        Statistics = new StatisticsDTO
         {
             DayNoReads = monthNoReads
                 .Where(_ => _.AtTime.Date == DateTime.Now.Date)
@@ -160,7 +160,7 @@ public class IndexModel : PageModel
     public int GetIso8601WeekOfYear(DateTime time)
     {
         var day = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(time);
-        if (day >= DayOfWeek.Monday && day <= DayOfWeek.Wednesday)
+        if (day is >= DayOfWeek.Monday and <= DayOfWeek.Wednesday)
         {
             time = time.AddDays(3);
         }
