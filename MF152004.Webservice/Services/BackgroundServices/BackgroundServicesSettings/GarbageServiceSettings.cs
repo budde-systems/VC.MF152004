@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace MF152004.Webservice.Services.BackgroundServices.BackgroundServicesSettings
+﻿namespace MF152004.Webservice.Services.BackgroundServices.BackgroundServicesSettings
 {
     public class GarbageServiceSettings
     {

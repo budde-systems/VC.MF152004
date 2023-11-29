@@ -74,14 +74,6 @@
             "fileVersion": "3.10.2.6"
           }
         }
-      },
-      "ToolContainerA/1.0.0.0": {
-        "runtime": {
-          "ToolContainerA.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
-          }
-        }
       }
     }
   },
@@ -130,11 +122,6 @@
       "sha512": ""
     },
     "reapisharp/3.10.2.1": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "ToolContainerA/1.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""

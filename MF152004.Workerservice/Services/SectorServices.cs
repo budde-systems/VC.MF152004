@@ -1,10 +1,5 @@
 ﻿using BlueApps.MaterialFlow.Common.Models;
 using BlueApps.MaterialFlow.Common.Sectors;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MF152004.Workerservice.Services
 {

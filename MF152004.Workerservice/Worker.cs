@@ -1,6 +1,4 @@
 using BlueApps.MaterialFlow.Common.Connection.Broker;
-using BlueApps.MaterialFlow.Common.Values.Types;
-using MF152004.Workerservice.Common;
 using MF152004.Workerservice.Logic;
 
 namespace MF152004.Workerservice

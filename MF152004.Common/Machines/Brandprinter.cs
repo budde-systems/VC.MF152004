@@ -4,12 +4,7 @@ using MF152004.Models.Settings.BrandPrinter;
 using MF152004.Models.Values;
 using Microsoft.Extensions.Logging;
 using ReaPiSharp;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MF152004.Common.Machines
 {

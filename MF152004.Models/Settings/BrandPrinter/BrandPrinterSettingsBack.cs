@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-
-namespace MF152004.Models.Settings.BrandPrinter
+﻿namespace MF152004.Models.Settings.BrandPrinter
 {
     public class BrandPrinterSettingsBack : IBrandPrinterSettings
     {

@@ -1,12 +1,8 @@
 ﻿using BlueApps.MaterialFlow.Common.Connection.Client;
-using BlueApps.MaterialFlow.Common.Connection.PackteHelper;
 using BlueApps.MaterialFlow.Common.Values.Types;
-using MF152004.Common.Connection.Packets.PacketHelpers;
 using MF152004.Models.Values.Types;
 using MF152004.Webservice.Common;
-using MF152004.Webservice.Data;
 using MF152004.Webservice.Services;
-using System.Threading;
 
 namespace MF152004.Webservice
 {

@@ -1,26 +1,19 @@
 ﻿using MF152004.Common.Machines;
 using MF152004.Models.EventArgs;
-using MF152004.Models.Values;
 using Microsoft.Extensions.Logging;
 using ReaPiSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MF152004.Common.Connection.Clients
 {
     public class BrandingPrinterClient
     {
-        public List<Brandprinter> Brandprinters { get; private set; } = new();
+        public List<Brandprinter> Brandprinters { get; } = new();
         
         private readonly ILogger<BrandingPrinterClient> _logger;
         private ReaPi.ResponseHandle _responseHandle;
 
-        public event EventHandler<FinishedPrintJobEventArgs> EndOfPrint;
-
-
+        public event EventHandler<FinishedPrintJobEventArgs>? EndOfPrint;
+        
         public BrandingPrinterClient(ILogger<BrandingPrinterClient> logger)
         {
             _logger = logger;

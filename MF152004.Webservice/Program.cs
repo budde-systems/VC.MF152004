@@ -6,11 +6,9 @@ using MF152004.Webservice.Services;
 using MF152004.Webservice.Services.BackgroundServices;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging.EventLog;
 using Serilog;
 using Serilog.Events;
 using Serilog.Filters;
-using System.Diagnostics;
 
 namespace MF152004.Webservice
 {

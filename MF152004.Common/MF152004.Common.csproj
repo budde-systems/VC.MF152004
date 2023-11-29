@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\BlueApps.MaterialFlow\BlueApps.MaterialFlow.Common.Models\BlueApps.MaterialFlow.Common.Models.csproj" />
-    <ProjectReference Include="..\..\..\BlueApps.MaterialFlow\BlueApps.MaterialFlow.Common\BlueApps.MaterialFlow.Common.csproj" />
+    <ProjectReference Include="..\..\..\VC.MaterialFlow\BlueApps.MaterialFlow.Common.Models\BlueApps.MaterialFlow.Common.Models.csproj" />
+    <ProjectReference Include="..\..\..\VC.MaterialFlow\BlueApps.MaterialFlow.Common\BlueApps.MaterialFlow.Common.csproj" />
     <ProjectReference Include="..\MF152004.Models\MF152004.Models.csproj" />
   </ItemGroup>
 

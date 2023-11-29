@@ -1,21 +1,13 @@
 ﻿using BlueApps.MaterialFlow.Common.Connection.Client;
-using BlueApps.MaterialFlow.Common.Machines;
 using BlueApps.MaterialFlow.Common.Machines.BaseMachines;
 using BlueApps.MaterialFlow.Common.Models;
 using BlueApps.MaterialFlow.Common.Models.EventArgs;
-using BlueApps.MaterialFlow.Common.Models.Types;
 using BlueApps.MaterialFlow.Common.Sectors;
-using MF152004.Models.EventArgs;
 using MF152004.Models.Values.Types;
 using MF152004.Workerservice.Common;
 using MF152004.Workerservice.Connection.Packets;
 using MF152004.Workerservice.Connection.Packets.PacketHelpers;
 using MF152004.Workerservice.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MF152004.Workerservice.Sectors.Gates
 {

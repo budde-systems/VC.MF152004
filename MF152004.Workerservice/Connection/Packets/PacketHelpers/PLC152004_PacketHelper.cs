@@ -3,11 +3,6 @@ using BlueApps.MaterialFlow.Common.Machines.BaseMachines;
 using BlueApps.MaterialFlow.Common.Values.Types;
 using MF152004.Workerservice.Common;
 using MF152004.Workerservice.Connection.Packets.Settings;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MF152004.Workerservice.Connection.Packets.PacketHelpers
 {

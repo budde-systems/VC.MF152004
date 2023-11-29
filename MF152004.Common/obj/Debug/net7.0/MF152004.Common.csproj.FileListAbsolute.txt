@@ -46,3 +46,25 @@ C:\Users\IoannisMichail\OneDrive - Budde Systems GmbH\Development_Budde\VisualSt
 C:\Users\IoannisMichail\OneDrive - Budde Systems GmbH\Development_Budde\VisualStudio\BlueApps.MaterialFlow.Clients\MF152004\MF152004.Common\bin\Debug\net7.0\reapisharp.pdb
 C:\Users\Foxhound\OneDrive - Budde Systems GmbH\Development_Budde\VisualStudio\BlueApps.MaterialFlow.Clients\MF152004\MF152004.Common\bin\Debug\net7.0\reapisharp.dll
 C:\Users\Foxhound\OneDrive - Budde Systems GmbH\Development_Budde\VisualStudio\BlueApps.MaterialFlow.Clients\MF152004\MF152004.Common\bin\Debug\net7.0\reapisharp.pdb
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\bin\Debug\net7.0\MF152004.Common.deps.json
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\bin\Debug\net7.0\MF152004.Common.dll
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\bin\Debug\net7.0\MF152004.Common.pdb
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\bin\Debug\net7.0\BlueApps.MaterialFlow.Common.dll
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\bin\Debug\net7.0\BlueApps.MaterialFlow.Common.Models.dll
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\bin\Debug\net7.0\MF152004.Models.dll
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\bin\Debug\net7.0\reapisharp.dll
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\bin\Debug\net7.0\BlueApps.MaterialFlow.Common.Models.pdb
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\bin\Debug\net7.0\BlueApps.MaterialFlow.Common.pdb
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\bin\Debug\net7.0\MF152004.Models.pdb
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\bin\Debug\net7.0\reapisharp.pdb
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\obj\Debug\net7.0\MF152004.Common.csproj.AssemblyReference.cache
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\obj\Debug\net7.0\MF152004.Common.GeneratedMSBuildEditorConfig.editorconfig
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\obj\Debug\net7.0\MF152004.Common.AssemblyInfoInputs.cache
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\obj\Debug\net7.0\MF152004.Common.AssemblyInfo.cs
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\obj\Debug\net7.0\MF152004.Common.csproj.CoreCompileInputs.cache
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\obj\Debug\net7.0\MF152004.Common.sourcelink.json
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\obj\Debug\net7.0\MF152004.Common.csproj.CopyComplete
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\obj\Debug\net7.0\MF152004.Common.dll
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\obj\Debug\net7.0\refint\MF152004.Common.dll
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\obj\Debug\net7.0\MF152004.Common.pdb
+C:\_Work\_Budde\_Clients\VC.MF152004\MF152004.Common\obj\Debug\net7.0\ref\MF152004.Common.dll

@@ -2,13 +2,10 @@ using BlueApps.MaterialFlow.Common.Connection.Broker;
 using BlueApps.MaterialFlow.Common.Connection.Client;
 using MF152004.Common.Connection.Clients;
 using MF152004.Models.Settings.BrandPrinter;
-using MF152004.Workerservice.Connection;
 using MF152004.Workerservice.Logic;
 using MF152004.Workerservice.Services;
-using Microsoft.Extensions.Logging.EventLog;
 using Serilog;
 using Serilog.Events;
-using System.Diagnostics;
 
 namespace MF152004.Workerservice
 {

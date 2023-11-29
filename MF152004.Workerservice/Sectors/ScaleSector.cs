@@ -1,5 +1,4 @@
 ﻿using BlueApps.MaterialFlow.Common.Connection.Client;
-using BlueApps.MaterialFlow.Common.Connection.PacketHelper;
 using BlueApps.MaterialFlow.Common.Machines;
 using BlueApps.MaterialFlow.Common.Machines.BaseMachines;
 using BlueApps.MaterialFlow.Common.Models;
@@ -14,11 +13,6 @@ using MF152004.Workerservice.Common;
 using MF152004.Workerservice.Connection.Packets;
 using MF152004.Workerservice.Connection.Packets.PacketHelpers;
 using MF152004.Workerservice.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MF152004.Workerservice.Sectors
 {

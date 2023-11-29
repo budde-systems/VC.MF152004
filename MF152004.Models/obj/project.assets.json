@@ -254,13 +254,13 @@
     },
     "BlueApps.MaterialFlow.Common/1.0.0": {
       "type": "project",
-      "path": "../../../BlueApps.MaterialFlow/BlueApps.MaterialFlow.Common/BlueApps.MaterialFlow.Common.csproj",
-      "msbuildProject": "../../../BlueApps.MaterialFlow/BlueApps.MaterialFlow.Common/BlueApps.MaterialFlow.Common.csproj"
+      "path": "../../../VC.MaterialFlow/BlueApps.MaterialFlow.Common/BlueApps.MaterialFlow.Common.csproj",
+      "msbuildProject": "../../../VC.MaterialFlow/BlueApps.MaterialFlow.Common/BlueApps.MaterialFlow.Common.csproj"
     },
     "BlueApps.MaterialFlow.Common.Models/1.0.0": {
       "type": "project",
-      "path": "../../../BlueApps.MaterialFlow/BlueApps.MaterialFlow.Common.Models/BlueApps.MaterialFlow.Common.Models.csproj",
-      "msbuildProject": "../../../BlueApps.MaterialFlow/BlueApps.MaterialFlow.Common.Models/BlueApps.MaterialFlow.Common.Models.csproj"
+      "path": "../../../VC.MaterialFlow/BlueApps.MaterialFlow.Common.Models/BlueApps.MaterialFlow.Common.Models.csproj",
+      "msbuildProject": "../../../VC.MaterialFlow/BlueApps.MaterialFlow.Common.Models/BlueApps.MaterialFlow.Common.Models.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -270,25 +270,28 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\kadaf\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\monst\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {},
+    "C:\\Program Files (x86)\\Syncfusion\\Essential Studio\\WPF\\20.3.0.47\\ToolboxNuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Models\\MF152004.Models.csproj",
+      "projectUniqueName": "C:\\_Work\\_Budde\\_Clients\\VC.MF152004\\MF152004.Models\\MF152004.Models.csproj",
       "projectName": "MF152004.Models",
-      "projectPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Models\\MF152004.Models.csproj",
-      "packagesPath": "C:\\Users\\kadaf\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow.Clients\\MF152004\\MF152004.Models\\obj\\",
+      "projectPath": "C:\\_Work\\_Budde\\_Clients\\VC.MF152004\\MF152004.Models\\MF152004.Models.csproj",
+      "packagesPath": "C:\\Users\\monst\\.nuget\\packages\\",
+      "outputPath": "C:\\_Work\\_Budde\\_Clients\\VC.MF152004\\MF152004.Models\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+        "C:\\Program Files (x86)\\Syncfusion\\Essential Studio\\WPF\\20.3.0.47\\ToolboxNuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\kadaf\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\monst\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Syncfusion Toolbox for WPF.config"
       ],
       "originalTargetFrameworks": [
         "net7.0"
@@ -296,17 +299,19 @@
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "C:\\Program Files\\dotnet\\library-packs": {},
-        "https://api.nuget.org/v3/index.json": {}
+        "https://api.nuget.org/v3/index.json": {},
+        "https://nuget.devexpress.com/zTltUQhk5fch3CfEyssOm3cgxdwi3lyRkg1iVOk7jzmWiYKdxU/api": {},
+        "https://pkgs.dev.azure.com/AvaloniaUI/AvaloniaUI/_packaging/avalonia-all/nuget/v3/index.json": {}
       },
       "frameworks": {
         "net7.0": {
           "targetAlias": "net7.0",
           "projectReferences": {
-            "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common.Models\\BlueApps.MaterialFlow.Common.Models.csproj": {
-              "projectPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common.Models\\BlueApps.MaterialFlow.Common.Models.csproj"
+            "C:\\_Work\\_Budde\\VC.MaterialFlow\\BlueApps.MaterialFlow.Common.Models\\BlueApps.MaterialFlow.Common.Models.csproj": {
+              "projectPath": "C:\\_Work\\_Budde\\VC.MaterialFlow\\BlueApps.MaterialFlow.Common.Models\\BlueApps.MaterialFlow.Common.Models.csproj"
             },
-            "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common\\BlueApps.MaterialFlow.Common.csproj": {
-              "projectPath": "C:\\Users\\kadaf\\Downloads\\BlueApps\\BlueApps.MaterialFlow\\BlueApps.MaterialFlow.Common\\BlueApps.MaterialFlow.Common.csproj"
+            "C:\\_Work\\_Budde\\VC.MaterialFlow\\BlueApps.MaterialFlow.Common\\BlueApps.MaterialFlow.Common.csproj": {
+              "projectPath": "C:\\_Work\\_Budde\\VC.MaterialFlow\\BlueApps.MaterialFlow.Common\\BlueApps.MaterialFlow.Common.csproj"
             }
           }
         }

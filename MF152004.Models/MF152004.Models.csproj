@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\BlueApps.MaterialFlow\BlueApps.MaterialFlow.Common.Models\BlueApps.MaterialFlow.Common.Models.csproj" />
-    <ProjectReference Include="..\..\..\BlueApps.MaterialFlow\BlueApps.MaterialFlow.Common\BlueApps.MaterialFlow.Common.csproj" />
+    <ProjectReference Include="..\..\..\VC.MaterialFlow\BlueApps.MaterialFlow.Common.Models\BlueApps.MaterialFlow.Common.Models.csproj" />
+    <ProjectReference Include="..\..\..\VC.MaterialFlow\BlueApps.MaterialFlow.Common\BlueApps.MaterialFlow.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -7,10 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MF152004.Workerservice", "M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MF152004.Models", "MF152004.Models\MF152004.Models.csproj", "{CD02F1A6-AEEA-4EDD-B43E-1B840C6E7E3F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlueApps.MaterialFlow.Common", "..\..\BlueApps.MaterialFlow\BlueApps.MaterialFlow.Common\BlueApps.MaterialFlow.Common.csproj", "{0CDDA1F0-A8AA-471B-B905-0692A3F4D898}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlueApps.MaterialFlow.Common.Models", "..\..\BlueApps.MaterialFlow\BlueApps.MaterialFlow.Common.Models\BlueApps.MaterialFlow.Common.Models.csproj", "{79081450-9626-4C22-8453-19BB66389056}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MF152004.Webservice", "MF152004.Webservice\MF152004.Webservice.csproj", "{F7546C00-97BD-4DE4-9DF0-042A510D17A4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MF152004.Common", "MF152004.Common\MF152004.Common.csproj", "{770F8AF3-734F-4C2A-948C-8F9E92A8404A}"
@@ -20,6 +16,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Projektmappenelemente", "Pr
 		ChangeLog.txt = ChangeLog.txt
 		TODOS.txt = TODOS.txt
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlueApps.MaterialFlow.Common", "..\..\VC.MaterialFlow\BlueApps.MaterialFlow.Common\BlueApps.MaterialFlow.Common.csproj", "{F89004E7-2C29-4542-8BD6-FBF5BDB735E4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlueApps.MaterialFlow.Common.Models", "..\..\VC.MaterialFlow\BlueApps.MaterialFlow.Common.Models\BlueApps.MaterialFlow.Common.Models.csproj", "{3D288904-9CC1-4C6B-A4B6-3B02FE2BC0D1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,14 +35,6 @@ Global
 		{CD02F1A6-AEEA-4EDD-B43E-1B840C6E7E3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD02F1A6-AEEA-4EDD-B43E-1B840C6E7E3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD02F1A6-AEEA-4EDD-B43E-1B840C6E7E3F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0CDDA1F0-A8AA-471B-B905-0692A3F4D898}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0CDDA1F0-A8AA-471B-B905-0692A3F4D898}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0CDDA1F0-A8AA-471B-B905-0692A3F4D898}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0CDDA1F0-A8AA-471B-B905-0692A3F4D898}.Release|Any CPU.Build.0 = Release|Any CPU
-		{79081450-9626-4C22-8453-19BB66389056}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{79081450-9626-4C22-8453-19BB66389056}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{79081450-9626-4C22-8453-19BB66389056}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{79081450-9626-4C22-8453-19BB66389056}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F7546C00-97BD-4DE4-9DF0-042A510D17A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F7546C00-97BD-4DE4-9DF0-042A510D17A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7546C00-97BD-4DE4-9DF0-042A510D17A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -51,6 +43,14 @@ Global
 		{770F8AF3-734F-4C2A-948C-8F9E92A8404A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{770F8AF3-734F-4C2A-948C-8F9E92A8404A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{770F8AF3-734F-4C2A-948C-8F9E92A8404A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F89004E7-2C29-4542-8BD6-FBF5BDB735E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F89004E7-2C29-4542-8BD6-FBF5BDB735E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F89004E7-2C29-4542-8BD6-FBF5BDB735E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F89004E7-2C29-4542-8BD6-FBF5BDB735E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D288904-9CC1-4C6B-A4B6-3B02FE2BC0D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D288904-9CC1-4C6B-A4B6-3B02FE2BC0D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D288904-9CC1-4C6B-A4B6-3B02FE2BC0D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D288904-9CC1-4C6B-A4B6-3B02FE2BC0D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

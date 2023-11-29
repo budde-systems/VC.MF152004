@@ -5,13 +5,11 @@ using BlueApps.MaterialFlow.Common.Models;
 using BlueApps.MaterialFlow.Common.Models.EventArgs;
 using BlueApps.MaterialFlow.Common.Models.Types;
 using BlueApps.MaterialFlow.Common.Sectors;
-using MF152004.Models.Main;
 using MF152004.Models.Values.Types;
 using MF152004.Workerservice.Common;
 using MF152004.Workerservice.Connection.Packets;
 using MF152004.Workerservice.Connection.Packets.PacketHelpers;
 using MF152004.Workerservice.Services;
-using System;
 
 namespace MF152004.Workerservice.Sectors
 {
