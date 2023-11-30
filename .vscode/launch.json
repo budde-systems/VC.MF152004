@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C#: MF152004.Workerservice",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}\\MF152004.Workerservice\\MF152004.Workerservice.csproj",
+            "launchConfigurationId": "TargetFramework=;MF152004.Workerservice"
+        }
+    ]
+}
