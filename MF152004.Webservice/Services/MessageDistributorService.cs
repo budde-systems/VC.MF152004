@@ -132,7 +132,7 @@ public class MessageDistributorService : MessageDistributor
                 }
                 else
                 {
-                    shipments = await _shipmentService.GetThirtyDaysShipments();
+                    shipments = await _shipmentService.GetHistoricalShipments();
                     SendNewShipments(shipments.ToArray());
                 }
             }

@@ -17,12 +17,12 @@ public class ShipmentService
         _destinationService = destinationService;
     }
 
-    public async Task<List<Shipment>> GetThirtyDaysShipments()
+    public async Task<List<Shipment>> GetHistoricalShipments()
     {
         var shipments = await _context.Shipments
-            .Where(_ => _.ReceivedAt != null && 
-                        _.ReceivedAt.Value.Date <= DateTime.Now.Date && 
-                        _.ReceivedAt.Value.Date > DateTime.Now.Date.AddDays(-14))
+            .Where(_ => _.ReceivedAt != null
+                        && _.ReceivedAt.Value.Date <= DateTime.Now.Date
+                        && _.ReceivedAt.Value.Date > DateTime.Now.Date.AddDays(-14))
             .ToListAsync();
 
         return shipments;
@@ -70,45 +70,43 @@ public class ShipmentService
             _logger.LogWarning("Update can not be executed, because shipment is null");
             return null;
         }
-        else
+
+        var storedShipment = await _context.Shipments.SingleOrDefaultAsync(_ => _.Id == shipmentId);
+
+        if (storedShipment is null)
+            return null;
+
+        storedShipment.Weight = shipment.Weight;
+        storedShipment.Status = shipment.Status;
+        storedShipment.ReceivedAt = DateTime.Now;
+        storedShipment.LeftErrorAisleAt = shipment.LeftErrorAisleAt;
+        storedShipment.LabelPrintedAt = null;
+        storedShipment.Message = string.Empty;
+
+        if (shipment.TransportationReference != null)
         {
-            var storedShipment = await _context.Shipments.SingleOrDefaultAsync(_ => _.Id == shipmentId);
-
-            if (storedShipment is null)
-                return null;
-
-            storedShipment.Weight = shipment.Weight;
-            storedShipment.Status = shipment.Status;
-            storedShipment.ReceivedAt = DateTime.Now;
-            storedShipment.LeftErrorAisleAt = shipment.LeftErrorAisleAt;
-            storedShipment.LabelPrintedAt = null;
-            storedShipment.Message = string.Empty;
-
-            if (shipment.TransportationReference != null)
-            {
-                _logger.LogInformation($"The transportation reference of shipment {storedShipment} " +
-                                       $"has been changed to {shipment.TransportationReference}");
-                storedShipment.TransportationReference = shipment.TransportationReference;
-            }
-
-            if (shipment.TrackingCode != null && storedShipment.TrackingCode != shipment.TrackingCode)
-            {
-                _logger.LogInformation($"The trackingcode of shipment {storedShipment} " +
-                                       $"has been changed to {shipment.TrackingCode}");
-
-                storedShipment.TrackingCode = shipment.TrackingCode;
-            }
-
-            storedShipment.DestinationRouteReference = _destinationService
-                .GetDestinationNames(storedShipment.Carrier, storedShipment.Country, storedShipment.ClientReference);
-
-            _logger.LogInformation($"A shipment ({storedShipment}) will be updated");
-
-            _context.Entry(storedShipment).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return storedShipment;
+            _logger.LogInformation($"The transportation reference of shipment {storedShipment} " +
+                                   $"has been changed to {shipment.TransportationReference}");
+            storedShipment.TransportationReference = shipment.TransportationReference;
         }
+
+        if (shipment.TrackingCode != null && storedShipment.TrackingCode != shipment.TrackingCode)
+        {
+            _logger.LogInformation($"The trackingcode of shipment {storedShipment} " +
+                                   $"has been changed to {shipment.TrackingCode}");
+
+            storedShipment.TrackingCode = shipment.TrackingCode;
+        }
+
+        storedShipment.DestinationRouteReference = _destinationService
+            .GetDestinationNames(storedShipment.Carrier, storedShipment.Country, storedShipment.ClientReference);
+
+        _logger.LogInformation($"A shipment ({storedShipment}) will be updated");
+
+        _context.Entry(storedShipment).State = EntityState.Modified;
+        await _context.SaveChangesAsync();
+
+        return storedShipment;
     }
 
     /// <summary>
@@ -121,6 +119,7 @@ public class ShipmentService
         var shipments = await _context.Shipments
             .Where(s => requestedShipments.Contains(s.Id))
             .ToListAsync();
+
         //second condition because ef core does not support this mapping???!
         var reducedShipments = shipments.Where(s => s.DestinationRouteReference != null && s.DestinationRouteReference != _destinationService
             .GetDestinationNames(s.Carrier, s.Country, s.ClientReference)).ToList();

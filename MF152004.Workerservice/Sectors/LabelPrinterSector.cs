@@ -92,24 +92,19 @@ public class LabelPrinterSector : Sector
         RelatedErrorCodes.AddRange(errors.Cast<short>());
     }
 
-    public void AddLabelPrinters(LabelPrinter labelPrinter)
+    public void AddLabelPrinter(LabelPrinter labelPrinter)
     {
-        if (labelPrinter != null)
+        _labelPrinters ??= new();
+        _labelPrinters.Add(labelPrinter);
+
+        if (labelPrinter.RelatedScanner != null)
         {
-            _labelPrinters ??= new();
-            _labelPrinters.Add(labelPrinter);
-
-            if (labelPrinter.RelatedScanner != null)
-            {
-                BarcodeScanners ??= new();
-
-                if (!BarcodeScanners.Exists(_ => _.BasePosition == labelPrinter.RelatedScanner.BasePosition))
-                    BarcodeScanners.Add(labelPrinter.RelatedScanner);
-            }
-            else
-            {
-                //throw..
-            }
+            if (!BarcodeScanners.Exists(_ => _.BasePosition == labelPrinter.RelatedScanner.BasePosition))
+                BarcodeScanners.Add(labelPrinter.RelatedScanner);
+        }
+        else
+        {
+            //throw..
         }
     }
 
@@ -149,13 +144,9 @@ public class LabelPrinterSector : Sector
                 if (shipmentId > 0)
                 {
                     if (_contextService.LabelIsPrinted(shipmentId))
-                    {
                         NoPrint(shipmentId, scan);
-                    }
                     else
-                    {
                         PrintLabel(shipmentId, scan);
-                    }
                 }
             }
             else //inspectionscanner

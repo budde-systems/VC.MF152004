@@ -258,14 +258,15 @@ public class MaterialFlowMng : MaterialFlowManager
 
         _brandingPrinterClient.ConnectBrandPrinter(GetFrontBrandPrinter());
         _brandingPrinterClient.ConnectBrandPrinter(GetBackBrandPrinter());
+
         brandPrinterSector.AddBrandingPrinterClient(_brandingPrinterClient);
 
 #if SAFE_DEBUG
         _msgDistributor.BarcodeScanned += brandPrinterSector.Barcode_Scanned;
 #endif
 
-        labelPrinterSector.AddLabelPrinters(GetFrontLabelPrinter());
-        labelPrinterSector.AddLabelPrinters(GetBackLabelPrinter());
+        labelPrinterSector.AddLabelPrinter(GetFrontLabelPrinter());
+        labelPrinterSector.AddLabelPrinter(GetBackLabelPrinter());
 
         List<Sector> sectors = new() //TODO: Design anpassen und Subscribes unterbringen! Ggf. allgemeines IncommíngData definieren
         {
@@ -289,57 +290,37 @@ public class MaterialFlowMng : MaterialFlowManager
         return sectors;
     }
 
-    private BrandPrinter GetFrontBrandPrinter()
+    private BrandPrinter GetFrontBrandPrinter() => new(_brandPrinterSettingsFront, _brandPrinterLogger)
     {
-        var brandPrinter = new BrandPrinter(_brandPrinterSettingsFront, _brandPrinterLogger)
-        {
-            Name = "Brandprinter front",
-            BasePosition = BrandPrinterPosition.BP1.ToString(),
-            RelatedScanner = new("M3.1.189", "S3.1.190")
-        };
+        Name = "Brandprinter front",
+        BasePosition = BrandPrinterPosition.BP1.ToString(),
+        RelatedScanner = new("M3.1.189", "S3.1.190")
+    };
 
-        return brandPrinter;
-    }
-
-    private BrandPrinter GetBackBrandPrinter()
+    private BrandPrinter GetBackBrandPrinter() => new(_brandPrinterSettingsBack, _brandPrinterLogger)
     {
-        var brandPrinter = new BrandPrinter(_brandPrinterSettingsBack, _brandPrinterLogger)
-        {
-            Name = "Brandprinter back",
-            BasePosition = BrandPrinterPosition.BP2.ToString(),
-            RelatedScanner = new("M3.1.211", "S3.1.401")
-        };
+        Name = "Brandprinter back",
+        BasePosition = BrandPrinterPosition.BP2.ToString(),
+        RelatedScanner = new("M3.1.211", "S3.1.401")
+    };
 
-        return brandPrinter;
-    }
-
-    private LabelPrinter GetFrontLabelPrinter()
+    private LabelPrinter GetFrontLabelPrinter() => new()
     {
-        var printer = new LabelPrinter
-        {
-            Name = "Frontprinter",
-            Id = "1",
-            RelatedScanner = new("M3.2.195", "S3.2.196") { Name = "Frontscanner" },
-            IP = "192.168.42.12",
-            Port = 6101
-        };
+        Name = "Frontprinter",
+        Id = "1",
+        RelatedScanner = new("M3.2.195", "S3.2.196") {Name = "Frontscanner"},
+        IP = "192.168.42.12",
+        Port = 6101
+    };
 
-        return printer;
-    }
-
-    private LabelPrinter GetBackLabelPrinter()
+    private LabelPrinter GetBackLabelPrinter() => new()
     {
-        var printer = new LabelPrinter
-        {
-            Name = "Backprinter",
-            Id = "2",
-            RelatedScanner = new("M3.2.195", "S3.2.196") { Name = "Frontscanner" },
-            IP = "192.168.42.13", //TODO: aus appsettings
-            Port = 6101
-        };
-
-        return printer;
-    }
+        Name = "Backprinter",
+        Id = "2",
+        RelatedScanner = new("M3.2.195", "S3.2.196") {Name = "Frontscanner"},
+        IP = "192.168.42.13", //TODO: aus appsettings
+        Port = 6101
+    };
 
     private async Task PrepareContextService() //Fragt Daten beim Webservice an
     {
@@ -347,25 +328,23 @@ public class MaterialFlowMng : MaterialFlowManager
         return;
 #endif
 
-        var timeLimit = 60000;
-        var time = 0;
+        var timeLimitSeconds = 60;
+        var timeLimit = DateTime.Now.AddSeconds(timeLimitSeconds);
 
         while (!_contextService.ContextHasRequiredEntities())
         {
             _msgDistributor.SendConfigurationRequest();
 
-            await Task.Delay(200);
+            await Task.Delay(200, _cancellationToken);
 
             _msgDistributor.SendShipmentsRequest();
 
-            await Task.Delay(2000);
+            await Task.Delay(2000, _cancellationToken);
 
-            time += 2000;
-
-            if (time >= timeLimit)
+            if (DateTime.Now > timeLimit)
             {
                 _logger.LogWarning("The workerservice still has not received any entities. The request will continue.");
-                time = 0;
+                timeLimit = DateTime.Now.AddSeconds(timeLimitSeconds);
             }
         }
 

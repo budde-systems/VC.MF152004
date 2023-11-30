@@ -8,7 +8,9 @@
     <Configurations>Debug;Release;Safe_Debug</Configurations>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Safe_Debug|AnyCPU'">
     <DefineConstants>$(DefineConstants);SAFE_DEBUG</DefineConstants>
   </PropertyGroup>
 

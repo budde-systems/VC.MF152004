@@ -29,6 +29,8 @@ public class BrandPrinterSector : Sector //TODO: Sector als Base verwenden, dann
         _contextService = contextService;
         _messageDistributor = messageDistributor;
         AddRelatedErrorCodes();
+
+        BarcodeScanners = new();
         IsActive = true;
     }
 
@@ -47,15 +49,12 @@ public class BrandPrinterSector : Sector //TODO: Sector als Base verwenden, dann
 
     public void AddBrandingPrinterClient(BrandingPrinterClient brandPrinterClient)
     {
-        if (brandPrinterClient != null)
+        if (brandPrinterClient.BrandPrinters.Any())
         {
-            if (brandPrinterClient.BrandPrinters.Any())
-            {
-                BarcodeScanners ??= new();
-                BarcodeScanners.AddRange(brandPrinterClient.BrandPrinters.Select(x => x.RelatedScanner));
-                _brandingPrinterClient = brandPrinterClient;
-                _brandingPrinterClient.EndOfPrint += UpdateShipment;
-            }
+            BarcodeScanners.AddRange(brandPrinterClient.BrandPrinters.Select(x => x.RelatedScanner).OfType<Scanner>());
+
+            _brandingPrinterClient = brandPrinterClient;
+            _brandingPrinterClient.EndOfPrint += UpdateShipment;
         }
     }
 
@@ -65,7 +64,7 @@ public class BrandPrinterSector : Sector //TODO: Sector als Base verwenden, dann
 
     public override void Barcode_Scanned(object? sender, BarcodeScanEventArgs scan)
     {
-        if (BarcodeScanners != null && BarcodeScanners.Any(_ => _.BasePosition == scan.Position))
+        if (BarcodeScanners.Any(_ => _.BasePosition == scan.Position))
         {
             if (!IsActive)
             {
@@ -90,10 +89,8 @@ public class BrandPrinterSector : Sector //TODO: Sector als Base verwenden, dann
                     _brandingPrinterClient.Print(scan.Position, referenceId, shipmentId);
                     return;
                 }
-                else
-                {
-                    _logger.LogWarning($"The reference ID is empty. Print can't be executed on position {scan.Position}");
-                }
+
+                _logger.LogWarning($"The reference ID is empty. Print can't be executed on position {scan.Position}");
             }
 
             _brandingPrinterClient.TransparentPrint(scan.Position, shipmentId);
