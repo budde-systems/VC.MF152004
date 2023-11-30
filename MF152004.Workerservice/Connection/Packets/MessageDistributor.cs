@@ -83,8 +83,7 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
     {
         if (messageEvent is null || messageEvent.Message is null || messageEvent.Message.Topic is null)
         {
-            _logger.LogWarning($"Received message-event is null or has null references " +
-                               $"[at {nameof(DistributeIncomingMessages)}]");
+            _logger.LogWarning($"Received message-event is null or has null references [at {nameof(DistributeIncomingMessages)}]");
             return;
         }
 

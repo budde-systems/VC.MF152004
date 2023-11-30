@@ -141,12 +141,13 @@ public class BrandingPrinterClient
                 break;
 
             case ReaPi.EEventId.PRINTSTART:
-
+            {
                 _logger.LogInformation($"{brandPrinter}: print started for shipment: {brandPrinter.CurrentJob.ShipmentId} with reference {brandPrinter.CurrentJob.ReferenceId}");
                 break;
+            }
 
             case ReaPi.EEventId.PRINTEND:
-
+            {
                 EndOfPrint?.Invoke(this, new()
                 {
                     Job = brandPrinter.CurrentJob,
@@ -154,30 +155,36 @@ public class BrandingPrinterClient
                 });
 
                 break;
+            }
 
             case ReaPi.EEventId.PRINTABORTED:
-                
+            {
                 _logger.LogInformation($"{brandPrinter}: Print has been aborted");
                 break;
+            }
 
             case ReaPi.EEventId.JOBSTARTED:
-
+            {
                 brandPrinter.JobIsStopped = false;
                 _logger.LogInformation($"{brandPrinter}: Job has been started");
 
                 break;
+            }
 
             case ReaPi.EEventId.JOBSTOPPED:
-
+            {
                 brandPrinter.JobIsStopped = true;
                 _logger.LogInformation($"{brandPrinter}: Job has been stopped. All print jobs will be removed.");
                 brandPrinter.ClearJobs();
 
                 break;
+            }
 
             case ReaPi.EEventId.READYFORNEXTCONTENT:
+            {
                 brandPrinter.ReadyForNextContent = true;
                 break;
+            }
         }
     }
 

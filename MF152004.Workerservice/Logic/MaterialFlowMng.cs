@@ -270,7 +270,13 @@ public class MaterialFlowMng : MaterialFlowManager
 
         List<Sector> sectors = new() //TODO: Design anpassen und Subscribes unterbringen! Ggf. allgemeines IncommíngData definieren
         {
-            boxSealer, brandPrinterSector, scale, exportSector, telescopeSectorA, telescopeSectorB, labelPrinterSector
+            boxSealer,
+            brandPrinterSector,
+            scale,
+            exportSector, 
+            telescopeSectorA, 
+            telescopeSectorB, 
+            labelPrinterSector
         };
 
         using var scope = _serviceProvider.CreateScope();
