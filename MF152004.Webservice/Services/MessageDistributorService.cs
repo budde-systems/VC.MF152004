@@ -30,7 +30,6 @@ public class MessageDistributorService : MessageDistributor
     private readonly ILogger<MessageDistributorService> _logger;
     private readonly MqttClient _client;
     private readonly ConfigurationService _configurationService;
-    private readonly ShipmentService _shipmentService;
     private readonly WMS_Client _wmsClient;
     private readonly DestinationService _destinationService;
 
@@ -51,11 +50,9 @@ public class MessageDistributorService : MessageDistributor
         var scope = serviceProvider.CreateScope();
         _logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<MessageDistributorService>();
         _configurationService = scope.ServiceProvider.GetRequiredService<ConfigurationService>();
-        _shipmentService = scope.ServiceProvider.GetRequiredService<ShipmentService>();
         _client = scope.ServiceProvider.GetRequiredService<MqttClient>();
         _wmsClient = scope.ServiceProvider.GetRequiredService<WMS_Client>();
         _destinationService = scope.ServiceProvider.GetRequiredService<DestinationService>();
-        _weightScanService = scope.ServiceProvider.GetRequiredService<WeightScanService>();
 
         AddHeaders(configuration);
 
@@ -118,36 +115,39 @@ public class MessageDistributorService : MessageDistributor
 
     private async void OnShipmentMessageAsync(MessagePacketHelper pckHelper)
     {
-        if (pckHelper is ShipmentPacketHelper packetHelper)
-        {
-            if (packetHelper.ShipmentPacket.KeyCode == ActionKey.RequestedEntity)
-            {
-                List<Shipment> shipments;
+        if (pckHelper is not ShipmentPacketHelper packetHelper) 
+            return;
 
-                if (packetHelper.ShipmentPacket.RequestedShipments is {Count: > 0})
-                {
-                    shipments = await _shipmentService.GetShipments(packetHelper.ShipmentPacket.RequestedShipments);
-                    SendUpdatedShipments(shipments.ToArray());
-                }
-                else
-                {
-                    shipments = await _shipmentService.GetHistoricalShipments();
-                    SendNewShipments(shipments.ToArray());
-                }
-            }
-            else if (packetHelper.ShipmentPacket.KeyCode == ActionKey.UpdatedEntity)
+
+        if (packetHelper.ShipmentPacket.KeyCode == ActionKey.RequestedEntity)
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var shipmentService = scope.ServiceProvider.GetRequiredService<ShipmentService>();
+
+            if (packetHelper.ShipmentPacket.RequestedShipments is {Count: > 0})
             {
-                if (packetHelper.ShipmentPacket is null || packetHelper.ShipmentPacket.Shipments is null)
-                    _logger.LogWarning("The shipment packet or the shipments of the shipment packet is null.");
-                else
-                    PatchShipments(packetHelper.ShipmentPacket.Shipments);
+                var shipments = await shipmentService.GetShipments(packetHelper.ShipmentPacket.RequestedShipments);
+                SendUpdatedShipments(shipments.ToArray());
             }
+            else
+            {
+                var shipments = await shipmentService.GetHistoricalShipments();
+                SendNewShipments(shipments.ToArray());
+            }
+        }
+        else if (packetHelper.ShipmentPacket.KeyCode == ActionKey.UpdatedEntity)
+        {
+            if (packetHelper.ShipmentPacket is null || packetHelper.ShipmentPacket.Shipments is null)
+                _logger.LogWarning("The shipment packet or the shipments of the shipment packet is null.");
+            else
+                PatchShipments(packetHelper.ShipmentPacket.Shipments);
         }
     }
 
     private async void PatchShipments(List<Shipment> shipments)
     {
-        _shipmentService.UpdateShipments(shipments);
+        using var scope = _serviceProvider.CreateScope();
+        scope.ServiceProvider.GetRequiredService<ShipmentService>().UpdateShipments(shipments);
 
         var numberOfAttempts = 0;
         var maxNumberOfAttempts = 50;
@@ -269,6 +269,7 @@ public class MessageDistributorService : MessageDistributor
                 {
                     using var scope = _serviceProvider.CreateScope();
                     await scope.ServiceProvider.GetRequiredService<WeightScanService>().AddWeightScan(weightScan);
+
                     PostScan(weightScan);
                 }
             }
