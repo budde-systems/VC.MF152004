@@ -91,7 +91,7 @@ public class ShipmentsController : ControllerBase
         return Ok();
     }
 
-    private async Task<bool> ShipmentExists(int id) => await _context.Shipments.AnyAsync(_ => _.Id == id);
+    private async Task<bool> ShipmentExists(int id) => await _context.Shipments.AnyAsync(s => s.Id == id);
 
     private (bool, string) ValidateShipment(Shipment shipment)
     {

@@ -2,7 +2,7 @@
 
 public class ServiceConfiguration
 {
-    public WeightTolerance? WeightToleranceConfig { get; set; } = new();
+    public WeightTolerance WeightToleranceConfig { get; set; } = new();
     
     public List<BrandingPdf> BrandingPdfConfigs { get; set; } = new();
     

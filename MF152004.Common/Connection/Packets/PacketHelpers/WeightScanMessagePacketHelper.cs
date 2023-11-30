@@ -10,7 +10,9 @@ namespace MF152004.Common.Connection.Packets.PacketHelpers;
 public class WeightScanMessagePacketHelper : MessagePacketHelper
 {
     public override string InTopic { get; set; }
+
     public override string OutTopic { get; set; }
+
     public WeightScanPacket_152004? WeightScanPacket { get; set; }
 
     public WeightScanMessagePacketHelper(string inTopic, string outTopic)

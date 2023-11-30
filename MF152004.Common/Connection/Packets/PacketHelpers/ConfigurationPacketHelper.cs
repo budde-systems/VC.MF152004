@@ -10,7 +10,9 @@ namespace MF152004.Common.Connection.Packets.PacketHelpers;
 public class ConfigurationPacketHelper : MessagePacketHelper
 {
     public override string InTopic { get; set; }
+
     public override string OutTopic { get; set; } //nothing to send at this time
+
     public ConfigPacket_152004 ConfigurationPacket { get; set; }
 
     public ConfigurationPacketHelper(string inTopic, string outTopic)

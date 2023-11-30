@@ -10,6 +10,7 @@ namespace MF152004.Common.Connection.Packets.PacketHelpers;
 public class ShipmentPacketHelper : MessagePacketHelper
 {
     public override string InTopic { get; set; }
+
     public override string OutTopic { get; set; }
         
     public ShipmentPacket_152004 ShipmentPacket { get; set; }
@@ -74,5 +75,4 @@ public class ShipmentPacketHelper : MessagePacketHelper
             Shipments = shipments.ToList()
         };
     }
-
 }

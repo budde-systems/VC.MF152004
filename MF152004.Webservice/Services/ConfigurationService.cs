@@ -29,11 +29,12 @@ public class ConfigurationService
         {
             if (config.Key == ConfigurationName.weight_tolerance.ToString())
             {
-                if (double.TryParse(config.Value.ToString(), out var weight_tolerance))
+                if (double.TryParse(config.Value?.ToString(), out var weight_tolerance))
                 {
                     configuration.WeightToleranceConfig.WeigthTolerance = weight_tolerance;
                 }
             }
+
             else if (config.Key == ConfigurationName.label_printer_reference.ToString())
             {
                 var printerReference = GetObject<LabelPrinter[]>(config.Value);
@@ -41,6 +42,7 @@ public class ConfigurationService
                 if (printerReference != null)
                     configuration.LablePrinterConfigs.AddRange(printerReference);
             }
+
             else if (config.Key == ConfigurationName.sealer_route_reference.ToString())
             {
                 var sealerRoute = GetObject<SealerRoute[]>(config.Value);
@@ -48,6 +50,7 @@ public class ConfigurationService
                 if (sealerRoute != null)
                     configuration.SealerRouteConfigs.AddRange(sealerRoute);
             }
+
             else if (config.Key == ConfigurationName.branding_pdf_reference.ToString())
             {
                 var brandingReference = GetObject<BrandingPdf[]>(config.Value);
@@ -92,7 +95,7 @@ public class ConfigurationService
     {
         var weightConfigs = await _context.WeightToleranceConfigs.ToListAsync();
 
-        if (!weightConfigs.Any(x => x.WeigthTolerance == weightToleranceConfig.WeigthTolerance))
+        if (!weightConfigs.Any(x => x.WeigthTolerance.Equals(weightToleranceConfig.WeigthTolerance)))
         {
             weightConfigs.ForEach(_ => _.ConfigurationInUse = false);
             weightToleranceConfig.ConfigurationInUse = true;
@@ -100,10 +103,10 @@ public class ConfigurationService
         }
         else
         {
-            if (!weightConfigs.First(_ => _.WeigthTolerance == weightToleranceConfig.WeigthTolerance).ConfigurationInUse)
+            if (!weightConfigs.First(_ => _.WeigthTolerance.Equals(weightToleranceConfig.WeigthTolerance)).ConfigurationInUse)
             {
                 weightConfigs.ForEach(_ => _.ConfigurationInUse = false);
-                weightConfigs.First(_ => _.WeigthTolerance == weightToleranceConfig.WeigthTolerance).ConfigurationInUse = true;
+                weightConfigs.First(_ => _.WeigthTolerance.Equals(weightToleranceConfig.WeigthTolerance)).ConfigurationInUse = true;
                 _context.UpdateRange(weightConfigs);
             }
         }

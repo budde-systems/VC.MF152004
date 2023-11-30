@@ -132,7 +132,7 @@ public class BrandPrinter : IMachine
     }
 
     /// <summary>
-    /// Print will be executed only if the machine is connected, job ist not stopped and a job is setted
+    /// Print will be executed only if the machine is connected, job ist not stopped and a job is set
     /// </summary>
     /// <param name="refId"></param>
     /// <param name="shipmentId"></param>

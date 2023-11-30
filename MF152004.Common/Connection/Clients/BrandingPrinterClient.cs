@@ -116,7 +116,7 @@ public class BrandingPrinterClient
         switch (eventId)
         {
             case ReaPi.EEventId.JOBSET:
-
+            {
                 var filename = ReaPi.GetJobFilename(_responseHandle, out var error);
 
                 _logger.LogWarning($"ErrorCode at filename is {error}");
@@ -139,6 +139,7 @@ public class BrandingPrinterClient
                 }
 
                 break;
+            }
 
             case ReaPi.EEventId.PRINTSTART:
             {

@@ -10,6 +10,7 @@ namespace MF152004.Common.Connection.Packets.PacketHelpers;
 public class DestinationPacketHelper : MessagePacketHelper
 {
     public override string InTopic { get; set; }
+
     public override string OutTopic { get; set; }
 
     public DestinationPacket_152004? DestinationPacket { get; set; }

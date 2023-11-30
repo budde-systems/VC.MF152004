@@ -19,23 +19,23 @@ namespace MF152004.Webservice.Services;
 
 public class MessageDistributorService : MessageDistributor
 {
-    public override event EventHandler<BarcodeScanEventArgs> BarcodeScanned;
-    public override event EventHandler<WeightScanEventArgs> WeightScanned;
-    public override event EventHandler<UnsubscribedPacketEventArgs> UnsubscribedPacket;
-    public override event EventHandler<ErrorcodeEventArgs> ErrorCodeTriggered;
-        
-    public event EventHandler<GeneralPacketEventArgs> GeneralPacketReceived;        
+    public override event EventHandler<BarcodeScanEventArgs>? BarcodeScanned;
+    public override event EventHandler<WeightScanEventArgs>? WeightScanned;
+    public override event EventHandler<UnsubscribedPacketEventArgs>? UnsubscribedPacket;
+    public override event EventHandler<ErrorcodeEventArgs>? ErrorCodeTriggered;
 
+    public event EventHandler<GeneralPacketEventArgs>? GeneralPacketReceived;
+
+    private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<MessageDistributorService> _logger;
     private readonly MqttClient _client;
     private readonly ConfigurationService _configurationService;
     private readonly ShipmentService _shipmentService;
     private readonly WMS_Client _wmsClient;
     private readonly DestinationService _destinationService;
-    private readonly WeightScanService _weightScanService;
 
-    private HubConnection _hubConnection;
-
+    // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
+    private readonly HubConnection? _hubConnection;
 
     public MessageDistributorService(IServiceProvider serviceProvider, IConfiguration configuration) : base(new List<MessagePacketHelper> 
     { 
@@ -46,6 +46,8 @@ public class MessageDistributorService : MessageDistributor
         new WeightScanMessagePacketHelper(configuration["Workerservice_To_Webservice_WeightScan"] ?? "", "")
     })
     {
+        _serviceProvider = serviceProvider;
+
         var scope = serviceProvider.CreateScope();
         _logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<MessageDistributorService>();
         _configurationService = scope.ServiceProvider.GetRequiredService<ConfigurationService>();
@@ -56,28 +58,25 @@ public class MessageDistributorService : MessageDistributor
         _weightScanService = scope.ServiceProvider.GetRequiredService<WeightScanService>();
 
         AddHeaders(configuration);
-        InitHubConnection(configuration["hub_url"]);
 
-        _logger.LogInformation("The message distributor service has been startet successfully");
-    }
-
-    private async void InitHubConnection(string? url)
-    {
-        if (string.IsNullOrWhiteSpace(url))
+        if (configuration["hub_url"] is not {} hubUrl)
             _logger.LogWarning("The url for the hub connection is null or empty.");
         else
         {
             _hubConnection = new HubConnectionBuilder()
                 .WithAutomaticReconnect()
-                .WithUrl(url)
+                .WithUrl(hubUrl)
                 .Build();
 
             _hubConnection
                 .On<DestinationStatus>("ReceiveDestinationStatus", _destinationService.OnNewDestinationStatus);
 
-            await _hubConnection.StartAsync();
+            _hubConnection.StartAsync();
         }
+        
+        _logger.LogInformation("The message distributor service has been started successfully");
     }
+
 
     private void AddHeaders(IConfiguration configuration)
     {
@@ -104,20 +103,20 @@ public class MessageDistributorService : MessageDistributor
                 OnConfigurationMessage(pckHelper);
             
             else if (messageEvent.Message.Topic == CommonData.Topics[TopicType.Workerservice_Webservice])
-                OnShipmentMessage(pckHelper);
+                OnShipmentMessageAsync(pckHelper);
 
             else if (messageEvent.Message.Topic == CommonData.Topics[TopicType.Workerservice_Webservice_Destination])
-                OnDestinationMessage(pckHelper);
+                OnDestinationMessageAsync(pckHelper);
 
             else if (messageEvent.Message.Topic == CommonData.Topics[TopicType.Workerservice_Webservice_General])
                 OnGeneralPacket(pckHelper);
 
             else if (messageEvent.Message.Topic == CommonData.Topics[TopicType.Workerservice_Webservice_WeightScan]) 
-                OnWeightScan(pckHelper);
+                OnWeightScanAsync(pckHelper);
         }
     }
 
-    private async void OnShipmentMessage(MessagePacketHelper pckHelper)
+    private async void OnShipmentMessageAsync(MessagePacketHelper pckHelper)
     {
         if (pckHelper is ShipmentPacketHelper packetHelper)
         {
@@ -205,16 +204,24 @@ public class MessageDistributorService : MessageDistributor
         _client.SendData(pckHelper.GetPacketData());
     }
 
-    private async void OnDestinationMessage(MessagePacketHelper messagePacketHelper)
+    private async void OnDestinationMessageAsync(MessagePacketHelper messagePacketHelper)
     {
-        if (messagePacketHelper is DestinationPacketHelper {DestinationPacket: not null} pckHelper)
+        try
         {
-            if (pckHelper.DestinationPacket.KeyCode == ActionKey.RequestedEntity) 
-                SendUpdatedDestinations((await _destinationService.GetDestinationsAsync()).ToArray());
+            if (messagePacketHelper is DestinationPacketHelper { DestinationPacket: not null } pckHelper)
+            {
+                if (pckHelper.DestinationPacket.KeyCode == ActionKey.RequestedEntity)
+                    SendUpdatedDestinations((await _destinationService.GetDestinationsAsync()).ToArray());
+            }
+            else
+            {
+                _logger.LogWarning("The packethelper or destination packet is null.");
+            }
         }
-        else
+        catch (Exception ex)
         {
-            _logger.LogWarning("The packethelper or destination packet is null.");
+            _logger.LogError(ex.ToString());
+            throw;
         }
     }
 
@@ -252,19 +259,28 @@ public class MessageDistributorService : MessageDistributor
 
     #region Weightscan
 
-    private void OnWeightScan(MessagePacketHelper packetHelper)
+    private async void OnWeightScanAsync(MessagePacketHelper packetHelper)
     {
-        if (packetHelper is WeightScanMessagePacketHelper {WeightScanPacket: not null} pckHelper)
+        try
         {
-            if (pckHelper.WeightScanPacket.KeyCode == ActionKey.NewEntity)
+            if (packetHelper is WeightScanMessagePacketHelper {WeightScanPacket: not null} pckHelper)
             {
-                _weightScanService.AddWeightScan(pckHelper.WeightScanPacket.WeightScan);
-                PostScan(pckHelper.WeightScanPacket.WeightScan);
+                if (pckHelper.WeightScanPacket.KeyCode == ActionKey.NewEntity && pckHelper.WeightScanPacket.WeightScan is { } weightScan)
+                {
+                    using var scope = _serviceProvider.CreateScope();
+                    await scope.ServiceProvider.GetRequiredService<WeightScanService>().AddWeightScan(weightScan);
+                    PostScan(weightScan);
+                }
+            }
+            else
+            {
+                _logger.LogWarning("The packethelper or weightscan packet is null.");
             }
         }
-        else
+        catch (Exception ex)
         {
-            _logger.LogWarning("The packethelper or weightscan packet is null.");
+            _logger.LogError(ex.ToString());
+            throw;
         }
     }
 
@@ -281,7 +297,10 @@ public class MessageDistributorService : MessageDistributor
                 _logger.LogInformation($"Weightscan ({scan}) has been posted");
                 break;
             }
-            catch (HttpRequestException) { await Task.Delay(1000); }
+            catch (HttpRequestException)
+            {
+                await Task.Delay(1000);
+            }
         }
 
         _logger.LogInformation($"Number of attempts to post weightscan in WMS: {numberOfAttempts}");

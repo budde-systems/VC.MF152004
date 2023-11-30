@@ -45,7 +45,6 @@ public class MaterialFlowMng : MaterialFlowManager
         ContextService contextService, 
         IConfiguration configuration, 
         IServiceProvider serviceProvider, 
-        ILogger<MessageDistributor> msgDistLogger,
         IOptions<BrandPrinterSettingsBack> brandPrinterSettingsBack,
         IOptions<BrandPrinterSettingsFront> brandPrinterSettingsFront,
         BrandingPrinterClient brandingPrinterClient)
@@ -143,7 +142,7 @@ public class MaterialFlowMng : MaterialFlowManager
     }
 
     /// <summary>
-    /// Starts the materialflow - connection to broker / sends request of informations
+    /// Starts the materialflow - connection to broker / sends request of information
     /// </summary>
     /// <param name="cancellationToken">To stop the delay when connection can't be established</param>
     public async void Run(CancellationToken cancellationToken)
@@ -156,10 +155,10 @@ public class MaterialFlowMng : MaterialFlowManager
         Sectors = CreateSectors();
         _destinationService.SetSectors(Sectors.ToList());
         _sectorServices.RunService(Sectors.ToList());
-
+        
         await PrepareContextService();
 
-        _logger.LogInformation("Destinations will be request");
+        _logger.LogInformation("Destinations will be requested");
 
 #if !SAFE_DEBUG
         _msgDistributor.SendDestinationsRequest(); //request destination configuration after start
@@ -231,8 +230,8 @@ public class MaterialFlowMng : MaterialFlowManager
 
     private void UpdateShipmentsDestination(object? sender, UpdateDestinationsEventArgs e)
     {
-        var shipmentIdsToUpdate = _contextService.GetRunningShipments().Select(_ => _.Id).ToList();
-        _msgDistributor.SendShipmentsRequest(shipmentIdsToUpdate.ToArray());
+        var shipmentIdsToUpdate = _contextService.GetRunningShipments().Select(shipment => shipment.Id).ToArray();
+        _msgDistributor.SendShipmentsRequest(shipmentIdsToUpdate);
     }
 
     private async void OnClientDisconnected(object? sender, EventArgs e)

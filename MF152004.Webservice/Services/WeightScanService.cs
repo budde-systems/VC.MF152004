@@ -14,7 +14,7 @@ public class WeightScanService
         _logger = logger;
     }
 
-    public async void AddWeightScan(Scan? scan)
+    public async Task AddWeightScan(Scan? scan)
     {
         if (scan is null)
         {

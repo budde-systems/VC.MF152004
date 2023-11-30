@@ -21,8 +21,8 @@ public class Program
         ConfigureLogger(builder);
 
         var connectionString = builder.Configuration.GetConnectionString("MF152004Connection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-        builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlite(connectionString));
+        
+        builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connectionString));
 
         builder.Services.AddScoped<ConfigurationService>();
         builder.Services.AddScoped<ShipmentService>();
