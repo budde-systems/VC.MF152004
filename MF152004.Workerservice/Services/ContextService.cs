@@ -411,10 +411,7 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
 
         var shipment = GetShipmentByPacketTracing((int)packetTracing);
 
-        if (shipment == null)
-            return string.Empty;
-
-        return BrandingPdfReferenceId(shipment);
+        return shipment == null ? string.Empty : BrandingPdfReferenceId(shipment);
     }
 
     /// <summary>
@@ -443,14 +440,8 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
         return refId ?? BrandingPdfReferenceId(shipment);
     }
 
-    private string BrandingPdfReferenceId(Shipment shipment)
-    {
-        var id = Context.Config.BrandingPdfConfigs
-            .FirstOrDefault(_ => _.ClientReference == shipment.ClientReference && 
-                                 _.BoxBarcodeReference == shipment.BoxBarcodeReference)?.BrandingPdfReference ?? string.Empty;
-
-        return id;
-    }
+    private string BrandingPdfReferenceId(Shipment shipment) => Context.Config.BrandingPdfConfigs
+        .FirstOrDefault(_ => _.ClientReference == shipment.ClientReference && _.BoxBarcodeReference == shipment.BoxBarcodeReference)?.BrandingPdfReference ?? string.Empty;
 
     public void SetPacketTracing(int packetTracing, params string[] barcodes)
     {

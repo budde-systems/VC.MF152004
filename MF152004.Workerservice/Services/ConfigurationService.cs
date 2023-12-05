@@ -24,7 +24,7 @@ public class ConfigurationService
         {
             _context.Config = configuration;
 
-            CommonData.WeightTolerance = configuration.WeightToleranceConfig?.WeigthTolerance ?? 0;
+            CommonData.WeightTolerance = configuration.WeightToleranceConfig.WeigthTolerance;
         } //TODO: else logging error
     }
 
