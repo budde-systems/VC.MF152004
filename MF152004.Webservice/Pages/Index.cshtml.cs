@@ -66,14 +66,9 @@ public class IndexModel : PageModel
             return NotFound(msg);
         }
 
-        destination.Carriers?.ForEach(_ => _.Active = false);
-        destination.Carriers.SingleOrDefault(_ => _.Id == carrierId).Active = true;
-
-        destination.Countries?
-            .ForEach(c => c.Active = countryIds.Contains(c.Id) ? c.Active = true : c.Active = false);
-
-        destination.ClientReferences?
-            .ForEach(c => c.Active = clientIds.Contains(c.Id) ? c.Active = true : c.Active = false);
+        destination.Carriers?.ForEach(_ => _.Active = _.Id == carrierId);
+        destination.Countries?.ForEach(c => c.Active = countryIds.Contains(c.Id));
+        destination.ClientReferences?.ForEach(c => c.Active = clientIds.Contains(c.Id));
 
         await _context.SaveChangesAsync();
         _messageDistributorService.SendUpdatedDestinations(destination);
