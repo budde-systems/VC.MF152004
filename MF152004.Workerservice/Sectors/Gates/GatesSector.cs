@@ -42,6 +42,7 @@ namespace MF152004.Workerservice.Sectors.Gates
                 try
                 {
                     int shipmentId = ValidateBarcodesAndGetShipmentId(scan.Barcodes?.ToArray());
+
                     //TODO: Andere Tracings über shipmentID prüfen und wenn vorhanden löschen
                     SetDiverterDirection(scan, shipmentId); //also the packet will be traced
 
@@ -49,15 +50,17 @@ namespace MF152004.Workerservice.Sectors.Gates
                             .FirstOrDefault(div => div.DriveDirection != div.Towards
                             .First(t => t.FaultDirection).DriveDirection);
 
+                    var shipment = _contextService.GetShipmentByTranportationReference(scan.Barcodes.ToArray());
+
                     if (diverter is null)
                     {
                         _packetHelper.Create_NoExitFlowSortPosition(Diverters.First(), scan.PacketTracing); //go ahead
-                        _logger.LogInformation($"The package {shipmentId} will drive on. Place: ({this})");
+                        _logger.LogInformation($"The package {shipmentId} ({shipment.DestinationRouteReference}) will drive on. Place: ({this})");
                     }
                     else
                     {
                         _packetHelper.Create_FlowSortPosition(diverter, scan.PacketTracing); //ausschleusen
-                        _logger.LogInformation($"The package {shipmentId} will drive out. Place ({this})");
+                        _logger.LogInformation($"The package {shipmentId} ({shipment.DestinationRouteReference}) will drive out. Place ({this})");
                     }
 
                     _client.SendData(_packetHelper.GetPacketData());
