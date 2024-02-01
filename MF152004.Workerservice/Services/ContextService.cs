@@ -165,6 +165,8 @@ namespace MF152004.Workerservice.Services
             else
             {
                 shipment.DestinationRouteReference = target;
+                _logger.LogInformation("Destination updated in {0}: {1}", shipment, shipment.DestinationRouteReference);
+
                 shipment.DestinationRouteReferenceUpdatedAt = DateTime.Now;
             }
         }
