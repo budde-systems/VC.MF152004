@@ -1,4 +1,5 @@
-﻿using MF152004.Models.EventArgs;
+﻿using System.Diagnostics;
+using MF152004.Models.EventArgs;
 using MF152004.Models.Main;
 using MF152004.Workerservice.Common;
 using MF152004.Workerservice.Data;
@@ -59,8 +60,10 @@ namespace MF152004.Workerservice.Services
             {
                 if (shipments != null)
                 {
+                    var sw = Stopwatch.StartNew();
                     var existingShipments = _context.Shipments.Select(_ => _.TransportationReference).ToHashSet();
                     _context.Shipments.AddRange(shipments.Where(_ => !existingShipments.Contains(_.TransportationReference)).ToList());
+                    _logger.LogInformation("{0} shipments added in {1} ms", shipments.Count, sw.ElapsedMilliseconds);
                 }
             }
         }
