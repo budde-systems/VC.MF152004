@@ -17,8 +17,8 @@ namespace MF152004.Workerservice.Sectors.Gates
         protected readonly MessageDistributor _messageDistributor;
         protected readonly PLC152004_PacketHelper _packetHelper = new();
 
-        public GatesSector(IClient client, string baseposition, string name, ContextService contextService,
-            MessageDistributor messageDistributor) : base(client, name, baseposition)
+        public GatesSector(IClient client, ILogger<Sector> logger, string baseposition, string name, ContextService contextService,
+            MessageDistributor messageDistributor) : base(client, logger, name, baseposition)
         {
             _contextService = contextService;
             _messageDistributor = messageDistributor;

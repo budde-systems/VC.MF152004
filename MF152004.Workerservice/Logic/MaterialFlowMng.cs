@@ -240,13 +240,16 @@ namespace MF152004.Workerservice.Logic
 
         protected override List<Sector> CreateSectors() //TODO: Funktionalität testen und refactoring
         {
-            var boxSealer = new BoxSealerSector(_client, "2.2", _contextService, _msgDistributor);
-            var brandPrinterSector = new BrandPrinterSector(_client, "3.1", _contextService, _msgDistributor);
-            var scale = new Sectors.ScaleSector(_client, "3.2", _contextService, _msgDistributor);
-            var labelPrinterSector = new LabelPrinterSector(_client, "3.3", _contextService, _msgDistributor, _configuration["hub_url"]);
-            var exportSector = new ExportGates(_client, "5-6", _contextService, _msgDistributor);
-            var telescopeSectorA = new TelescopeGatesSectorA(_client, "6-7", _contextService, _msgDistributor);
-            var telescopeSectorB = new TelescopeGatesSectorB(_client, "7-8", _contextService, _msgDistributor);
+            using var scope = _serviceProvider.CreateScope();
+            var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<Sector>();
+
+            var boxSealer = new BoxSealerSector(_client, logger, "2.2", _contextService, _msgDistributor);
+            var brandPrinterSector = new BrandPrinterSector(_client, logger, "3.1", _contextService, _msgDistributor);
+            var scale = new Sectors.ScaleSector(_client, logger, "3.2", _contextService, _msgDistributor);
+            var labelPrinterSector = new LabelPrinterSector(_client, logger, "3.3", _contextService, _msgDistributor, _configuration["hub_url"]);
+            var exportSector = new ExportGates(_client, logger, "5-6", _contextService, _msgDistributor);
+            var telescopeSectorA = new TelescopeGatesSectorA(_client, logger, "6-7", _contextService, _msgDistributor);
+            var telescopeSectorB = new TelescopeGatesSectorB(_client, logger, "7-8", _contextService, _msgDistributor);
 
             _msgDistributor.WeigtScanned += scale.Weight_Scanned;
             _msgDistributor.LabelPrinterRefRequest += labelPrinterSector.RepeatLastPrinterReferenceBroadcast;
@@ -263,16 +266,11 @@ namespace MF152004.Workerservice.Logic
                 boxSealer, brandPrinterSector, scale, exportSector, telescopeSectorA, telescopeSectorB, labelPrinterSector
             };
 
-            using var scope = _serviceProvider.CreateScope();
-            var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<Sector>();
-
             sectors.ForEach(sector =>
             {
                 _msgDistributor.BarcodeScanned += sector.Barcode_Scanned;
                 _msgDistributor.UnsubscribedPacket += sector.UnsubscripedPacket;
                 _msgDistributor.ErrorcodeTriggered += sector.ErrorTriggered;
-
-                sector.AddLogger(logger);
             });
 
             return sectors;

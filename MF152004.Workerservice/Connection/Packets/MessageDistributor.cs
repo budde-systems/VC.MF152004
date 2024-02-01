@@ -411,7 +411,7 @@ namespace MF152004.Workerservice.Connection.Packets
             else
             {
                 _logger.LogError($"Shipment is null [at {nameof(SendShipmentUpdate)}]");
-                throw new ArgumentNullException(nameof(shipment));
+                // throw new ArgumentNullException(nameof(shipment)); VK: ???
             }
         }
 

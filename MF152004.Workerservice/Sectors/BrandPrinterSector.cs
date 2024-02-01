@@ -23,8 +23,8 @@ namespace MF152004.Workerservice.Sectors
 
         private BrandingPrinterClient _brandingPrinterClient;
 
-        public BrandPrinterSector(IClient client, string baseposition, ContextService contextService,
-            MessageDistributor messageDistributor) : base(client, NAME, baseposition)
+        public BrandPrinterSector(IClient client, ILogger<Sector> logger, string baseposition, ContextService contextService,
+            MessageDistributor messageDistributor) : base(client, logger, NAME, baseposition)
         {
             _contextService = contextService;
             _messageDistributor = messageDistributor;

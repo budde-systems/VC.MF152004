@@ -34,11 +34,12 @@ namespace MF152004.Workerservice.Sectors
         private Status _status = Status.Labelprinter_Ok;
 
         public LabelPrinterSector(
-            IClient client, 
+            IClient client,
+            ILogger<Sector> logger,
             string baseposition, 
             ContextService contextService, 
             MessageDistributor messageDistributor,
-            string? hubUrl) : base(client, NAME, baseposition)
+            string? hubUrl) : base(client, logger, NAME, baseposition)
         {
             _contextService = contextService;
             _messageDistributor = messageDistributor;
@@ -53,7 +54,7 @@ namespace MF152004.Workerservice.Sectors
         private async void InitHubConnection(string? url)
         {
             if (string.IsNullOrWhiteSpace(url))
-                _logger.LogWarning("The url for the hub connection is null or empty.");
+                _logger?.LogWarning("The url for the hub connection is null or empty.");
             else
             {
                 _hubConnection = new HubConnectionBuilder()
@@ -72,7 +73,7 @@ namespace MF152004.Workerservice.Sectors
                     }
                     catch (Exception exception)
                     {
-                        _logger.LogError($"No hub-connection could established. Next try in 5secs. ERROR:\n{exception}");
+                        _logger?.LogError($"No hub-connection could established. Next try in 5secs. ERROR:\n{exception}");
                         await Task.Delay(TimeSpan.FromSeconds(5));
                     }
                 }

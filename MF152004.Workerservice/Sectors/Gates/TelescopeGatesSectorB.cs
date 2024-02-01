@@ -6,6 +6,7 @@ using BlueApps.MaterialFlow.Common.Models;
 using MF152004.Models.Values.Types;
 using MF152004.Workerservice.Connection.Packets;
 using MF152004.Workerservice.Services;
+using BlueApps.MaterialFlow.Common.Sectors;
 
 namespace MF152004.Workerservice.Sectors.Gates
 {
@@ -13,8 +14,8 @@ namespace MF152004.Workerservice.Sectors.Gates
     {
         private const string NAME = "Telescope Sector 2";
 
-        public TelescopeGatesSectorB(IClient client, string baseposition, ContextService contextService, 
-            MessageDistributor messageDistributor) : base(client, baseposition, NAME, contextService, messageDistributor)
+        public TelescopeGatesSectorB(IClient client, ILogger<Sector> logger, string baseposition, ContextService contextService, 
+            MessageDistributor messageDistributor) : base(client, logger, baseposition, NAME, contextService, messageDistributor)
         {
             BarcodeScanner = CreateScanner();
             Diverters = CreateDiverters();

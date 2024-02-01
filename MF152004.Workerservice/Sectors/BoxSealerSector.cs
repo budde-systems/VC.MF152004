@@ -21,8 +21,8 @@ namespace MF152004.Workerservice.Sectors
         private readonly PLC152004_PacketHelper _packetHelper = new PLC152004_PacketHelper();
         private readonly MessageDistributor _messageDistributor;
 
-        public BoxSealerSector(MqttClient client, string baseposition, ContextService contextService, 
-            MessageDistributor messageDistributor) : base(client, NAME, baseposition)
+        public BoxSealerSector(MqttClient client, ILogger<Sector> logger, string baseposition, ContextService contextService, 
+            MessageDistributor messageDistributor) : base(client, logger, NAME, baseposition)
         {
             _contextService = contextService;
             _messageDistributor = messageDistributor;
