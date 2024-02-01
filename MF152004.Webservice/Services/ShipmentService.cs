@@ -102,7 +102,7 @@ namespace MF152004.Webservice.Services
                 storedShipment.DestinationRouteReference = _destinationService
                     .GetDestinationNames(storedShipment.Carrier, storedShipment.Country, storedShipment.ClientReference);
 
-                _logger.LogInformation("Destination updated in {0}: {1}", storedShipment, storedShipment.DestinationRouteReference);
+                _logger.LogInformation("Destination updated in {0}: {1} (2)", storedShipment, storedShipment.DestinationRouteReference);
 
                 _logger.LogInformation($"A shipment ({storedShipment}) will be updated");
 
@@ -137,7 +137,7 @@ namespace MF152004.Webservice.Services
                     {
                         s.DestinationRouteReference = _destinationService
                                 .GetDestinationNames(s.Carrier, s.Country, s.ClientReference);
-                        _logger.LogInformation("Destination updated in {0}: {1}", s, s.DestinationRouteReference);
+                        _logger.LogInformation("Destination updated in {0}: {1} (3)", s, s.DestinationRouteReference);
                     }
                 });
 

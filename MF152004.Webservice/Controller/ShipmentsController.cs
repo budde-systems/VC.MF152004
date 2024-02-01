@@ -78,7 +78,7 @@ namespace MF152004.Webservice.Controller
             shipment.ReceivedAt = DateTime.Now;
             shipment.DestinationRouteReference = _destinationService
                 .GetDestinationNames(shipment.Carrier, shipment.Country, shipment.ClientReference);
-            _logger.LogInformation("Destination updated in {0}: {1}", shipment, shipment.DestinationRouteReference);
+            _logger.LogInformation("Destination updated in {0}: {1} (1)", shipment, shipment.DestinationRouteReference);
 
             _context.Shipments.Add(shipment);
             await _context.SaveChangesAsync();
