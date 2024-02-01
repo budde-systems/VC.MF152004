@@ -115,6 +115,8 @@ namespace MF152004.Common.Connection.Clients
                 return;
             }
 
+            _logger.LogInformation("Brandprinter event received:{0} - {1}", brandprinter.Name, eventid);
+
             switch (eventid)
             {
                 case ReaPi.EEventId.JOBSET:

@@ -167,7 +167,7 @@ namespace MF152004.Common.Machines
                     {
                         CurrentJob = job;
 
-                        if (job.ReferenceId != _jobBefore.ReferenceId)
+                        // if (job.ReferenceId != _jobBefore.ReferenceId)
                         {
                             var labelContent = ReaPi.CreateLabelContent();
 
