@@ -27,7 +27,7 @@ namespace MF152004.Workerservice.Services
             {
                 _context.Config = configuration;
 
-                CommonData.WeightTolerance = configuration.WeightToleranceConfig.WeigthTolerance;
+                CommonData.WeightTolerance = configuration.WeightToleranceConfig?.WeigthTolerance ?? 0;
             } //TODO: else logging error
         }
 

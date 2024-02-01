@@ -59,8 +59,8 @@ namespace MF152004.Workerservice.Services
             {
                 if (shipments != null)
                 {
-                    _context.Shipments.AddRange(shipments
-                        .Where(_ => !_context.Shipments.Exists(s => s.TransportationReference == _.TransportationReference))); 
+                    var existingShipments = _context.Shipments.Select(_ => _.TransportationReference).ToHashSet();
+                    _context.Shipments.AddRange(shipments.Where(_ => !existingShipments.Contains(_.TransportationReference)).ToList());
                 }
             }
         }
