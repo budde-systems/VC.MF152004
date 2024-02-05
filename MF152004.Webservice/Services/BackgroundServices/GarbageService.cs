@@ -3,99 +3,98 @@ using MF152004.Webservice.Data;
 using MF152004.Webservice.Services.BackgroundServices.BackgroundServicesSettings;
 using Microsoft.EntityFrameworkCore;
 
-namespace MF152004.Webservice.Services.BackgroundServices
+namespace MF152004.Webservice.Services.BackgroundServices;
+
+public class GarbageService : BackgroundService
 {
-    public class GarbageService : BackgroundService
+    private readonly ApplicationDbContext _context;
+    private readonly ILogger<GarbageService> _logger;
+    private readonly GarbageServiceSettings _settings;
+
+    private DateTime _finishedToDay = DateTime.Now.AddDays(-1);
+
+    public GarbageService(ILogger<GarbageService> logger, IConfiguration configuration, IServiceProvider service)
     {
-        private readonly ApplicationDbContext _context;
-        private readonly ILogger<GarbageService> _logger;
-        private readonly GarbageServiceSettings _settings;
+        var scope = service.CreateScope();
+        _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        _logger = logger;
 
-        private DateTime _finishedToDay = DateTime.Now.AddDays(-1);
-
-        public GarbageService(ILogger<GarbageService> logger, IConfiguration configuration, IServiceProvider service)
+        try
         {
-            var scope = service.CreateScope();
-            _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            _logger = logger;
-
-            try
-            {
-                _settings = configuration.GetRequiredSection("garbageservice").Get<GarbageServiceSettings>() ??
+            _settings = configuration.GetRequiredSection("garbageservice").Get<GarbageServiceSettings>() ??
                         GetDefaultSettings();
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError("Error at garbage service settings. Default values will be used. Exception:\n" +
-                    $"{exception}");
-                _settings = GetDefaultSettings();
-            }
         }
-
-        private GarbageServiceSettings GetDefaultSettings() => new() //default values
+        catch (Exception exception)
         {
-            Period = 30,
-            ExecuteTime = new TimeOnly(23, 30),
-            KeepDeliveredZplFileDays = 21,
-            KeepOldZplFilesDays = 60,
-            KeepShipmentDays = 400,
-        };
-
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            while (true)
-            {
-                if (!FinishedToDay() && TimeOnly.FromDateTime(DateTime.Now) >= _settings.ExecuteTime)
-                {
-                    await RemoveZplFiles();
-                    await RemoveOldShipments();
-                    _finishedToDay = DateTime.Now.Date;
-                }
-
-                await Task.Delay(TimeSpan.FromMinutes(_settings.Period), stoppingToken);
-            }
+            _logger.LogError("Error at garbage service settings. Default values will be used. Exception:\n" +
+                             $"{exception}");
+            _settings = GetDefaultSettings();
         }
+    }
 
-        private bool FinishedToDay() => _finishedToDay.Date == DateTime.Now.Date;
+    private GarbageServiceSettings GetDefaultSettings() => new() //default values
+    {
+        Period = 30,
+        ExecuteTime = new TimeOnly(23, 30),
+        KeepDeliveredZplFileDays = 21,
+        KeepOldZplFilesDays = 60,
+        KeepShipmentDays = 400,
+    };
 
-        private async Task RemoveZplFiles()
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        while (true)
         {
-            var shippedShipments = await _context.Shipments
-                .Where(_ => _.DestinationReachedAt != null)
-                .ToListAsync();
-
-            var removedFiles = FileManager
-                .RemoveZplFiles(_settings.KeepDeliveredZplFileDays, shippedShipments.Select(_ => _.Id.ToString()).ToArray());                
-
-            var oldRemovedFiles = FileManager.RemoveZplFiles(_settings.KeepOldZplFilesDays);
-
-            if (removedFiles.Any() || oldRemovedFiles.Any())
+            if (!FinishedToDay() && TimeOnly.FromDateTime(DateTime.Now) >= _settings.ExecuteTime)
             {
-                var allDeletedFiles = new List<string>(removedFiles.Count + oldRemovedFiles.Count);
-                allDeletedFiles.AddRange(removedFiles);
-                allDeletedFiles.AddRange(oldRemovedFiles);
-
-                _logger.LogInformation($"Files are deleted:\n{string.Join("\n", allDeletedFiles)}");
+                await RemoveZplFiles();
+                await RemoveOldShipments();
+                _finishedToDay = DateTime.Now.Date;
             }
-            else
-                _logger.LogInformation("No files will be deleted");
 
+            await Task.Delay(TimeSpan.FromMinutes(_settings.Period), stoppingToken);
         }
+    }
 
-        private async Task RemoveOldShipments()
+    private bool FinishedToDay() => _finishedToDay.Date == DateTime.Now.Date;
+
+    private async Task RemoveZplFiles()
+    {
+        var shippedShipments = await _context.Shipments
+            .Where(_ => _.DestinationReachedAt != null)
+            .ToListAsync();
+
+        var removedFiles = FileManager
+            .RemoveZplFiles(_settings.KeepDeliveredZplFileDays, shippedShipments.Select(_ => _.Id.ToString()).ToArray());                
+
+        var oldRemovedFiles = FileManager.RemoveZplFiles(_settings.KeepOldZplFilesDays);
+
+        if (removedFiles.Any() || oldRemovedFiles.Any())
         {
-            try
-            {
-                int removedShipments = await _context.Shipments
-                        .Where(_ => _.DestinationReachedAt != null && _.DestinationReachedAt < DateTime.Now.AddDays(-_settings.KeepShipmentDays))
-                        .ExecuteDeleteAsync();
+            var allDeletedFiles = new List<string>(removedFiles.Count + oldRemovedFiles.Count);
+            allDeletedFiles.AddRange(removedFiles);
+            allDeletedFiles.AddRange(oldRemovedFiles);
 
-                _logger.LogInformation($"{removedShipments} old shipments has been removed from DB");
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception.ToString());
-            }
+            _logger.LogInformation($"Files are deleted:\n{string.Join("\n", allDeletedFiles)}");
+        }
+        else
+            _logger.LogInformation("No files will be deleted");
+
+    }
+
+    private async Task RemoveOldShipments()
+    {
+        try
+        {
+            var removedShipments = await _context.Shipments
+                .Where(_ => _.DestinationReachedAt != null && _.DestinationReachedAt < DateTime.Now.AddDays(-_settings.KeepShipmentDays))
+                .ExecuteDeleteAsync();
+
+            _logger.LogInformation($"{removedShipments} old shipments has been removed from DB");
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception.ToString());
         }
     }
 }

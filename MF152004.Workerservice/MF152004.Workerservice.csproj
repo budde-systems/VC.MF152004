@@ -30,4 +30,8 @@
       <HintPath>..\reapi\reapisharp.dll</HintPath>
     </Reference>
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	<Exec Command="xcopy ..\reapi\*.* $(OutDir) /Y /D" />
+  </Target>
 </Project>

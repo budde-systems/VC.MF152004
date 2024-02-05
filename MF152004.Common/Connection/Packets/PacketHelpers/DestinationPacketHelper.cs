@@ -5,50 +5,49 @@ using BlueApps.MaterialFlow.Common.Values.Types;
 using MF152004.Models.Connection.Packets;
 using System.Text.Json;
 
-namespace MF152004.Common.Connection.Packets.PacketHelpers
+namespace MF152004.Common.Connection.Packets.PacketHelpers;
+
+public class DestinationPacketHelper : MessagePacketHelper
 {
-    public class DestinationPacketHelper : MessagePacketHelper
+    public override string InTopic { get; set; }
+    public override string OutTopic { get; set; }
+
+    public DestinationPacket_152004? DestinationPacket { get; set; }
+
+    public DestinationPacketHelper(string inTopic, string outTopic)
     {
-        public override string InTopic { get; set; }
-        public override string OutTopic { get; set; }
+        InTopic = inTopic;
+        OutTopic = outTopic;
+    }
 
-        public DestinationPacket_152004? DestinationPacket { get; set; }
-
-        public DestinationPacketHelper(string inTopic, string outTopic)
+    public override MessagePacket GetPacketData()
+    {
+        MessagePacket packet = new()
         {
-            InTopic = inTopic;
-            OutTopic = outTopic;
-        }
+            Topic = OutTopic,
+            Data = JsonSerializer.Serialize(DestinationPacket)
+        };
 
-        public override MessagePacket GetPacketData()
+        return packet;
+    }
+
+    public override void SetPacketData(MessagePacket message)
+    {
+        if (message != null && !string.IsNullOrEmpty(message.Data))
         {
-            MessagePacket packet = new()
-            {
-                Topic = OutTopic,
-                Data = JsonSerializer.Serialize(DestinationPacket)
-            };
-
-            return packet;
+            DestinationPacket = JsonSerializer.Deserialize<DestinationPacket_152004>(message.Data) ?? new();
         }
+    }
 
-        public override void SetPacketData(MessagePacket message)
+    public void CreateDestinationRequest() =>
+        DestinationPacket = new() { KeyCode = ActionKey.RequestedEntity };
+
+    public void CreateDestinationResponse(params Destination[] destinations)
+    {
+        DestinationPacket = new()
         {
-            if (message != null && !string.IsNullOrEmpty(message.Data))
-            {
-                DestinationPacket = JsonSerializer.Deserialize<DestinationPacket_152004>(message.Data) ?? new();
-            }
-        }
-
-        public void CreateDestinationRequest() =>
-            DestinationPacket = new() { KeyCode = ActionKey.RequestedEntity };
-
-        public void CreateDestinationResponse(params Destination[] destinations)
-        {
-            DestinationPacket = new()
-            {
-                KeyCode = ActionKey.UpdatedEntity,
-                Destinations = destinations.ToList()
-            };
-        }
+            KeyCode = ActionKey.UpdatedEntity,
+            Destinations = destinations.ToList()
+        };
     }
 }

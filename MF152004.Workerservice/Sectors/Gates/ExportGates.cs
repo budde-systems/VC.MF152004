@@ -13,7 +13,7 @@ namespace MF152004.Workerservice.Sectors.Gates;
 public class ExportGates : GatesSector //TODO: Gates können alle zusammengefasst werden. Scanner => Scanners : List<T>
 {
     private const string NAME = "Export Sector";
-    public ExportGates(IClient client, ILogger<Sector> logger, string basePosition, ContextService contextService,
+    public ExportGates(MqttClient client, ILogger<Sector> logger, string basePosition, ContextService contextService,
         MessageDistributor messageDistributor) : base(client, logger, basePosition, NAME, contextService, messageDistributor)
     {
         BarcodeScanner = CreateScanner();

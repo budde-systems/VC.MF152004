@@ -1,9 +1,8 @@
-﻿namespace MF152004.Models.Values
+﻿namespace MF152004.Models.Values;
+
+public class PrintJob
 {
-    public class PrintJob
-    {
-        public int ShipmentId { get; set; }
-        public string ReferenceId { get; set; }
-        public DateTime AtTime { get; set; } = DateTime.Now;
-    }
+    public int ShipmentId { get; set; }
+    public string ReferenceId { get; set; }
+    public DateTime AtTime { get; set; } = DateTime.Now;
 }

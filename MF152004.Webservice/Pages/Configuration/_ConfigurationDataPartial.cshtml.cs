@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace MF152004.Webservice.Pages.Configuration
+namespace MF152004.Webservice.Pages.Configuration;
+
+public class _ConfigurationDataPartialModel : PageModel
 {
-    public class _ConfigurationDataPartialModel : PageModel
+    public void OnGet()
     {
-        public void OnGet()
-        {
-        }
     }
 }

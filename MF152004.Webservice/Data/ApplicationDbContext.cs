@@ -4,106 +4,106 @@ using MF152004.Models.Main;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 
-namespace MF152004.Webservice.Data
+namespace MF152004.Webservice.Data;
+
+public class ApplicationDbContext : DbContext
 {
-    public class ApplicationDbContext : DbContext
+    public DbSet<Shipment> Shipments { get; set; }
+    public DbSet<SealerRoute> SealerRoutesConfigs { get; set; }
+    public DbSet<BrandingPdf> BradingPdfCongigs { get; set; }
+    public DbSet<LabelPrinter> LabelPrinterConfigs { get; set; }
+    public DbSet<WeightTolerance> WeightToleranceConfigs { get; set; }
+    public DbSet<Destination> Destinations { get; set; }
+    public DbSet<Carrier> Carriers { get; set; }
+    public DbSet<Country> Countries { get; set; }
+    public DbSet<ClientReference> ClientReferences { get; set; }
+    public DbSet<DeliveryService> DeliveryServices { get; set; }
+    public DbSet<NoRead> NoReads { get; set; }
+    public DbSet<Scan> WeightScans { get; set; }
+
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)  
     {
-        public DbSet<Shipment> Shipments { get; set; }
-        public DbSet<SealerRoute> SealerRoutesConfigs { get; set; }
-        public DbSet<BrandingPdf> BradingPdfCongigs { get; set; }
-        public DbSet<LabelPrinter> LabelPrinterConfigs { get; set; }
-        public DbSet<WeightTolerance> WeightToleranceConfigs { get; set; }
-        public DbSet<Destination> Destinations { get; set; }
-        public DbSet<Carrier> Carriers { get; set; }
-        public DbSet<Country> Countries { get; set; }
-        public DbSet<ClientReference> ClientReferences { get; set; }
-        public DbSet<DeliveryService> DeliveryServices { get; set; }
-        public DbSet<NoRead> NoReads { get; set; }
-        public DbSet<Scan> WeightScans { get; set; }
+            
+    }
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)  
-        {
-            
-        }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        DateTimeConversion(modelBuilder);
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            DateTimeConversion(modelBuilder);
+        base.OnModelCreating(modelBuilder);
+        DefaultDestinations(modelBuilder);
+    }
 
-            base.OnModelCreating(modelBuilder);
-            DefaultDestinations(modelBuilder);
-        }
+    private void DateTimeConversion(ModelBuilder modelBuilder)
+    {
+        modelBuilder
+            .Entity<Shipment>()
+            .Property(e => e.ReceivedAt)
+            .HasConversion(
+                v => v.Value.ToLocalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffffffK"), v => DateTime.Parse(v, CultureInfo.InvariantCulture)
+            );
+            
+        modelBuilder
+            .Entity<Shipment>()
+            .Property(e => e.BoxBrandedAt_1)
+            .HasConversion(
+                v => v.Value.ToLocalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffffffK"), v => DateTime.Parse(v, CultureInfo.InvariantCulture)
+            );
+            
+        modelBuilder
+            .Entity<Shipment>()
+            .Property(e => e.BoxBrandedAt_1)
+            .HasConversion(
+                v => v.Value.ToLocalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffffffK"), v => DateTime.Parse(v, CultureInfo.InvariantCulture)
+            );
+            
+        modelBuilder
+            .Entity<Shipment>()
+            .Property(e => e.LabelPrintedAt)
+            .HasConversion(
+                v => v.Value.ToLocalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffffffK"), v => DateTime.Parse(v, CultureInfo.InvariantCulture)
+            );
+            
+        modelBuilder
+            .Entity<Shipment>()
+            .Property(e => e.LabelPrintingFailedAt)
+            .HasConversion(
+                v => v.Value.ToLocalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffffffK"), v => DateTime.Parse(v, CultureInfo.InvariantCulture)
+            );
+            
+        modelBuilder
+            .Entity<Shipment>()
+            .Property(e => e.LeftSealerAt)
+            .HasConversion(
+                v => v.Value.ToLocalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffffffK"), v => DateTime.Parse(v, CultureInfo.InvariantCulture)
+            );
+            
+        modelBuilder
+            .Entity<Shipment>()
+            .Property(e => e.LeftErrorAisleAt)
+            .HasConversion(
+                v => v.Value.ToLocalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffffffK"), v => DateTime.Parse(v, CultureInfo.InvariantCulture)
+            );
+            
+        modelBuilder
+            .Entity<Shipment>()
+            .Property(e => e.DestinationRouteReferenceUpdatedAt)
+            .HasConversion(
+                v => v.Value.ToLocalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffffffK"), v => DateTime.Parse(v, CultureInfo.InvariantCulture)
+            );
+            
+        modelBuilder
+            .Entity<Shipment>()
+            .Property(e => e.DestinationReachedAt)
+            .HasConversion(
+                v => v.Value.ToLocalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffffffK"), v => DateTime.Parse(v, CultureInfo.InvariantCulture)
+            );
+    }
 
-        private void DateTimeConversion(ModelBuilder modelBuilder)
-        {
-            modelBuilder
-                .Entity<Shipment>()
-                .Property(e => e.ReceivedAt)
-                .HasConversion(
-                    v => v.Value.ToLocalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffffffK"), v => DateTime.Parse(v, CultureInfo.InvariantCulture)
-                );
-            
-            modelBuilder
-                .Entity<Shipment>()
-                .Property(e => e.BoxBrandedAt_1)
-                .HasConversion(
-                    v => v.Value.ToLocalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffffffK"), v => DateTime.Parse(v, CultureInfo.InvariantCulture)
-                );
-            
-            modelBuilder
-                .Entity<Shipment>()
-                .Property(e => e.BoxBrandedAt_1)
-                .HasConversion(
-                    v => v.Value.ToLocalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffffffK"), v => DateTime.Parse(v, CultureInfo.InvariantCulture)
-                );
-            
-            modelBuilder
-                .Entity<Shipment>()
-                .Property(e => e.LabelPrintedAt)
-                .HasConversion(
-                    v => v.Value.ToLocalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffffffK"), v => DateTime.Parse(v, CultureInfo.InvariantCulture)
-                );
-            
-            modelBuilder
-                .Entity<Shipment>()
-                .Property(e => e.LabelPrintingFailedAt)
-                .HasConversion(
-                    v => v.Value.ToLocalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffffffK"), v => DateTime.Parse(v, CultureInfo.InvariantCulture)
-                );
-            
-            modelBuilder
-                .Entity<Shipment>()
-                .Property(e => e.LeftSealerAt)
-                .HasConversion(
-                    v => v.Value.ToLocalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffffffK"), v => DateTime.Parse(v, CultureInfo.InvariantCulture)
-                );
-            
-            modelBuilder
-                .Entity<Shipment>()
-                .Property(e => e.LeftErrorAisleAt)
-                .HasConversion(
-                    v => v.Value.ToLocalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffffffK"), v => DateTime.Parse(v, CultureInfo.InvariantCulture)
-                );
-            
-            modelBuilder
-                .Entity<Shipment>()
-                .Property(e => e.DestinationRouteReferenceUpdatedAt)
-                .HasConversion(
-                    v => v.Value.ToLocalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffffffK"), v => DateTime.Parse(v, CultureInfo.InvariantCulture)
-                );
-            
-            modelBuilder
-                .Entity<Shipment>()
-                .Property(e => e.DestinationReachedAt)
-                .HasConversion(
-                    v => v.Value.ToLocalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffffffK"), v => DateTime.Parse(v, CultureInfo.InvariantCulture)
-                );
-        }
-
-        private void DefaultDestinations(ModelBuilder builder)
-        {
-            builder.Entity<Destination>()
-                .HasData(
+    private void DefaultDestinations(ModelBuilder builder)
+    {
+        builder.Entity<Destination>()
+            .HasData(
                 new Destination
                 {
                     Id = 1,
@@ -170,6 +170,5 @@ namespace MF152004.Webservice.Data
                     Name = "Fehlerinsel",
                     UI_Id = "faultisland"
                 });
-        }
     }
 }

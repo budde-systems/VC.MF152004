@@ -5,46 +5,45 @@ using MF152004.Models.Connection.Packets;
 using MF152004.Models.Main;
 using System.Text.Json;
 
-namespace MF152004.Common.Connection.Packets.PacketHelpers
+namespace MF152004.Common.Connection.Packets.PacketHelpers;
+
+public class WeightScanMessagePacketHelper : MessagePacketHelper
 {
-    public class WeightScanMessagePacketHelper : MessagePacketHelper
+    public override string InTopic { get; set; }
+    public override string OutTopic { get; set; }
+    public WeightScanPacket_152004? WeightScanPacket { get; set; }
+
+    public WeightScanMessagePacketHelper(string inTopic, string outTopic)
     {
-        public override string InTopic { get; set; }
-        public override string OutTopic { get; set; }
-        public WeightScanPacket_152004? WeightScanPacket { get; set; }
+        InTopic = inTopic;
+        OutTopic = outTopic;
+    }
 
-        public WeightScanMessagePacketHelper(string inTopic, string outTopic)
+    public override MessagePacket GetPacketData()
+    {
+        var packet = new MessagePacket
         {
-            InTopic = inTopic;
-            OutTopic = outTopic;
-        }
+            Topic = OutTopic,
+            Data = JsonSerializer.Serialize(WeightScanPacket)
+        };
 
-        public override MessagePacket GetPacketData()
+        return packet;
+    }
+
+    public override void SetPacketData(MessagePacket message)
+    {
+        if (message != null && !string.IsNullOrEmpty(message.Data))
         {
-            MessagePacket packet = new MessagePacket()
-            {
-                Topic = OutTopic,
-                Data = JsonSerializer.Serialize(WeightScanPacket)
-            };
-
-            return packet;
+            WeightScanPacket = JsonSerializer.Deserialize<WeightScanPacket_152004>(message.Data);
         }
+    }
 
-        public override void SetPacketData(MessagePacket message)
+    public void CreateNewWeightScanResponse(Scan scan)
+    {
+        WeightScanPacket = new()
         {
-            if (message != null && !string.IsNullOrEmpty(message.Data))
-            {
-                WeightScanPacket = JsonSerializer.Deserialize<WeightScanPacket_152004>(message.Data);
-            }
-        }
-
-        public void CreateNewWeightScanResponse(Scan scan)
-        {
-            WeightScanPacket = new()
-            {
-                KeyCode = ActionKey.NewEntity,
-                WeightScan = scan
-            };
-        }
+            KeyCode = ActionKey.NewEntity,
+            WeightScan = scan
+        };
     }
 }

@@ -1,38 +1,44 @@
 using BlueApps.MaterialFlow.Common.Connection.Broker;
 using MF152004.Workerservice.Logic;
 
-namespace MF152004.Workerservice
+namespace MF152004.Workerservice;
+
+public class Worker : BackgroundService
 {
-    public class Worker : BackgroundService
+    private readonly ILogger<Worker> _logger;
+    private readonly MaterialFlowMng _materialFlowManager;
+    private readonly IServiceProvider _services;
+
+    public Worker(ILogger<Worker> logger, MaterialFlowMng materialFlowManager, IServiceProvider services)
     {
-        private readonly ILogger<Worker> _logger;
-        private readonly MaterialFlowMng _materialFlowManager;
-        private readonly IServiceProvider _services;
+        _logger = logger;
+        _services = services;
+        _materialFlowManager = materialFlowManager;
+    }
 
-        public Worker(ILogger<Worker> logger, MaterialFlowMng materialFlowManager, IServiceProvider services)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        try
         {
-            _logger = logger;
-            _services = services;
-            _materialFlowManager = materialFlowManager;
-        }
+            _logger.LogInformation("Workerservice is starting up...");
+            _logger.LogInformation("================================================");
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            var srvs = _services.CreateScope();
-            var broker = srvs.ServiceProvider.GetService<MqttBroker>();
+            var scope = _services.CreateScope();
+            var broker = scope.ServiceProvider.GetRequiredService<MqttBroker>();
 
-            if (broker != null)
-                await broker.RunBrokerAsync();
-            else
-                Environment.Exit(0); //TODO: logging etc.
+            await broker.RunBrokerAsync();
 
-            _materialFlowManager.Run(stoppingToken);
+            _ = Task.Factory.StartNew(() => _materialFlowManager.Run(stoppingToken), TaskCreationOptions.LongRunning); // Running MaterialFlow in another thread
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Workerservice running at: {time}", DateTimeOffset.Now);
                 await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
+                _logger.LogInformation("Heartbeat: Workerservice is running at: {time}", DateTimeOffset.Now);
             }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unhandled exception");
         }
     }
 }

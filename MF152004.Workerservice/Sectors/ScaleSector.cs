@@ -14,315 +14,314 @@ using MF152004.Workerservice.Connection.Packets;
 using MF152004.Workerservice.Connection.Packets.PacketHelpers;
 using MF152004.Workerservice.Services;
 
-namespace MF152004.Workerservice.Sectors
+namespace MF152004.Workerservice.Sectors;
+
+public class ScaleSector : Sector
 {
-    public class ScaleSector : Sector
+    private const string NAME = "ScaleSection";
+
+    private readonly ContextService _contextService;
+    private readonly PLC152004_PacketHelper _packetHelper = new PLC152004_PacketHelper();
+    private readonly MessageDistributor _messageDistributor;
+
+    public ScaleSector(MqttClient client, ILogger<Sector> logger, string baseposition, ContextService contextService,
+        MessageDistributor messageDistributor) : base(client, logger, NAME, baseposition)
     {
-        private const string NAME = "ScaleSection";
+        _contextService = contextService;
+        _messageDistributor = messageDistributor;
+        AddRelatedErrorcodes();
+        Diverters = CreateDiverters();
+    }
 
-        private readonly ContextService _contextService;
-        private readonly PLC152004_PacketHelper _packetHelper = new PLC152004_PacketHelper();
-        private readonly MessageDistributor _messageDistributor;
-
-        public ScaleSector(IClient client, ILogger<Sector> logger, string baseposition, ContextService contextService,
-            MessageDistributor messageDistributor) : base(client, logger, NAME, baseposition)
+    public override void AddRelatedErrorcodes()
+    {
+        var errors = new List<Errorcode>
         {
-            _contextService = contextService;
-            _messageDistributor = messageDistributor;
-            AddRelatedErrorcodes();
-            Diverters = CreateDiverters();
-        }
+            Errorcode.EmergencyHold_Scale //TODO: weitere ergänzen
+        };
 
-        public override void AddRelatedErrorcodes()
+        RelatedErrorcodes.AddRange(errors.Cast<short>());
+    }
+
+    public override ICollection<IDiverter> CreateDiverters()
+    {
+        var flowSort = new FlowSort
         {
-            List<Errorcode> errors = new List<Errorcode>
+            Name = NAME,
+            BasePosition = "3.2.80",
+            SubPosition = "3.2.79"
+        };
+
+        RoutePosition routePosition = new();
+        routePosition.SetRoutePosition(new Destination { Name = CommonData.FaultIsland });
+
+        flowSort.CreateTowards(new[]
+        {
+            new Toward
             {
-                Errorcode.EmergencyHold_Scale //TODO: weitere ergänzen
-            };
+                DriveDirection = Direction.Left,
+                FaultDirection = true,
+                RoutePosition = routePosition
+            },
 
-            RelatedErrorcodes.AddRange(errors.Cast<short>());
-        }
-
-        public override ICollection<IDiverter> CreateDiverters()
-        {
-            FlowSort flowSort = new FlowSort
+            new Toward
             {
-                Name = NAME,
-                BasePosition = "3.2.80",
-                SubPosition = "3.2.79"
-            };
-
-            RoutePosition routePosition = new();
-            routePosition.SetRoutePosition(new Destination { Name = CommonData.FaultIsland });
-
-            flowSort.CreateTowards(new[]
-{
-                new Toward()
+                DriveDirection = Direction.StraightAhead,
+                RoutePosition = new RoutePosition
                 {
-                    DriveDirection = Direction.Left,
-                    FaultDirection = true,
-                    RoutePosition = routePosition
-                },
-
-                new Toward()
-                {
-                    DriveDirection = Direction.StraightAhead,
-                    RoutePosition = new RoutePosition
-                    {
-                        Id = "1",
-                        Name = DefaultRoute.ToGates.ToString()
-                    }
+                    Id = "1",
+                    Name = DefaultRoute.ToGates.ToString()
                 }
-            });
+            }
+        });
 
-            List<IDiverter> diverters = new List<IDiverter> { flowSort };
+        List<IDiverter> diverters = new List<IDiverter> { flowSort };
 
-            return diverters;
-        }
+        return diverters;
+    }
 
-        public override Scanner CreateScanner() => new("M3.2.192", "S3.2.193");
+    public override Scanner CreateScanner() => new("M3.2.192", "S3.2.193");
 
-        public override void Barcode_Scanned(object? sender, BarcodeScanEventArgs scan)
+    public override void Barcode_Scanned(object? sender, BarcodeScanEventArgs scan)
+    {
+        //not required
+    }
+
+    public override void Weight_Scanned(object? sender, WeightScanEventArgs scan)
+    {
+        if (scan is WeightScanEventArgs_152004 specialScan)
         {
-            //not required
-        }
+            var diverter = Diverters.FirstOrDefault();
 
-        public override void Weight_Scanned(object? sender, WeightScanEventArgs scan)
-        {
-            if (scan is WeightScanEventArgs_152004 specialScan)
+            try
             {
-                var diverter = Diverters.FirstOrDefault();
+                var shipmentId = ValidateBarcodesAndGetShipmentId(specialScan.Barcodes?.ToArray());
+                SetDiverterDirection(diverter, specialScan, shipmentId);
 
-                try
-                {
-                    int shipmentId = ValidateBarcodesAndGetShipmentId(specialScan.Barcodes?.ToArray());
-                    SetDiverterDirection(diverter, specialScan, shipmentId);
-
-                    _packetHelper.Create_FlowSortPosition(diverter, specialScan.PacketTracing);
+                _packetHelper.Create_FlowSortPosition(diverter, specialScan.PacketTracing);
                     
-                    _contextService.SetPacketTracing(specialScan.PacketTracing, specialScan.Barcodes?.ToArray() ?? new[] { "" });
-                    AddTrackedPacket(specialScan.PacketTracing, shipmentId);
+                _contextService.SetPacketTracing(specialScan.PacketTracing, specialScan.Barcodes?.ToArray() ?? new[] { "" });
+                AddTrackedPacket(specialScan.PacketTracing, shipmentId);
 
-                    _client.SendData(_packetHelper.GetPacketData());
+                _client.SendData(_packetHelper.GetPacketData());
 
-                    ShipmentErrorHandling(shipmentId);
-                    WeightScanHandling(shipmentId, specialScan.Weight, specialScan.AtTime);
+                ShipmentErrorHandling(shipmentId);
+                WeightScanHandling(shipmentId, specialScan.Weight, specialScan.AtTime);
 
-                }
-                catch (Exception exception)
-                {
-                    _logger.LogError(exception.ToString());
-                }
-
-                OnFaultyBarcodes(specialScan); //handling of noreads
             }
-            else
+            catch (Exception exception)
             {
-
+                _logger.LogError(exception.ToString());
             }
+
+            OnFaultyBarcodes(specialScan); //handling of noreads
+        }
+        else
+        {
+
+        }
+    }
+
+    private void OnFaultyBarcodes(WeightScanEventArgs_152004 specialScan)
+    {
+        if (specialScan.Barcodes is null)
+        {
+            _logger.LogWarning($"Barcodes is null in sector {this}");
+        }
+        else if (specialScan.Barcodes.Contains(CommonData.NoRead))
+        {
+            NoRead noRead = new()
+            {
+                AtTime = specialScan.AtTime,
+                Position = specialScan.Position ?? "No Position",
+            };
+
+            _messageDistributor.SendNoRead(noRead);
+        }
+    }
+
+    private void SetDiverterDirection(IDiverter? diverter, WeightScanEventArgs_152004 specialScan, int shipmentId)
+    {
+        if (diverter is null)
+            throw new ArgumentNullException(nameof(diverter));
+
+        if (InvalidShipmentId(shipmentId, specialScan.Barcodes?.ToArray()) || FaultDestination(shipmentId, diverter) || InvalidShippedStatus(shipmentId) || 
+            InvalidWeight(shipmentId, specialScan.Weight) || InvalidHeight(shipmentId, specialScan.ValidHeight) || NoLabelPrint(shipmentId))
+        {
+            diverter.SetFaultDirection();
+            return;
         }
 
-        private void OnFaultyBarcodes(WeightScanEventArgs_152004 specialScan)
-        {
-            if (specialScan.Barcodes is null)
-            {
-                _logger.LogWarning($"Barcodes is null in sector {this}");
-            }
-            else if (specialScan.Barcodes.Contains(CommonData.NoRead))
-            {
-                NoRead noRead = new()
-                {
-                    AtTime = specialScan.AtTime,
-                    Position = specialScan.Position ?? "No Position",
-                };
+        var toward = diverter.Towards
+            .FirstOrDefault(_ => _.RoutePosition.Name == DefaultRoute.ToGates.ToString());
 
-                _messageDistributor.SendNoRead(noRead);
-            }
+        if (toward is null) //TODO: Logging
+        {
+            diverter.SetFaultDirection();
+            return;
         }
 
-        private void SetDiverterDirection(IDiverter? diverter, WeightScanEventArgs_152004 specialScan, int shipmentId)
+        diverter.SetDirection(toward.DriveDirection);
+    }
+
+    private int ValidateBarcodesAndGetShipmentId(string[]? barcodes)
+    {
+        if (barcodes is null || barcodes.Length == 0)
+            return -1; //TODO: Logging
+        else
+            return _contextService.GetShipmentId(barcodes);
+    }
+
+    private bool InvalidShipmentId(int shipmentId, string[]? barcodes)
+    {
+        if (shipmentId < 1)
         {
-            if (diverter is null)
-                throw new ArgumentNullException(nameof(diverter));
-
-            if (InvalidShipmentId(shipmentId, specialScan.Barcodes?.ToArray()) || FaultDestination(shipmentId, diverter) || InvalidShippedStatus(shipmentId) || 
-                InvalidWeight(shipmentId, specialScan.Weight) || InvalidHeight(shipmentId, specialScan.ValidHeight) || NoLabelPrint(shipmentId))
-            {
-                diverter.SetFaultDirection();
-                return;
-            }
-
-            var toward = diverter.Towards
-                .FirstOrDefault(_ => _.RoutePosition.Name == DefaultRoute.ToGates.ToString());
-
-            if (toward is null) //TODO: Logging
-            {
-                diverter.SetFaultDirection();
-                return;
-            }
-
-            diverter.SetDirection(toward.DriveDirection);
+            _logger.LogWarning($"Invalid shipment ID in sector {this}. " +
+                               $"Received barcodes: {(barcodes != null ? string.Join(", ", barcodes) : "null")}");
+            return true;
         }
 
-        private int ValidateBarcodesAndGetShipmentId(string[]? barcodes)
+        return false;
+    }
+
+    private bool InvalidShippedStatus(int shipmentId)
+    {
+        if (!_contextService.IsShipped(shipmentId))
         {
-            if (barcodes is null || barcodes.Length == 0)
-                return -1; //TODO: Logging
-            else
-                return _contextService.GetShipmentId(barcodes);
+            var msg = "The package has the wrong status";
+            var errorcode = "1003";
+
+            _contextService.SetMessage(errorcode + msg, shipmentId);
+            _contextService.SetTarget(shipmentId, CommonData.FaultIsland);
+
+            _logger.LogWarning(msg + $" ID: {shipmentId}");
+
+            return true;
         }
 
-        private bool InvalidShipmentId(int shipmentId, string[]? barcodes)
+        return false;
+    }
+
+    private bool InvalidWeight(int shipmentId, double isWeight)
+    {
+        if (!_contextService.WeightIsValid(isWeight, shipmentId))
         {
-            if (shipmentId < 1)
+            _contextService.SetMessage($"1004The package differs from the TARGET weight. The actual weight is {isWeight}", shipmentId);
+            _contextService.SetTarget(shipmentId, CommonData.FaultIsland);
+
+            _logger.LogWarning($"Wrong weight for ID {shipmentId}");
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool InvalidHeight(int shipmentId, bool validHeight)
+    {
+        if (!validHeight)
+        {
+            var msg = "The package has not passed the height test";
+            var errorcode = "1005";
+
+            _contextService.SetMessage(errorcode + msg, shipmentId);
+            _contextService.SetTarget(shipmentId, CommonData.FaultIsland);
+
+            _logger.LogWarning($"{msg}. (ID: {shipmentId}, sector: {this})");
+        }
+
+        return !validHeight;
+    }
+
+    private bool NoLabelPrint(int shipmentId)
+    {
+        if (!FileManager.ZplExists(shipmentId))
+        {
+            var msg = "No zpl file has been found";
+            var errorcode = "1006";
+
+            _contextService.SetMessage(errorcode + msg, shipmentId);
+            _contextService.SetTarget(shipmentId, CommonData.FaultIsland);
+
+            _logger.LogWarning(msg + $" Shipment ID: {shipmentId}, sector: {this}");
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool FaultDestination(int shipmentId, IDiverter diverter)
+    {
+        var result = _contextService.GetDestinations(shipmentId).Contains(diverter.Towards.First(_ => _.FaultDirection).RoutePosition.Name);
+
+        if (result)
+            _logger.LogInformation($"Shipment {shipmentId} has a fault direction");
+
+        return result;
+    }
+
+    private void ShipmentErrorHandling(int shipmentId)
+    {
+        var shipment = _contextService.GetShipment(shipmentId);
+
+        if (shipment != null && !string.IsNullOrEmpty(shipment.Message))
+        {
+            _messageDistributor.SendShipmentUpdate(shipment);
+        }
+    }
+
+    private void WeightScanHandling(int shipmentId, double scannedWeight, DateTime scanningTime)
+    {
+        if (shipmentId > 0)
+        {
+            var scan = new Scan
             {
-                _logger.LogWarning($"Invalid shipment ID in sector {this}. " +
-                    $"Received barcodes: {(barcodes != null ? string.Join(", ", barcodes) : "null")}");
-                return true;
-            }
+                ScanTime = scanningTime,
+                ShipmentId = shipmentId,
+                Weight = scannedWeight,
+                ScanType = _contextService.WeightIsValid(scannedWeight, shipmentId) ?
+                    ScanType.successful_scan : ScanType.wrong_weight,
+            };
 
-            return false;
+            _messageDistributor.SendWeightScan(scan);
+        }
+    }
+
+    public override void UnsubscripedPacket(object? sender, UnsubscribedPacketEventArgs unsubscribedPacket)
+    {
+        if (TrackedPacketExists(unsubscribedPacket.PacketTracing))
+        {
+            //TODO: Funktion offen
+            RemoveTrackedPacket(unsubscribedPacket.PacketTracing);
+            _contextService.RemovePacketTracing(unsubscribedPacket.PacketTracing);
+        }
+        else
+            _logger.LogWarning($"The packet tracing ID {unsubscribedPacket.PacketTracing} could not be found in sector {this}");
+    }
+
+    protected override void ErrorHandling(short errorcode)
+    {
+        var errorMessage = string.Empty;
+        var faultIslandDestination = false;
+
+        switch (errorcode)
+        {
+            case (short)Errorcode.EmergencyHold_Scale:
+
+                errorMessage = "";
+                faultIslandDestination = false; //not required
+
+                break;
         }
 
-        private bool InvalidShippedStatus(int shipmentId)
+        UpdateShipmentsAfterError(errorMessage, faultIslandDestination);
+    }
+
+    private void UpdateShipmentsAfterError(string errorMsg, bool faultIslandDestination)
+    {
+        if (TrackedPackets.Any())
         {
-            if (!_contextService.IsShipped(shipmentId))
-            {
-                string msg = "The package has the wrong status";
-                string errorcode = "1003";
-
-                _contextService.SetMessage(errorcode + msg, shipmentId);
-                _contextService.SetTarget(shipmentId, CommonData.FaultIsland);
-
-                _logger.LogWarning(msg + $" ID: {shipmentId}");
-
-                return true;
-            }
-
-            return false;
-        }
-
-        private bool InvalidWeight(int shipmentId, double isWeight)
-        {
-            if (!_contextService.WeightIsValid(isWeight, shipmentId))
-            {
-                _contextService.SetMessage($"1004The package differs from the TARGET weight. The actual weight is {isWeight}", shipmentId);
-                _contextService.SetTarget(shipmentId, CommonData.FaultIsland);
-
-                _logger.LogWarning($"Wrong weight for ID {shipmentId}");
-                return true;
-            }
-
-            return false;
-        }
-
-        private bool InvalidHeight(int shipmentId, bool validHeight)
-        {
-            if (!validHeight)
-            {
-                string msg = "The package has not passed the height test";
-                string errorcode = "1005";
-
-                _contextService.SetMessage(errorcode + msg, shipmentId);
-                _contextService.SetTarget(shipmentId, CommonData.FaultIsland);
-
-                _logger.LogWarning($"{msg}. (ID: {shipmentId}, sector: {this})");
-            }
-
-            return !validHeight;
-        }
-
-        private bool NoLabelPrint(int shipmentId)
-        {
-            if (!FileManager.ZplExists(shipmentId))
-            {
-                string msg = "No zpl file has been found";
-                string errorcode = "1006";
-
-                _contextService.SetMessage(errorcode + msg, shipmentId);
-                _contextService.SetTarget(shipmentId, CommonData.FaultIsland);
-
-                _logger.LogWarning(msg + $" Shipment ID: {shipmentId}, sector: {this}");
-
-                return true;
-            }
-
-            return false;
-        }
-
-        private bool FaultDestination(int shipmentId, IDiverter diverter)
-        {
-            var result = _contextService.GetDestinations(shipmentId).Contains(diverter.Towards.First(_ => _.FaultDirection).RoutePosition.Name);
-
-            if (result)
-                _logger.LogInformation($"Shipment {shipmentId} has a fault direction");
-
-            return result;
-        }
-
-        private void ShipmentErrorHandling(int shipmentId)
-        {
-            var shipment = _contextService.GetShipment(shipmentId);
-
-            if (shipment != null && !string.IsNullOrEmpty(shipment.Message))
-            {
-                _messageDistributor.SendShipmentUpdate(shipment);
-            }
-        }
-
-        private void WeightScanHandling(int shipmentId, double scannedWeight, DateTime scanningTime)
-        {
-            if (shipmentId > 0)
-            {
-                Scan scan = new Scan()
-                {
-                    ScanTime = scanningTime,
-                    ShipmentId = shipmentId,
-                    Weight = scannedWeight,
-                    ScanType = _contextService.WeightIsValid(scannedWeight, shipmentId) ?
-                        ScanType.successful_scan : ScanType.wrong_weight,
-                };
-
-                _messageDistributor.SendWeightScan(scan);
-            }
-        }
-
-        public override void UnsubscripedPacket(object? sender, UnsubscribedPacketEventArgs unsubscribedPacket)
-        {
-            if (TrackedPacketExists(unsubscribedPacket.PacketTracing))
-            {
-                //TODO: Funktion offen
-                RemoveTrackedPacket(unsubscribedPacket.PacketTracing);
-                _contextService.RemovePacketTracing(unsubscribedPacket.PacketTracing);
-            }
-            else
-                _logger.LogWarning($"The packet tracing ID {unsubscribedPacket.PacketTracing} could not be found in sector {this}");
-        }
-
-        protected override void ErrorHandling(short errorcode)
-        {
-            string errorMessage = string.Empty;
-            bool faultIslandDestination = false;
-
-            switch (errorcode)
-            {
-                case (short)Errorcode.EmergencyHold_Scale:
-
-                    errorMessage = "";
-                    faultIslandDestination = false; //not required
-
-                    break;
-            }
-
-            UpdateShipmentsAfterError(errorMessage, faultIslandDestination);
-        }
-
-        private void UpdateShipmentsAfterError(string errorMsg, bool faultIslandDestination)
-        {
-            if (TrackedPackets.Any())
-            {
-                //TODO: Offene Funktion
-            }
+            //TODO: Offene Funktion
         }
     }
 }

@@ -1,7 +1,6 @@
-﻿namespace MF152004.Models.Values.Types
+﻿namespace MF152004.Models.Values.Types;
+
+public enum BrandprinterPosition : byte
 {
-    public enum BrandprinterPosition : byte
-    {
-        BP1 = 0, BP2 = 1,
-    }
+    BP1 = 0, BP2 = 1,
 }
