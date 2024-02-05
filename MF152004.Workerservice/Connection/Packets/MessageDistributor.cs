@@ -81,44 +81,33 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
 
     public override void DistributeIncomingMessages(object? sender, MessagePacketEventArgs messageEvent)
     {
-        if (messageEvent is null || messageEvent.Message is null || messageEvent.Message.Topic is null)
+        try
         {
-            _logger.LogWarning($"Received message-event is null or has null references " +
-                               $"[at {nameof(DistributeIncomingMessages)}]");
-            return;
-        }
+            var packetHelper = _packetHelpers.FirstOrDefault(helper => helper.InTopic == messageEvent.Message?.Topic);
 
-        var packetHelper = _packetHelpers
-            .FirstOrDefault(helper => helper.InTopic == messageEvent.Message.Topic);
+            if (packetHelper == null)
+            {
+                _logger.LogWarning("{0}: Unknown packet received: {1}", nameof(DistributeIncomingMessages), messageEvent.Message);
+                return;
+            }
 
-        if (packetHelper != null)
-        {
-            packetHelper.SetPacketData(messageEvent.Message);
+            packetHelper.SetPacketData(messageEvent.Message!);
 
             if (packetHelper.InTopic == CommonData.Topics[TopicType.PLC_Workerservice])
-            {
                 DistributeMessageFromPLC(packetHelper);
-            }
+
             else if (packetHelper.InTopic == CommonData.Topics[TopicType.WebService_Workerservice])
-            {
                 DistributeMessageFromWebservice(packetHelper);
-            }
+            
             else if (packetHelper.InTopic == CommonData.Topics[TopicType.WebService_Workerservice_Config])
-            {
                 DistributeMessageFromWebserviceConfig(packetHelper);
-            }
+            
             else if (packetHelper.InTopic == CommonData.Topics[TopicType.Webservice_Workerservice_Destination])
-            {
                 DistributeMessageFromWebserviceDestination(packetHelper);
-            }
-            else if (packetHelper.InTopic == CommonData.Topics[TopicType.Webservice_Workerservice_General])
-            {
-                //TODO: Noch offen
-            }
         }
-        else
+        catch (Exception ex)
         {
-            _logger.LogWarning($"Packet helper is null [at {nameof(DistributeIncomingMessages)}]");
+            _logger.LogError(ex, "{0}: Error receiving packet: {1}", nameof(DistributeIncomingMessages), messageEvent.Message);
         }
     }
 
@@ -421,23 +410,14 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
 
     private void DistributeMessageFromWebserviceDestination(MessagePacketHelper packetHelper)
     {
-        var destPackHelper = packetHelper as DestinationPacketHelper;
-
-        if (destPackHelper != null && destPackHelper.DestinationPacket != null)
+        if (packetHelper is DestinationPacketHelper { DestinationPacket: { KeyCode: ActionKey.UpdatedEntity, Destinations: not null } } destPackHelper)
         {
-            if (destPackHelper.DestinationPacket.KeyCode == ActionKey.UpdatedEntity)
+            UpdateDestinationsEventArgs e = new()
             {
-                if (destPackHelper.DestinationPacket.Destinations != null)
-                {
-                    UpdateDestinationsEventArgs e = new()
-                    {
-                        UpdatedDestinations = destPackHelper.DestinationPacket.Destinations
-                    };
+                UpdatedDestinations = destPackHelper.DestinationPacket.Destinations
+            };
 
-                    UpdateDestinationsReached?.Invoke(this, e);
-                } 
-            }
-                
+            UpdateDestinationsReached?.Invoke(this, e);
         }
     }
 

@@ -165,7 +165,7 @@ public class MaterialFlowMng : MaterialFlowManager
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled exception");
+            _logger.LogError(ex, "Unhandled exception in MaterialFlow.Run");
         }
     }
 
@@ -184,7 +184,7 @@ public class MaterialFlowMng : MaterialFlowManager
 
             if (!_client.IsConnected)
             {
-                _logger.LogWarning("Couldn't connect to broker. Trying again in 60 s");
+                _logger.LogWarning("Couldn't connect to MQTT broker. Trying again in 60 s");
                 await Task.Delay(TimeSpan.FromSeconds(60), _cancellationToken);
             }
         }
@@ -221,7 +221,7 @@ public class MaterialFlowMng : MaterialFlowManager
 
     private async void UpdateDestinationOnHub(object? sender, DockedTelescopeEventArgs e)
     {
-        await Task.Delay(500); //wait for destinationservice
+        await Task.Delay(500, _cancellationToken); //wait for destinationservice
 
         var destinations = _destinationService.GetSectorsDestinations();
 
@@ -239,7 +239,7 @@ public class MaterialFlowMng : MaterialFlowManager
 
     private async void OnClientDisconnected(object? sender, EventArgs e)
     {
-        _logger.LogWarning("Connection to broker has been lost.");
+        _logger.LogWarning("Connection to broker has been lost");
         await ConnectClient();
     }
 

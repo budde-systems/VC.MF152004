@@ -17,6 +17,8 @@ public class Program
         {
             ConfigureLogger();
 
+            AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+
             var host = Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services)=>
                 {
@@ -35,6 +37,11 @@ public class Program
 
             host.Run();
         }
+    }
+
+    private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+        Log.Logger.Error(e.ExceptionObject as Exception, "AppDomain Unhandled exception");
     }
 
     private static void ConfigureLogger()

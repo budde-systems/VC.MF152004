@@ -167,27 +167,29 @@ public class Brandprinter : IMachine
                 {
                     CurrentJob = job;
 
-                    if (job.ReferenceId != _jobBefore.ReferenceId)
+                    // if (job.ReferenceId != _jobBefore.ReferenceId)
                     {
                         var labelContent = ReaPi.CreateLabelContent();
 
-                        // if (job.ReferenceId != _jobBefore.ReferenceId)
-                        {
-                            var labelContent = ReaPi.CreateLabelContent();
+                        ReaPi.PrepareLabelContent(labelContent, JobId, Settings.Configuration.Group,
+                            Settings.Configuration.Object,
+                            Settings.Configuration.Content,
+                            job.ReferenceId);
+                        ReaPi.SetLabelContent(ConnectionId, labelContent);
+                    }
 
                     _jobBefore = job;
-
                     ReadyForNextContent = false;
                 }
-            }
 
-            QueueIsProcessed = false;
+                QueueIsProcessed = false;
+            }
         }
     }
 
     public void TransparentPrint(int shipmentId)
     {
-        _logger.LogInformation($"No resp. transparent print for next package with ID {shipmentId}.");
+        _logger.LogInformation("Transparent print for next package with ID {0}", shipmentId);
         Print(Settings.Configuration.NoPrintValue, shipmentId);
     }
 

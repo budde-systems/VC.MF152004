@@ -17,12 +17,12 @@ public class ShipmentService
         _destinationService = destinationService;
     }
 
-    public async Task<List<Shipment>> GetThirtyDaysShipments()
+    public async Task<List<Shipment>> GetHistoricalShipments()
     {
         var shipments = await _context.Shipments
             .Where(_ => _.ReceivedAt != null && 
                         _.ReceivedAt.Value.Date <= DateTime.Now.Date && 
-                        _.ReceivedAt.Value.Date > DateTime.Now.Date.AddDays(-14))
+                        _.ReceivedAt.Value.Date > DateTime.Now.Date.AddDays(-30))
             .ToListAsync();
 
         return shipments;

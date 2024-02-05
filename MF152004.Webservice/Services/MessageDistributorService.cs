@@ -130,23 +130,20 @@ public class MessageDistributorService : MessageDistributor
 
     private async void OnShipmentMessage(MessagePacketHelper pckHelper)
     {
-        var packetHelper = pckHelper as ShipmentPacketHelper;
-            
-        if (packetHelper != null)
+        if (pckHelper is ShipmentPacketHelper packetHelper)
         {
             if (packetHelper.ShipmentPacket.KeyCode == ActionKey.RequestedEntity)
             {
                 List<Shipment> shipments;
 
-                if (packetHelper.ShipmentPacket.RequestedShipments != null &&
-                    packetHelper.ShipmentPacket.RequestedShipments.Count > 0)
+                if (packetHelper.ShipmentPacket.RequestedShipments is { Count: > 0 })
                 {
                     shipments = await _shipmentService.GetShipments(packetHelper.ShipmentPacket.RequestedShipments);
                     SendUpdatedShipments(shipments.ToArray());
                 }
                 else
                 {
-                    shipments = await _shipmentService.GetThirtyDaysShipments();
+                    shipments = await _shipmentService.GetHistoricalShipments();
                     SendNewShipments(shipments.ToArray());
                 }
             }
