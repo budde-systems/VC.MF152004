@@ -28,35 +28,56 @@ public class BrandPrinter
 
 public class ReaPiException(string? message) : Exception(message);
 
-public class BrandPrinterHub
+public class BrandPrinterHub(ILogger<BrandPrinterHub> logger)
 {
-    private readonly ILogger<BrandPrinterHub> _logger;
+    private readonly ILogger<BrandPrinterHub> _logger = logger;
 
-    private readonly ReaPi.connectionCallbackPtr _connectionCallback;
-    private readonly ReaPi.eventCallbackPtr _eventCallback;
-    private readonly ReaPi.responseCallbackPtr _responseCallback;
+    private readonly object _connectionLock = new();
+    private readonly Dictionary<string, Task<ReaPi.ConnectionIdentifier>> _connectionTasks = new();
+    private readonly Dictionary<string, ReaPi.ConnectionIdentifier> _connections = new();
+    private int _jobId;
 
-    public BrandPrinterHub(ILogger<BrandPrinterHub> logger)
+    public async Task Print(BrandPrinter printer)
     {
-        _logger = logger;
+        var connection = await ConnectAsync(printer);
+        var jobId = Interlocked.Increment(ref _jobId);
+        var response = ReaPi.SetJob(connection, jobId, "");
+        response = ReaPi.StartJob(connection, jobId);
 
-        //_connectionCallback = OnConnectionCallback;
-        //_eventCallback = OnEventCallback;
-        //_responseCallback = OnResponseCallback;
+        
+        
+        var labelContent = ReaPi.CreateLabelContent();
 
-        //ReaPi.RegisterConnectionCallback(_connectionCallback, 0);
+        var error = ReaPi.PrepareLabelContent(labelContent, jobId, printer.Settings.Group,
+            printer.Settings.Object,
+            printer.Settings.Content,
+            jobId.ToString());
+
+        response = ReaPi.SetLabelContent(connection, labelContent);
     }
 
-    public Task ConnectAsync(BrandPrinter printer)
+
+    private Task<ReaPi.ConnectionIdentifier> ConnectAsync(BrandPrinter printer)
     {
-        return Task.Run(() =>
+        lock (_connectionLock)
         {
-            var connectionId = ReaPi.ConnectWait(printer.Settings.ConnectionString);
+            if (_connections.TryGetValue(printer.Id, out var connectionId)) 
+                return Task.FromResult(connectionId);
 
-            if (connectionId < 0)
-                throw new ReaPiException($"Failed to connect BrandPrinter at {printer.Settings.ConnectionString}: {connectionId}");
+            if (!_connectionTasks.TryGetValue(printer.Id, out var task))
+            {
+                task = Task.Run(() =>
+                {
+                    var errorCode = ReaPi.ConnectWaitB(printer.Settings.ConnectionString, out connectionId);
 
-            ReaPi.GetNetworkConfig(connectionId);
-        });
+                    if (errorCode != ReaPi.EErrorCode.OK)
+                        throw new ReaPiException($"Failed to connect BrandPrinter at {printer.Settings.ConnectionString}: {errorCode}");
+
+                    return connectionId;
+                });
+            }
+
+            return task;
+        }
     }
 }

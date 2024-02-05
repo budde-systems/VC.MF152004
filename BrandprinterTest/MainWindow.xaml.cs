@@ -7,7 +7,16 @@ namespace BrandprinterTest;
 public partial class MainWindow : Window
 {
     private readonly BrandPrinterHub _printerHub = new(new NullLogger<BrandPrinterHub>());
-    private readonly BrandPrinter _printer = new()
+    
+    private readonly BrandPrinter _printer1 = new()
+    {
+        Settings =
+        {
+            ConnectionString = "TCP://192.168.42.15:22171"
+        }
+    };
+
+    private readonly BrandPrinter _printer2 = new()
     {
         Settings =
         {
@@ -24,7 +33,7 @@ public partial class MainWindow : Window
     {
         try
         {
-            await _printerHub.ConnectAsync(_printer);
+            await Task.WhenAll(_printerHub.ConnectAsync(_printer1), _printerHub.ConnectAsync(_printer2));
         }
         catch (Exception exception)
         {

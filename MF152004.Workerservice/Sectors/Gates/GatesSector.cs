@@ -50,7 +50,7 @@ public abstract class GatesSector : Sector
                     .FirstOrDefault(div => div.DriveDirection != div.Towards
                         .First(t => t.FaultDirection).DriveDirection);
 
-                var shipment = _contextService.GetShipmentByTranportationReference(scan.Barcodes.ToArray());
+                var shipment = _contextService.GetShipmentByTransportationReference(scan.Barcodes.ToArray());
 
                 if (diverter is null)
                 {
