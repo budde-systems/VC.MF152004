@@ -115,9 +115,11 @@ public class BrandingPrinterClient
             return;
         }
 
-        switch (eventid)
-        {
-            case ReaPi.EEventId.JOBSET:
+            _logger.LogInformation("Brandprinter event received:{0} - {1}", brandprinter.Name, eventid);
+
+            switch (eventid)
+            {
+                case ReaPi.EEventId.JOBSET:
 
                 var filename = ReaPi.GetJobFilename(_responseHandle, out var error);
 

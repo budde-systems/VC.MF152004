@@ -171,12 +171,9 @@ public class Brandprinter : IMachine
                     {
                         var labelContent = ReaPi.CreateLabelContent();
 
-                        ReaPi.PrepareLabelContent(labelContent, JobId, Settings.Configuration.Group,
-                            Settings.Configuration.Object,
-                            Settings.Configuration.Content,
-                            job.ReferenceId);
-                        ReaPi.SetLabelContent(ConnectionId, labelContent);
-                    }
+                        // if (job.ReferenceId != _jobBefore.ReferenceId)
+                        {
+                            var labelContent = ReaPi.CreateLabelContent();
 
                     _jobBefore = job;
 
