@@ -2,34 +2,9 @@
 
 namespace BrandprinterTest;
 
-public class BrandPrinterConfig
-{
-    public string ConnectionString { get; set; }
-
-    public string? JobFile { get; set; }
-    public string? Group { get; set; }
-    public string? Object { get; set; }
-    public string? Content { get; set; }
-    public string? Value { get; set; }
-    public string? NoPrintValue { get; set; }
-}
-
-
-public class BrandPrinter
-{
-    public BrandPrinterConfig Settings { get; } = new();
-
-    public string Id { get; set; } = Guid.NewGuid().ToString();
-    public string Name { get; set; }
-    public string BasePosition { get; set; }
-    public string SubPosition { get; set; }
-
-    public override string ToString() => $"BrandPrinter {Name}";
-}
-
 public class ReaPiException(string? message) : Exception(message);
 
-public class BrandPrinterHub()
+public class BrandPrinterHub
 {
     private readonly object _connectionLock = new();
     private readonly Dictionary<string, Task<ReaPi.ConnectionIdentifier>> _connectionTasks = new();
@@ -68,8 +43,8 @@ public class BrandPrinterHub()
             throw;
         }
     }
-    
-    private Task<ReaPi.ConnectionIdentifier> ConnectAsync(BrandPrinter printer)
+
+    public Task<ReaPi.ConnectionIdentifier> ConnectAsync(BrandPrinter printer)
     {
         lock (_connectionLock)
         {
