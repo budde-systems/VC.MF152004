@@ -16,7 +16,7 @@ public partial class MainWindow : Window
             ConnectionString = "TCP://192.168.42.14:22171",
             JobFile = "vicampo_front.job",
             Group = "1",
-            Object = "Bild_Standard",
+            Object = "Vicampo_1",
             Content = "Choice_1"
         }
     };

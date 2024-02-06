@@ -15,27 +15,23 @@ public class BrandPrinterHub
     {
         var connection = await ConnectAsync(printer).ConfigureAwait(false);
 
-        await Task.Run(() =>
-        {
-
-        });
         try
         {
-            var jobId = Interlocked.Increment(ref _jobId);
-            
-            var response = ReaPi.SetJob(connection, jobId, printer.Settings.JobFile);
-            if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"SetJob failed: {printer}, {value}: {ReaPi.GetErrorMessage(response, out _)}");
+            await Task.Run(() =>
+            {
+                var jobId = Interlocked.Increment(ref _jobId);
 
-            var labelContent = ReaPi.CreateLabelContent();
-            
-            var error = ReaPi.PrepareLabelContent(labelContent, jobId, printer.Settings.Group, printer.Settings.Object, printer.Settings.Content, value);
-            if (error != ReaPi.EErrorCode.OK) throw new ReaPiException($"PrepareLabelContent failed: {printer}, {value}: {error}");
-            
-            response = ReaPi.SetLabelContent(connection, labelContent);
-            if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"SetLabelContent failed: {printer}, {value}: {ReaPi.GetErrorMessage(response, out _)}");
+                var response = ReaPi.SetJob(connection, jobId, printer.Settings.JobFile);
+                if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"SetJob failed: {printer}, {value}: {ReaPi.GetErrorMessage(response, out _)}");
 
-            response = ReaPi.StartJob(connection, jobId);
-            if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"StartJob failed: {printer}, {value}: {ReaPi.GetErrorMessage(response, out _)}");
+                var labelContent = ReaPi.CreateLabelContent();
+
+                var error = ReaPi.PrepareLabelContent(labelContent, jobId, printer.Settings.Group, printer.Settings.Object, printer.Settings.Content, value);
+                if (error != ReaPi.EErrorCode.OK) throw new ReaPiException($"PrepareLabelContent failed: {printer}, {value}: {error}");
+
+                response = ReaPi.SetLabelContent(connection, labelContent);
+                if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"SetLabelContent failed: {printer}, {value}: {ReaPi.GetErrorMessage(response, out _)}");
+            });
         }
         catch
         {
