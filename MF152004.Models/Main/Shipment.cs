@@ -52,6 +52,5 @@ public class Shipment : IShipment
     [JsonPropertyName("destination_reached_at")]
     public DateTime? DestinationReachedAt { get; set; }
 
-    public override string ToString() =>
-        $"ID {Id}{(!string.IsNullOrEmpty(TransportationReference) ? $" - {TransportationReference}" : "")}";
+    public override string ToString() => $"ID {Id}|{TransportationReference}|{Carrier}|{Country}|{ClientReference}|{DestinationRouteReference}";
 }

@@ -1,26 +1,23 @@
 ﻿using System.Windows;
-using Microsoft.Extensions.Logging.Abstractions;
-using ReaPiSharp;
+using System.Windows.Controls;
 
 namespace BrandprinterTest;
 
 public partial class MainWindow : Window
 {
-    private readonly BrandPrinterHub _printerHub = new(new NullLogger<BrandPrinterHub>());
+    private readonly BrandPrinterHub _printerHub = new();
     
     private readonly BrandPrinter _printer1 = new()
     {
-        Settings =
-        {
-            ConnectionString = "TCP://192.168.42.15:22171"
-        }
-    };
+        Name = "P1",
 
-    private readonly BrandPrinter _printer2 = new()
-    {
         Settings =
         {
-            ConnectionString = "TCP://192.168.42.15:22171"
+            ConnectionString = "TCP://192.168.42.14:22171",
+            JobFile = "vicampo_front.job",
+            Group = "1",
+            Object = "Bild_Standard",
+            Content = "Choice_1"
         }
     };
 
@@ -29,14 +26,39 @@ public partial class MainWindow : Window
         InitializeComponent();
     }
 
-    private async void btnConnect_Click(object sender, RoutedEventArgs e)
+    private async void btnPrint3_Click(object sender, RoutedEventArgs e)
     {
+        ((Button)sender).IsEnabled = false;
+
         try
         {
-            await Task.WhenAll(_printerHub.ConnectAsync(_printer1), _printerHub.ConnectAsync(_printer2));
+            await _printerHub.Print(_printer1, "3");
         }
         catch (Exception exception)
         {
+            MessageBox.Show(this, exception.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            ((Button)sender).IsEnabled = true;
+        }
+    }
+
+    private async void btnPrint5_Click(object sender, RoutedEventArgs e)
+    {
+        ((Button)sender).IsEnabled = false;
+
+        try
+        {
+            await _printerHub.Print(_printer1, "5");
+        }
+        catch (Exception exception)
+        {
+            MessageBox.Show(this, exception.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            ((Button)sender).IsEnabled = true;
         }
     }
 }

@@ -143,20 +143,24 @@ public class LabelPrinterSector : Sector
             }
 
             var scanPosition = BarcodeScanners.First(_ => _.BasePosition == scan.Position);
-            var shipmentId = ValidateBarcodesAndGetShipmentId(scan.Barcodes?.ToArray());
+            var shipment = _contextService.LogShipment(this, scan.Barcodes);
+
+            if (shipment != null && scan.Barcodes?.Any(_ => _ == CommonData.NoRead) == true)
+            {
+                _logger.LogInformation("{0}: NO_READ barcode detected: {1}", this, shipment);
+                shipment = null;
+            }
+
+            var shipmentId = shipment?.Id ?? -1;
 
             if (scanPosition.Name == "Frontscanner")
             {
                 if (shipmentId > 0)
                 {
                     if (_contextService.LabelIsPrinted(shipmentId))
-                    {
                         NoPrint(shipmentId, scan);
-                    }
                     else
-                    {
                         PrintLabel(shipmentId, scan);
-                    }
                 }
             }
             else //inspectionscanner
@@ -306,9 +310,6 @@ public class LabelPrinterSector : Sector
         _packetHelper.Create_StopAndGo(scanPosition ?? "unknown", false);
         _client.SendData(_packetHelper.GetPacketData());
     }
-
-    private int ValidateBarcodesAndGetShipmentId(params string[]? barcodes) =>
-        barcodes is null || barcodes.Any(_ => _ == CommonData.NoRead) ? -1 : _contextService.GetShipmentId(barcodes);
 
     private void OnFaultyBarcodes(BarcodeScanEventArgs scan)
     {

@@ -21,7 +21,7 @@ public class ScaleSector : Sector
     private const string NAME = "ScaleSection";
 
     private readonly ContextService _contextService;
-    private readonly PLC152004_PacketHelper _packetHelper = new PLC152004_PacketHelper();
+    private readonly PLC152004_PacketHelper _packetHelper = new();
     private readonly MessageDistributor _messageDistributor;
 
     public ScaleSector(MqttClient client, ILogger<Sector> logger, string baseposition, ContextService contextService,
@@ -75,7 +75,7 @@ public class ScaleSector : Sector
             }
         });
 
-        List<IDiverter> diverters = new List<IDiverter> { flowSort };
+        List<IDiverter> diverters = new() { flowSort };
 
         return diverters;
     }
@@ -95,7 +95,16 @@ public class ScaleSector : Sector
 
             try
             {
-                var shipmentId = ValidateBarcodesAndGetShipmentId(specialScan.Barcodes?.ToArray());
+                var shipment = _contextService.LogShipment(this, scan.Barcodes);
+
+                if (shipment != null && scan.Barcodes?.Any(_ => _ == CommonData.NoRead) == true)
+                {
+                    _logger.LogInformation("{0}: NO_READ barcode detected: {1}", this, shipment);
+                    shipment = null;
+                }
+
+                var shipmentId = shipment?.Id ?? -1;
+
                 SetDiverterDirection(diverter, specialScan, shipmentId);
 
                 _packetHelper.Create_FlowSortPosition(diverter, specialScan.PacketTracing);
@@ -162,14 +171,6 @@ public class ScaleSector : Sector
         }
 
         diverter.SetDirection(toward.DriveDirection);
-    }
-
-    private int ValidateBarcodesAndGetShipmentId(string[]? barcodes)
-    {
-        if (barcodes is null || barcodes.Length == 0)
-            return -1; //TODO: Logging
-        else
-            return _contextService.GetShipmentId(barcodes);
     }
 
     private bool InvalidShipmentId(int shipmentId, string[]? barcodes)

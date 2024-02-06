@@ -97,19 +97,19 @@ public class Brandprinter : IMachine
     public PrintJob CurrentJob { get; private set; }
 
 
-    private static object _lockReadyForNextContent = new object();
-    private static object _lockPrint = new object();
-    private static object _lockConnect = new object();
-    private static object _lockJobstatus = new object();
+    private static object _lockReadyForNextContent = new();
+    private static object _lockPrint = new();
+    private static object _lockConnect = new();
+    private static object _lockJobstatus = new();
 
-    private readonly ConcurrentQueue<PrintJob> _printJobs = new ConcurrentQueue<PrintJob>();
+    private readonly ConcurrentQueue<PrintJob> _printJobs = new();
     private readonly ILogger<Brandprinter> _logger;        
 
     private bool _readyForNextContent;
     private bool _queueIsProcessed;
     private bool _isConnected;
     private bool _jobIsStopped = true;
-    private PrintJob _jobBefore = new PrintJob { ReferenceId = "0", ShipmentId = 0 };
+    private PrintJob _jobBefore = new() { ReferenceId = "0", ShipmentId = 0 };
 
 
     public Brandprinter(IBrandPrinterSettings settings, ILogger<Brandprinter> logger)

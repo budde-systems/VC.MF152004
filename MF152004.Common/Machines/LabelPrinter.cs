@@ -15,7 +15,7 @@ public class LabelPrinter : IMachine
     public string IP { get; set; } = string.Empty;
     public int Port { get; set; }
     public Scanner? RelatedScanner { get; set; }
-    public List<int> TracedPackets { get; set; } = new List<int>();
+    public List<int> TracedPackets { get; set; } = new();
 
     /// <summary>
     /// Print async without waiting

@@ -59,7 +59,7 @@ public class BrandPrinterSector : Sector //TODO: Sector als Base verwenden, dann
         }
     }
 
-    public override List<IDiverter> CreateDiverters() => new List<IDiverter>(); //no diverters required in this sector
+    public override List<IDiverter> CreateDiverters() => new(); //no diverters required in this sector
 
     public override Scanner CreateScanner() => new("", ""); //not required because of many scanners
 
@@ -79,7 +79,15 @@ public class BrandPrinterSector : Sector //TODO: Sector als Base verwenden, dann
                 return;
             }
 
-            var shipmentId = ValidateBarcodesAndGetShipmentId(scan.Barcodes?.ToArray());
+            var shipment = _contextService.LogShipment(this, scan.Barcodes);
+
+            if (shipment != null && scan.Barcodes?.Any(_ => _ == CommonData.NoRead) == true)
+            {
+                _logger.LogInformation("{0}: NO_READ barcode detected: {1}", this, shipment);
+                shipment = null;
+            }
+
+            var shipmentId = shipment?.Id ?? -1;
 
             if (shipmentId > 0)
             {
@@ -114,18 +122,6 @@ public class BrandPrinterSector : Sector //TODO: Sector als Base verwenden, dann
 
             _messageDistributor.SendShipmentUpdate(_contextService.GetShipment(finishedJob.Job.ShipmentId));
         }
-    }
-
-    private int ValidateBarcodesAndGetShipmentId(params string[]? barcodes)
-    {
-        if (barcodes is null || barcodes.Any(_ => _ == CommonData.NoRead))
-        {
-            _logger.LogWarning($"Shipment can't be validate in: {this} " +
-                               $"Received barcodes: {(barcodes != null ? string.Join(", ", barcodes) : "null")}");
-            return -1;
-        }
-
-        return _contextService.GetShipmentId(barcodes);
     }
 
     public override void UnsubscripedPacket(object? sender, UnsubscribedPacketEventArgs unsubscribedPacket)

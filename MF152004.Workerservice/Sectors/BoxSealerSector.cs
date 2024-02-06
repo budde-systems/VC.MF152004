@@ -18,7 +18,7 @@ public class BoxSealerSector : Sector
     private const string NAME = "BoxSealer";
 
     private readonly ContextService _contextService;
-    private readonly PLC152004_PacketHelper _packetHelper = new PLC152004_PacketHelper();
+    private readonly PLC152004_PacketHelper _packetHelper = new();
     private readonly MessageDistributor _messageDistributor;
 
     public BoxSealerSector(MqttClient client, ILogger<Sector> logger, string baseposition, ContextService contextService, 
@@ -81,8 +81,7 @@ public class BoxSealerSector : Sector
         return diverters;
     }
 
-    public override Scanner CreateScanner() => 
-        new("M2.1.187", "S2.1.187");
+    public override Scanner CreateScanner() => new("M2.1.187", "S2.1.187");
 
     public override void Barcode_Scanned(object? sender, BarcodeScanEventArgs scan)
     {
@@ -92,7 +91,15 @@ public class BoxSealerSector : Sector
 
             try
             {
-                var shipmentId = ValidateBarcodesAndGetShipmentId(scan.Barcodes?.ToArray());
+                var shipment = _contextService.LogShipment(this, scan.Barcodes);
+
+                if (shipment != null && scan.Barcodes?.Any(_ => _ == CommonData.NoRead) == true)
+                {
+                    _logger.LogInformation("{0}: NO_READ barcode detected: {1}", this, shipment);
+                    shipment = null;
+                }
+
+                var shipmentId = shipment?.Id ?? -1;
 
                 if (shipmentId > 0)
                 {
@@ -104,8 +111,8 @@ public class BoxSealerSector : Sector
 
                 _packetHelper.Create_FlowSortPosition(diverter, scan.PacketTracing);
 
-                _client.SendData(_packetHelper.GetPacketData());
-                _logger.LogInformation("Data has been send to plc from " + this);
+                _client.SendData(_packetHelper.GetPacketData()); //TODO: VK: This is dangerous, needs to be reworked to so async call gets awaited
+                _logger.LogInformation("{0}: Data has been send to plc", this);
 
                 ShipmentErrorHandling(shipmentId);
             }

@@ -68,6 +68,5 @@ public class DestinationDTO : Destination
         }
     }
 
-    private List<SelectListItem> GetDefaultList() =>
-        new List<SelectListItem> { new SelectListItem("keine Daten vorhanden", "0") };
+    private List<SelectListItem> GetDefaultList() => new() { new SelectListItem("keine Daten vorhanden", "0") };
 }

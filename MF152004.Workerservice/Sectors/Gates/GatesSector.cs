@@ -1,5 +1,4 @@
 ﻿using BlueApps.MaterialFlow.Common.Connection.Client;
-using BlueApps.MaterialFlow.Common.Machines.BaseMachines;
 using BlueApps.MaterialFlow.Common.Models;
 using BlueApps.MaterialFlow.Common.Models.EventArgs;
 using BlueApps.MaterialFlow.Common.Sectors;
@@ -41,26 +40,31 @@ public abstract class GatesSector : Sector
         {
             try
             {
-                var shipmentId = ValidateBarcodesAndGetShipmentId(scan.Barcodes?.ToArray());
+                var shipment = _contextService.LogShipment(this, scan.Barcodes);
+
+                if (shipment != null && scan.Barcodes?.Any(_ => _ == CommonData.NoRead) == true)
+                {
+                    _logger.LogInformation("{0}: NO_READ barcode detected: {1}", this, shipment);
+                    shipment = null;
+                }
+
+                var shipmentId = shipment?.Id ?? -1;
 
                 //TODO: Andere Tracings über shipmentID prüfen und wenn vorhanden löschen
                 SetDiverterDirection(scan, shipmentId); //also the packet will be traced
 
                 var diverter = Diverters
-                    .FirstOrDefault(div => div.DriveDirection != div.Towards
-                        .First(t => t.FaultDirection).DriveDirection);
-
-                var shipment = _contextService.GetShipmentByTransportationReference(scan.Barcodes.ToArray());
+                    .FirstOrDefault(div => div.DriveDirection != div.Towards.First(t => t.FaultDirection).DriveDirection);
 
                 if (diverter is null)
                 {
                     _packetHelper.Create_NoExitFlowSortPosition(Diverters.First(), scan.PacketTracing); //go ahead
-                    _logger.LogInformation($"The package {shipmentId} ({shipment.DestinationRouteReference}) will drive on. Place: ({this})");
+                    _logger.LogInformation($"{this}: The package {shipment}) will drive on");
                 }
                 else
                 {
                     _packetHelper.Create_FlowSortPosition(diverter, scan.PacketTracing); //ausschleusen
-                    _logger.LogInformation($"The package {shipmentId} ({shipment.DestinationRouteReference}) will drive out. Place ({this})");
+                    _logger.LogInformation($"{this}: The package {shipment}) will drive out ({diverter.BasePosition}-{diverter.DriveDirection}))");
                 }
 
                 _client.SendData(_packetHelper.GetPacketData());
@@ -76,9 +80,6 @@ public abstract class GatesSector : Sector
             OnFaultyBarcodes(scan);
         }
     }
-
-    private int ValidateBarcodesAndGetShipmentId(params string[]? barcodes) =>
-        barcodes is null || barcodes.Any(_ => _ == CommonData.NoRead) ? -1 : _contextService.GetShipmentId(barcodes);
 
     private void SetDiverterDirection(BarcodeScanEventArgs scan, int shipmentId)
     {

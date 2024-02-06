@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using BlueApps.MaterialFlow.Common.Sectors;
 using MF152004.Models.EventArgs;
 using MF152004.Models.Main;
 using MF152004.Workerservice.Common;
@@ -13,7 +14,7 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
     private readonly ILogger<ContextService> _logger;
 
     private Context _context = new();
-    private static object _contextLock = new object();
+    private static object _contextLock = new();
 
     public ContextService(ILogger<ContextService> logger)
     {
@@ -40,25 +41,30 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
         }
     }
 
-    public bool ContextHasRequiredEntities() =>
-        ConfigService.ConfigHasEntities() && ShipmentHasEntities();
+    public bool ContextHasRequiredEntities() => ConfigService.ConfigHasEntities() && ShipmentHasEntities();
 
-    public bool ShipmentHasEntities() =>
-        Context.Shipments != null && Context.Shipments.Any();
+    public bool ShipmentHasEntities() => Context.Shipments != null && Context.Shipments.Any();
 
     public void AddShipment(Shipment shipment)
     {
         lock (_contextLock)
         {
             _context.Shipments.Add(shipment);
+            _logger.LogInformation("Shipment added: {0}", shipment);
         }
     }
 
-    public void AddShipments(List<Shipment>? shipments)
+    public void AddShipments(IList<Shipment>? shipments)
     {
-        lock (_contextLock)
+        if (shipments == null || !shipments.Any()) return;
+
+        if (shipments.Count == 1)
         {
-            if (shipments != null && shipments.Any())
+            AddShipment(shipments[0]);
+        }
+        else
+        {
+            lock (_contextLock)
             {
                 var sw = Stopwatch.StartNew();
                 var existingShipments = _context.Shipments.Select(_ => _.TransportationReference).ToHashSet();
@@ -70,12 +76,11 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
 
     public void UpdateShipments(params Shipment[]? shipments)
     {
-        if (shipments is null || shipments.Length == 0)
-            return;
+        if (shipments is null || !shipments.Any()) return;
 
         if (!Context.Shipments.Any())
         {
-            AddShipments(shipments.ToList());
+            AddShipments(shipments);
         }
         else
         {
@@ -174,11 +179,9 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
         }
     }
 
-    public Shipment? GetShipment(int id) =>
-        Context.Shipments.SingleOrDefault(x => x.Id == id);
+    public Shipment? GetShipment(int id) => Context.Shipments.SingleOrDefault(x => x.Id == id);
 
-    public int GetShipmentId(params string[] barcodes) =>
-        GetShipmentByTransportationReference(barcodes)?.Id ?? 0;
+    public int GetShipmentId(params string[] barcodes) => GetShipmentByTransportationReference(barcodes)?.Id ?? 0;
 
     /// <summary>
     /// 
@@ -190,29 +193,17 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
     public Shipment? GetShipment(string transportReference = "", string trackingCode = "")
     {
         if (!string.IsNullOrEmpty(transportReference))
-        {
             return Context.Shipments.SingleOrDefault(x => x.TransportationReference == transportReference);
-        }
-        else if (!string.IsNullOrEmpty(trackingCode))
-        {
+
+        if (!string.IsNullOrEmpty(trackingCode))
             return Context.Shipments.SingleOrDefault(x => x.TrackingCode == trackingCode);
-        }
-        else
-        {
-            throw new ArgumentException("At least one parameter must have a value");
-        }
+
+        throw new ArgumentException("At least one parameter must have a value");
     }
 
-    public Shipment? GetShipmentByTransportationReference(params string[] barcodes)
+    public Shipment? GetShipmentByTransportationReference(IList<string>? barcodes)
     {
-        var shipment = Context.Shipments.SingleOrDefault(x => barcodes.Any(b => b == x.TransportationReference));
-
-        if (shipment is null)
-        {
-            //TODO: Logging => no useful barcodes
-        }
-
-        return shipment;
+        return barcodes == null ? null : Context.Shipments.SingleOrDefault(x => barcodes.Any(b => b == x.TransportationReference));
     }
 
     /// <summary>
@@ -234,11 +225,9 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
         return barcodes.Any(x => x == shipment.BoxBarcodeReference);
     }
 
-    public bool IsShipped(params string[] barcodes) =>
-        GetShipmentByTransportationReference(barcodes)?.Status == "shipped"; //TODO: enum??
+    public bool IsShipped(params string[] barcodes) => GetShipmentByTransportationReference(barcodes)?.Status == "shipped"; //TODO: enum??
 
-    public bool IsShipped(int shipmentId) =>
-        GetShipment(shipmentId)?.Status == "shipped";
+    public bool IsShipped(int shipmentId) => GetShipment(shipmentId)?.Status == "shipped";
 
     /// <summary>
     /// 
@@ -248,9 +237,7 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
     public string? GetBoxSealerRoute(params string[]? barcodes) //TODO: logging
     {
         if (barcodes is null)
-        {
             return string.Empty;
-        }
 
         var sealerRoute = Context?.Config?.SealerRouteConfigs?
             .FirstOrDefault(x => barcodes.Any(bc => bc == x.BoxBarcodeReference))?.SealerRouteReference;
@@ -261,11 +248,9 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
 
             if (shipment == null)
                 return string.Empty;
-            else
-            {
-                sealerRoute = Context?.Config?.SealerRouteConfigs?
-                    .FirstOrDefault(x => x.BoxBarcodeReference == shipment.BoxBarcodeReference)?.SealerRouteReference;
-            }
+            
+            sealerRoute = Context?.Config?.SealerRouteConfigs?
+                .FirstOrDefault(x => x.BoxBarcodeReference == shipment.BoxBarcodeReference)?.SealerRouteReference;
         }
 
         return sealerRoute;
@@ -293,11 +278,9 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
 
             if (shipment is null)
                 return string.Empty;
-            else
-            {
-                printerReference = Context?.Config?.LablePrinterConfigs?
-                    .FirstOrDefault(x => x.BoxBarcodeReference == shipment.BoxBarcodeReference)?.LabelPrinterReference;
-            }
+            
+            printerReference = Context?.Config?.LablePrinterConfigs?
+                .FirstOrDefault(x => x.BoxBarcodeReference == shipment.BoxBarcodeReference)?.LabelPrinterReference;
         }
 
         return printerReference;
@@ -327,8 +310,7 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
     /// </summary>
     /// <param name="shipmentId"></param>
     /// <returns>An empty array if something went wrong, otherwise the destination routes</returns>
-    public string[] GetDestinations(int shipmentId) =>
-        GetShipment(shipmentId)?.DestinationRouteReference?.Split(';') ?? Array.Empty<string>();
+    public string[] GetDestinations(int shipmentId) => GetShipment(shipmentId)?.DestinationRouteReference?.Split(';') ?? Array.Empty<string>();
 
     /// <summary>
     /// The realationship between trackingcode and transport code / reference
@@ -365,8 +347,7 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
     public bool LabelIsPrinted(int shipmentId)
     {
         var shipment = GetShipment(shipmentId);
-
-        return shipment != null && shipment.LabelPrintedAt != null;
+        return shipment is { LabelPrintedAt: not null };
     }
 
     public void SetMessage(string message, params string[] barcodes)
@@ -400,7 +381,7 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
         if (plusTolerance < 0 || minusTolerance < 0) //The less than zero check was removed at the request of the customer
         {
             _logger.LogWarning($"The tolerance is lesser than 0. Values: " +
-                               $"possitive tolerance + IS-weight = {plusTolerance}; " +
+                               $"positive tolerance + IS-weight = {plusTolerance}; " +
                                $"negative tolerance + IS-weight = {minusTolerance}");
         }
 
@@ -415,18 +396,9 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
         }
     }
 
-    public Scan? GetWeigthScan(int shipmentId) =>
-        Context.WeightScans.SingleOrDefault(x => x.ShipmentId == shipmentId);
+    public Scan? GetWeightScan(int shipmentId) => Context.WeightScans.SingleOrDefault(x => x.ShipmentId == shipmentId);
 
-    public double GetIsWeight(int shipmentId)
-    {
-        var scan = GetWeigthScan(shipmentId);
-
-        if (scan == null)
-            return 0;
-        else
-            return scan.Weight;
-    }
+    public double GetIsWeight(int shipmentId) => GetWeightScan(shipmentId)?.Weight ?? 0;
 
     public string GetBrandingReferenceId(int? shipmentId)
     {
@@ -435,10 +407,7 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
 
         var shipment = GetShipment((int)shipmentId);
 
-        if (shipment == null)
-            return string.Empty;
-
-        return BrandingPdfReferenceId(shipment);
+        return shipment == null ? string.Empty : BrandingPdfReferenceId(shipment);
     }
 
     public string GetBrandingReferenceIdByPacketTracing(int? packetTracing)
@@ -557,4 +526,22 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
         ConfigService.UpdateConfigs(configs.ServiceConfiguration);
 
     #endregion
+
+    public Shipment? LogShipment(Sector sector, IList<string>? barcodes)
+    {
+        if (barcodes == null || !barcodes.Any())
+        {
+            _logger.LogWarning("{0}: Empty Barcodes", sector);
+            return null;
+        }
+
+        var shipment = GetShipmentByTransportationReference(barcodes?.ToArray());
+        
+        if (shipment == null)
+            _logger.LogWarning("{0}: Unknown shipment detected. Barcodes: {1}", sector, string.Join(", ", barcodes!));
+        else
+            _logger.LogInformation("{0}: Shipment: {1}", sector, shipment);
+
+        return shipment;
+    }
 }

@@ -266,7 +266,7 @@ public class MaterialFlowMng : MaterialFlowManager
         labelPrinterSector.AddLabelPrinters(GetFrontLabelPrinter());
         labelPrinterSector.AddLabelPrinters(GetBackLabelPrinter());
 
-        List<Sector> sectors = new List<Sector>() //TODO: Design anpassen und Subscribes unterbringen! Ggf. allgemeines IncommíngData definieren
+        List<Sector> sectors = new() //TODO: Design anpassen und Subscribes unterbringen! Ggf. allgemeines IncommíngData definieren
         {
             boxSealer, brandPrinterSector, scale, exportSector, telescopeSectorA, telescopeSectorB, labelPrinterSector
         };
