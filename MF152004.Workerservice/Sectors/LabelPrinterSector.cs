@@ -43,7 +43,7 @@ public class LabelPrinterSector : Sector
     {
         _contextService = contextService;
         _messageDistributor = messageDistributor;
-        AddRelatedErrorcodes();
+        AddRelatedErrorCodes();
         BarcodeScanners = new();
         BarcodeScanners.AddRange(CreateScanners());
 
@@ -80,7 +80,7 @@ public class LabelPrinterSector : Sector
         }
     }
 
-    public override void AddRelatedErrorcodes()
+    public override void AddRelatedErrorCodes()
     {
         var errors = new List<Errorcode>
         {
@@ -342,12 +342,12 @@ public class LabelPrinterSector : Sector
         return new() { scanner2 };
     }
 
-    public override void UnsubscripedPacket(object? sender, UnsubscribedPacketEventArgs unsubscribedPacket)
+    public override void UnsubscribedPacket(object? sender, UnsubscribedPacketEventArgs unsubscribedPacket)
     {
 
     }
 
-    protected override void ErrorHandling(short errorcode)
+    protected override void ErrorHandling(short errorCode)
     {
 
     }

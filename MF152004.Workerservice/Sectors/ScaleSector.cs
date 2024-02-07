@@ -29,11 +29,11 @@ public class ScaleSector : Sector
     {
         _contextService = contextService;
         _messageDistributor = messageDistributor;
-        AddRelatedErrorcodes();
+        AddRelatedErrorCodes();
         Diverters = CreateDiverters();
     }
 
-    public override void AddRelatedErrorcodes()
+    public override void AddRelatedErrorCodes()
     {
         var errors = new List<Errorcode>
         {
@@ -288,7 +288,7 @@ public class ScaleSector : Sector
         }
     }
 
-    public override void UnsubscripedPacket(object? sender, UnsubscribedPacketEventArgs unsubscribedPacket)
+    public override void UnsubscribedPacket(object? sender, UnsubscribedPacketEventArgs unsubscribedPacket)
     {
         if (TrackedPacketExists(unsubscribedPacket.PacketTracing))
         {
@@ -300,12 +300,12 @@ public class ScaleSector : Sector
             _logger.LogWarning($"The packet tracing ID {unsubscribedPacket.PacketTracing} could not be found in sector {this}");
     }
 
-    protected override void ErrorHandling(short errorcode)
+    protected override void ErrorHandling(short errorCode)
     {
         var errorMessage = string.Empty;
         var faultIslandDestination = false;
 
-        switch (errorcode)
+        switch (errorCode)
         {
             case (short)Errorcode.EmergencyHold_Scale:
 

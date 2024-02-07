@@ -1,211 +1,81 @@
-﻿using BlueApps.MaterialFlow.Common.Machines;
-using BlueApps.MaterialFlow.Common.Models.Machines;
+﻿using BlueApps.MaterialFlow.Common.Models.Machines;
 using MF152004.Models.Settings.BrandPrinter;
-using MF152004.Models.Values;
-using Microsoft.Extensions.Logging;
 using ReaPiSharp;
-using System.Collections.Concurrent;
 
 namespace MF152004.Common.Machines;
 
-public class Brandprinter : IMachine
+public class BrandPrinter : IMachine
 {
-    public IBrandPrinterSettings Settings { get; private set; }
-    public ReaPi.ConnectionIdentifier ConnectionId { get; set; } = ReaPi.ConnectionIdentifier.UNKNOWN;
+    private int _jobId;
+    private readonly object _connectionLock = new();
+    private Task<ReaPi.ConnectionIdentifier>? _connectionTask;
+
     public string Id { get; set; } = Guid.NewGuid().ToString();
-    public string Name { get; set; }
-    public string BasePosition { get; set; }
-    public string SubPosition { get; set; }
 
-    public List<int> TracedPackets { get; set; } = new();
-    public Scanner? RelatedScanner { get; set; }
-    public int JobId { get; private set; } = 1;
-    public bool IsConnected
+    public string Name { get; set; } = null!;
+
+    public string BasePosition { get; set; } = null!;
+
+    public string SubPosition { get; set; } = null!;
+
+    public BrandPrinterSettings Settings { get; set; } = null!;
+
+    private Task<ReaPi.ConnectionIdentifier> ConnectAsync()
     {
-        get
+        lock (_connectionLock)
         {
-            lock (_lockConnect)
+            return _connectionTask ??= Task.Run(() =>
             {
-                return _isConnected;
-            }
-        }
-
-        set
-        {
-            lock (_lockConnect)
-            {
-                _isConnected = value;
-            }
-        }
-    }
-    public bool ReadyForNextContent
-    {
-        get
-        {
-            lock (_lockReadyForNextContent)
-            {
-                return _readyForNextContent;
-            }
-        }
-
-        set
-        {
-            lock (_lockReadyForNextContent)
-            {
-                _readyForNextContent = value;
-            }
-        }
-    }
-    public bool QueueIsProcessed
-    {
-        get
-        {
-            lock (_lockPrint)
-            {
-                return _queueIsProcessed;
-            }
-        }
-
-        private set
-        {
-            lock (_lockPrint)
-            {
-                _queueIsProcessed = value;
-            }
-        }
-    }
-    public bool JobIsStopped
-    {
-        get
-        {
-            lock (_lockJobstatus)
-            {
-                return _jobIsStopped;
-            }
-        }
-
-        set
-        {
-            lock (_lockJobstatus)
-            {
-                _jobIsStopped = value;
-            }
-        }
-    }
-    public bool ErrorInSettings { get; private set; }
-    public bool NoJob { get; private set; }
-    public PrintJob CurrentJob { get; private set; }
-
-
-    private static object _lockReadyForNextContent = new();
-    private static object _lockPrint = new();
-    private static object _lockConnect = new();
-    private static object _lockJobstatus = new();
-
-    private readonly ConcurrentQueue<PrintJob> _printJobs = new();
-    private readonly ILogger<Brandprinter> _logger;        
-
-    private bool _readyForNextContent;
-    private bool _queueIsProcessed;
-    private bool _isConnected;
-    private bool _jobIsStopped = true;
-    private PrintJob _jobBefore = new() { ReferenceId = "0", ShipmentId = 0 };
-
-
-    public Brandprinter(IBrandPrinterSettings settings, ILogger<Brandprinter> logger)
-    {
-        Settings = settings;
-        _logger = logger;
-
-        ValidateSettings();
-        CurrentJob = new()
-        {
-            ReferenceId = Settings.Configuration.NoPrintValue,
-            ShipmentId = 0
-        };
-    }
-
-    private void ValidateSettings()
-    {
-        if (Settings is null
-            || string.IsNullOrEmpty(Settings.IPAddress)
-            || Settings.Port < 1
-            || string.IsNullOrEmpty(Settings.Configuration.Job))
-        {
-            _logger.LogError($"Invalid settings for brandprinter {this}");
-            ErrorInSettings = true;
-        }
-    }
-
-    /// <summary>
-    /// Print will be executed only if the machine is connected, job ist not stopped and a job is setted
-    /// </summary>
-    /// <param name="refId"></param>
-    /// <param name="shipmentId"></param>
-    public async void Print(string? refId, int shipmentId)
-    {
-        if (!IsConnected || JobIsStopped || NoJob) return;
-
-        if (string.IsNullOrEmpty(refId))
-        {
-            _logger.LogWarning($"Reference ID is empty. Print will not be executed for shipment {shipmentId}.");
-            return;
-        }
-
-        var printJob = new PrintJob { ShipmentId = shipmentId, ReferenceId = refId };
-        _printJobs.Enqueue(printJob);
-
-        if (!QueueIsProcessed)
-        {
-            QueueIsProcessed = true;
-
-            while (_printJobs.Any())
-            {
-                await ContextCannotBeSet();
-
-                if (_printJobs.TryDequeue(out var job))
+                try
                 {
-                    CurrentJob = job;
+                    var errorCode = ReaPi.ConnectWaitB(Settings.ConnectionString, out var connectionId);
 
-                    // if (job.ReferenceId != _jobBefore.ReferenceId)
-                    {
-                        var labelContent = ReaPi.CreateLabelContent();
+                    if (errorCode != ReaPi.EErrorCode.OK)
+                        throw new ReaPiException($"Failed to connect BrandPrinter at {Settings.ConnectionString}: {errorCode}");
 
-                        ReaPi.PrepareLabelContent(labelContent, JobId, Settings.Configuration.Group,
-                            Settings.Configuration.Object,
-                            Settings.Configuration.Content,
-                            job.ReferenceId);
-                        ReaPi.SetLabelContent(ConnectionId, labelContent);
-                    }
-
-                    _jobBefore = job;
-                    ReadyForNextContent = false;
+                    return connectionId;
                 }
-
-                QueueIsProcessed = false;
-            }
+                catch
+                {
+                    lock (_connectionLock)
+                    {
+                        _connectionTask = null;
+                        throw;
+                    }
+                }
+            });
         }
     }
 
-    public void TransparentPrint(int shipmentId)
+    public async Task Print(string value)
     {
-        _logger.LogInformation("Transparent print for next package with ID {0}", shipmentId);
-        Print(Settings.Configuration.NoPrintValue, shipmentId);
-    }
+        var connection = await ConnectAsync().ConfigureAwait(false);
 
-    public void ClearJobs() => _printJobs.Clear();
+        await Task.Run(() =>
+        {
+            try
+            {
+                var jobId = Interlocked.Increment(ref _jobId);
 
-    private async Task ContextCannotBeSet()
-    {
-        while (!ReadyForNextContent)
-            await Task.Delay(80);
-    }
+                var response = ReaPi.SetJob(connection, jobId, Settings.Configuration.Job);
+                if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"SetJob failed: {this}, {value}: {ReaPi.GetErrorMessage(response, out _)}");
 
-    public override string ToString()
-    {
-        if (!string.IsNullOrEmpty(Name))
-            return Name;
-        else
-            return "Undefined brandprinter";
+                var labelContent = ReaPi.CreateLabelContent();
+
+                var error = ReaPi.PrepareLabelContent(labelContent, jobId, Settings.Configuration.Group, Settings.Configuration.Object, Settings.Configuration.Content, value);
+                if (error != ReaPi.EErrorCode.OK) throw new ReaPiException($"PrepareLabelContent failed: {this}, {value}: {error}");
+
+                response = ReaPi.SetLabelContent(connection, labelContent);
+                if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"SetLabelContent failed: {this}, {value}: {ReaPi.GetErrorMessage(response, out _)}");
+
+                response = ReaPi.StartJob(connection, jobId);
+                if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"StartJob failed: {this}, {value}: {ReaPi.GetErrorMessage(response, out _)}");
+            }
+            catch
+            {
+                lock (_connectionLock) _connectionTask = null;
+                throw;
+            }
+        });
     }
 }

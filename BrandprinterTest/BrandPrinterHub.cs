@@ -11,34 +11,31 @@ public class BrandPrinterHub
     private readonly Dictionary<string, ReaPi.ConnectionIdentifier> _connections = new();
     private int _jobId;
 
-    public async Task Print(BrandPrinter printer, string value)
+    public Task Print(BrandPrinter printer, string value) => Task.Run(async () =>
     {
         var connection = await ConnectAsync(printer).ConfigureAwait(false);
 
         try
         {
-            await Task.Run(() =>
-            {
-                var jobId = Interlocked.Increment(ref _jobId);
+            var jobId = Interlocked.Increment(ref _jobId);
 
-                var response = ReaPi.SetJob(connection, jobId, printer.Settings.JobFile);
-                if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"SetJob failed: {printer}, {value}: {ReaPi.GetErrorMessage(response, out _)}");
+            var response = ReaPi.SetJob(connection, jobId, printer.Settings.JobFile);
+            if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"SetJob failed: {printer}, {value}: {ReaPi.GetErrorMessage(response, out _)}");
 
-                var labelContent = ReaPi.CreateLabelContent();
+            var labelContent = ReaPi.CreateLabelContent();
 
-                var error = ReaPi.PrepareLabelContent(labelContent, jobId, printer.Settings.Group, printer.Settings.Object, printer.Settings.Content, value);
-                if (error != ReaPi.EErrorCode.OK) throw new ReaPiException($"PrepareLabelContent failed: {printer}, {value}: {error}");
+            var error = ReaPi.PrepareLabelContent(labelContent, jobId, printer.Settings.Group, printer.Settings.Object, printer.Settings.Content, value);
+            if (error != ReaPi.EErrorCode.OK) throw new ReaPiException($"PrepareLabelContent failed: {printer}, {value}: {error}");
 
-                response = ReaPi.SetLabelContent(connection, labelContent);
-                if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"SetLabelContent failed: {printer}, {value}: {ReaPi.GetErrorMessage(response, out _)}");
-            });
+            response = ReaPi.SetLabelContent(connection, labelContent);
+            if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"SetLabelContent failed: {printer}, {value}: {ReaPi.GetErrorMessage(response, out _)}");
         }
         catch
         {
             lock (_connectionLock) _connections.Remove(printer.Id);
             throw;
         }
-    }
+    });
 
     public Task<ReaPi.ConnectionIdentifier> ConnectAsync(BrandPrinter printer)
     {

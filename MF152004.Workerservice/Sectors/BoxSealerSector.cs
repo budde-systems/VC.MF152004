@@ -26,12 +26,12 @@ public class BoxSealerSector : Sector
     {
         _contextService = contextService;
         _messageDistributor = messageDistributor;
-        AddRelatedErrorcodes();
+        AddRelatedErrorCodes();
         BarcodeScanner = CreateScanner();
         Diverters = CreateDiverters();            
     }
 
-    public override void AddRelatedErrorcodes()
+    public override void AddRelatedErrorCodes()
     {
         var errors = new List<Errorcode>
         {
@@ -210,7 +210,7 @@ public class BoxSealerSector : Sector
         }
     }
 
-    public override void UnsubscripedPacket(object? sender, UnsubscribedPacketEventArgs unsubscribedPacket)
+    public override void UnsubscribedPacket(object? sender, UnsubscribedPacketEventArgs unsubscribedPacket)
     {
         if (TrackedPacketExists(unsubscribedPacket.PacketTracing))
         {
@@ -261,12 +261,12 @@ public class BoxSealerSector : Sector
         RemoveTrackedPacket(unsubscribedPacket.PacketTracing);
     }
 
-    protected override void ErrorHandling(short errorcode)
+    protected override void ErrorHandling(short errorCode)
     {
         var errorMessage = string.Empty;
         var faultIslandDestination = false;
 
-        switch (errorcode)
+        switch (errorCode)
         {
             case (short)Errorcode.EmergencyHold_Boxsealer:
 

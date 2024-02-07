@@ -1,7 +1,5 @@
 using BlueApps.MaterialFlow.Common.Connection.Broker;
 using BlueApps.MaterialFlow.Common.Connection.Client;
-using MF152004.Common.Connection.Clients;
-using MF152004.Models.Settings.BrandPrinter;
 using MF152004.Workerservice.Logic;
 using MF152004.Workerservice.Services;
 using Serilog;
@@ -22,14 +20,11 @@ public class Program
             var host = Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services)=>
                 {
-                    services.Configure<BrandPrinterSettingsFront>(hostContext.Configuration.GetSection("brand_printer_config_front"));
-                    services.Configure<BrandPrinterSettingsBack>(hostContext.Configuration.GetSection("brand_printer_config_back"));
                     services.AddWindowsService(options => options.ServiceName = "BlueApps_MaterialFlow");                        
                     services.AddScoped<MqttBroker>();
                     services.AddScoped<DestinationService>();
                     services.AddSingleton<ContextService>();
                     services.AddSingleton<MqttClient>();
-                    services.AddSingleton<BrandingPrinterClient>();
                     services.AddSingleton<MaterialFlowMng>();                        
                     services.AddHostedService<Worker>();
                 }).UseSerilog(Log.Logger)

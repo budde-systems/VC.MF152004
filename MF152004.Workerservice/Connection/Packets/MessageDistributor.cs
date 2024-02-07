@@ -388,14 +388,14 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
     /// </summary>
     /// <param name="shipment"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public void SendShipmentUpdate(Shipment? shipment)
+    public async Task SendShipmentUpdate(Shipment? shipment)
     {
         if (shipment != null)
         {
             var pckHelper = new ShipmentPacketHelper("", CommonData.Topics[TopicType.Workerservice_Webservice]);
             pckHelper.CreateUpdatedShipmentsResponse(shipment);
 
-            _client.SendData(pckHelper.GetPacketData());
+            await _client.SendData(pckHelper.GetPacketData());
         }
         else
         {
@@ -444,14 +444,13 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
 
     #region general
 
-    public void SendNoRead(NoRead noRead)
+    public async Task SendNoRead(NoRead noRead)
     {
-        var pckHelper = new GeneralMessagePacketHelper("",
-            CommonData.Topics[TopicType.Workerservice_Webservice_General]);
+        var pckHelper = new GeneralMessagePacketHelper("", CommonData.Topics[TopicType.Workerservice_Webservice_General]);
         pckHelper.ClearGeneralPacketContext();
         pckHelper.CreateNoReadContext(noRead);
 
-        _client.SendData(pckHelper.GetPacketData());
+        await _client.SendData(pckHelper.GetPacketData());
     }
 
     #endregion

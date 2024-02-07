@@ -11,10 +11,8 @@ using BlueApps.MaterialFlow.Common.Sectors;
 using MF152004.Common.Connection.Packets.PacketHelpers;
 using MF152004.Workerservice.Sectors.Gates;
 using MF152004.Common.Machines;
-using MF152004.Common.Connection.Clients;
 using MF152004.Models.EventArgs;
 using BlueApps.MaterialFlow.Common.Models.EventArgs;
-using MF152004.Models.Values.Types;
 using MF152004.Models.Settings.BrandPrinter;
 using Microsoft.Extensions.Options;
 
@@ -30,40 +28,28 @@ public class MaterialFlowMng : MaterialFlowManager
     private readonly DestinationService _destinationService;
     private readonly SectorServices _sectorServices;
     private readonly IServiceProvider _serviceProvider;
-    private readonly BrandPrinterSettingsBack _brandPrinterSettingsBack;
-    private readonly BrandPrinterSettingsFront _brandPrinterSettingsFront;
-    private readonly ILogger<Brandprinter> _brandPrinterLogger;
-    private readonly BrandingPrinterClient _brandingPrinterClient;
 
     private CancellationToken _cancellationToken;
 
     //private readonly List<MessagePacketHelper> _packetHelpers; //class => MessageDistributor
 
     public MaterialFlowMng(
+        IServiceProvider serviceProvider,
         ILogger<MaterialFlowMng> logger, 
         MqttClient client, 
         ContextService contextService, 
-        IConfiguration configuration, 
-        IServiceProvider serviceProvider, 
-        ILogger<MessageDistributor> msgDistLogger,
-        IOptions<BrandPrinterSettingsBack> brandPrinterSettingsBack,
-        IOptions<BrandPrinterSettingsFront> brandPrinterSettingsFront,
-        BrandingPrinterClient brandingPrinterClient)
+        IConfiguration configuration)
     {
         _logger = logger;
         _client = client;
         _contextService = contextService;
         _configuration = configuration;
         _serviceProvider = serviceProvider;
-        _brandPrinterSettingsBack = brandPrinterSettingsBack.Value;
-        _brandPrinterSettingsFront = brandPrinterSettingsFront.Value;
-        _brandingPrinterClient = brandingPrinterClient;
             
         using var scope = serviceProvider.CreateScope();
         _destinationService = scope.ServiceProvider.GetRequiredService<DestinationService>();
         var msgDistributorLogger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<MessageDistributor>();
         var sectorServicesLogger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<SectorServices>();
-        _brandPrinterLogger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<Brandprinter>();
 
         SetTopics();
         SetLabelprinterMessage();
@@ -249,7 +235,7 @@ public class MaterialFlowMng : MaterialFlowManager
         var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<Sector>();
 
         var boxSealer = new BoxSealerSector(_client, logger, "2.2", _contextService, _msgDistributor);
-        var brandPrinterSector = new BrandPrinterSector(_client, logger, "3.1", _contextService, _msgDistributor);
+        var brandPrinterSector = new BrandPrinterSector(_client, logger, "3.1", _contextService, _msgDistributor, _configuration);
         var scale = new Sectors.ScaleSector(_client, logger, "3.2", _contextService, _msgDistributor);
         var labelPrinterSector = new LabelPrinterSector(_client, logger, "3.3", _contextService, _msgDistributor, _configuration["hub_url"]);
         var exportSector = new ExportGates(_client, logger, "5-6", _contextService, _msgDistributor);
@@ -258,10 +244,6 @@ public class MaterialFlowMng : MaterialFlowManager
 
         _msgDistributor.WeigtScanned += scale.Weight_Scanned;
         _msgDistributor.LabelPrinterRefRequest += labelPrinterSector.RepeatLastPrinterReferenceBroadcast;
-
-        _brandingPrinterClient.ConnectBrandprinter(GetFrontBrandPrinter());
-        _brandingPrinterClient.ConnectBrandprinter(GetBackBrandPrinter());
-        brandPrinterSector.AddBrandingprinterClient(_brandingPrinterClient);
 
         labelPrinterSector.AddLabelPrinters(GetFrontLabelPrinter());
         labelPrinterSector.AddLabelPrinters(GetBackLabelPrinter());
@@ -274,35 +256,11 @@ public class MaterialFlowMng : MaterialFlowManager
         sectors.ForEach(sector =>
         {
             _msgDistributor.BarcodeScanned += sector.Barcode_Scanned;
-            _msgDistributor.UnsubscribedPacket += sector.UnsubscripedPacket;
+            _msgDistributor.UnsubscribedPacket += sector.UnsubscribedPacket;
             _msgDistributor.ErrorcodeTriggered += sector.ErrorTriggered;
         });
 
         return sectors;
-    }
-
-    private Brandprinter GetFrontBrandPrinter()
-    {
-        var brandPrinter = new Brandprinter(_brandPrinterSettingsFront, _brandPrinterLogger)
-        {
-            Name = "Brandprinter front",
-            BasePosition = BrandprinterPosition.BP1.ToString(),
-            RelatedScanner = new("M3.1.189", "S3.1.190")
-        };
-
-        return brandPrinter;
-    }
-
-    private Brandprinter GetBackBrandPrinter()
-    {
-        var brandPrinter = new Brandprinter(_brandPrinterSettingsBack, _brandPrinterLogger)
-        {
-            Name = "Brandprinter back",
-            BasePosition = BrandprinterPosition.BP2.ToString(),
-            RelatedScanner = new("M3.1.211", "S3.1.401")
-        };
-
-        return brandPrinter;
     }
 
     private LabelPrinter GetFrontLabelPrinter()

@@ -47,16 +47,13 @@ public static class FileManager
     public static byte[] GetZplFile(int shipmentId) //TODO: Dateien nach einem best. t löschen
     {
         var path = _companyFolder + _applicationFolder + _mainFolder;
-        var filePath = Path.Combine(path, shipmentId.ToString() + ".zpl");
+        var filePath = Path.Combine(path, $"{shipmentId}.zpl");
 
-        if (File.Exists(filePath))
-            return File.ReadAllBytes(filePath);
-        else
-            return Array.Empty<byte>();
+        return File.Exists(filePath) ? File.ReadAllBytes(filePath) : Array.Empty<byte>();
     }
 
     /// <summary>
-    /// Zpl-files which are older than provided days will removed.
+    /// Zpl-files which are older than provided days will be removed.
     /// </summary>
     /// <param name="daysOlderThan"></param>
     /// <param name="shipmentIds">Additional condition: only shipment IDs will be checked</param>
@@ -71,7 +68,7 @@ public static class FileManager
             var files = Directory.EnumerateFiles(path)
                 .Where(file => File.GetCreationTime(file) <= DateTime.Now.AddDays(-daysOlderThan));
 
-            if (shipmentIds != null && shipmentIds.Length > 0)
+            if (shipmentIds is { Length: > 0 })
                 files = files
                     .Where(file => shipmentIds != null && shipmentIds.Contains(Path.GetFileNameWithoutExtension(file)));
 
