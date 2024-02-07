@@ -209,19 +209,22 @@ public abstract class GatesSector : Sector
     {
         if (TrackedPacketExists(unsubscribedPacket.PacketTracing))
         {
-            var shipmentId = _contextService.GetShipmentByPacketTracing(unsubscribedPacket.PacketTracing)?.Id;
+            var shipment = _contextService.GetShipmentByPacketTracing(unsubscribedPacket.PacketTracing);
 
-            if (shipmentId != null)
+            if (shipment != null)
             {
                 var target = GetDestinationOfTrackedPacket(unsubscribedPacket.PacketTracing);
 
                 if (target != null)
                 {
-                    _contextService.DestinationReached((int)shipmentId);
-                    _contextService.SetTarget((int)shipmentId, target);
+                    _contextService.DestinationReached(shipment.Id);
+                    
+                    if (shipment.DestinationRouteReference?.Split(',').Contains(target) == true)
+                        _contextService.SetTarget(shipment.Id, target);
+                    
                     _contextService.RemovePacketTracing(unsubscribedPacket.PacketTracing);
                     RemoveTrackedPacket(unsubscribedPacket.PacketTracing);
-                    _messageDistributor.SendShipmentUpdate(_contextService.GetShipment((int)shipmentId));
+                    _messageDistributor.SendShipmentUpdate(shipment);
                 }
             }
         }
