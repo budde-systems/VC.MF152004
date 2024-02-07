@@ -218,8 +218,9 @@ public abstract class GatesSector : Sector
                 if (target != null)
                 {
                     _contextService.DestinationReached(shipment.Id);
-                    
-                    if (shipment.DestinationRouteReference?.Split(',').Contains(target) == true)
+
+                    // VK: Only setting final target if it was present in the original destination list
+                    if (shipment.DestinationRouteReference?.Split(';').Any(s => s.Trim() == target) == true)
                         _contextService.SetTarget(shipment.Id, target);
                     
                     _contextService.RemovePacketTracing(unsubscribedPacket.PacketTracing);
