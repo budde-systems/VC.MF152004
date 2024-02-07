@@ -115,6 +115,9 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
     private void DistributeMessageFromPLC(MessagePacketHelper packetHelper)
     {
         var pckHelper = packetHelper as PLC152004_PacketHelper;
+        if (pckHelper == null) return;
+
+        _logger.LogInformation("<<< PLC: {0}", string.Join(",", pckHelper.Areas));
 
         switch (pckHelper.Command)
         {
