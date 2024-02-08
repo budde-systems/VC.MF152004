@@ -35,7 +35,7 @@ public class BrandPrinterSector : Sector
                 _printerFront = new BrandPrinter
                 {
                     Name = "BrandPrinter Front",
-                    Settings = configuration.GetSection("brand_printer_config_front").Get<BrandPrinterSettings>()
+                    Settings = configuration.GetSection("brand_printer_config_front").Get<BrandPrinterSettings>() ?? throw new Exception("'brand_printer_config_front' section was not found in configuration")
                 }
             },
             {
@@ -43,7 +43,7 @@ public class BrandPrinterSector : Sector
                 _printerBack = new BrandPrinter
                 {
                     Name = "BrandPrinter Back",
-                    Settings = configuration.GetSection("brand_printer_config_back").Get<BrandPrinterSettings>()
+                    Settings = configuration.GetSection("brand_printer_config_back").Get<BrandPrinterSettings>() ?? throw new Exception("'brand_printer_config_back' section was not found in configuration")
                 }
             }
         };
@@ -130,7 +130,7 @@ public class BrandPrinterSector : Sector
 
             if (referenceId != printer.Settings.Configuration.NoPrintValue)
             {
-                await Task.Delay(500);
+                await Task.Delay(2000);
                 await printer.Print(printer.Settings.Configuration.NoPrintValue);
             }
         }
