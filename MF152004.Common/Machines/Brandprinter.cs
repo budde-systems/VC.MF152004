@@ -1,15 +1,19 @@
 ﻿using MF152004.Models.Settings.BrandPrinter;
 using ReaPiSharp;
+using System.Threading;
 
 namespace MF152004.Common.Machines;
 
 public class BrandPrinter
 {
-    private int _jobId;
+    private static int _jobId = 1;
     private readonly object _connectionLock = new();
     private Task<ReaPi.ConnectionIdentifier>? _connectionTask;
+    private SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
     public string Name { get; set; } = null!;
+
+    public override string ToString() => Name;
 
     public BrandPrinterSettings Settings { get; set; } = new();
 
@@ -44,25 +48,34 @@ public class BrandPrinter
     {
         var connection = await ConnectAsync().ConfigureAwait(false);
 
-        await Task.Run(() =>
+        await Task.Run(async () =>
         {
             try
             {
-                var jobId = Interlocked.Increment(ref _jobId);
+                await _semaphore.WaitAsync().ConfigureAwait(false);
 
-                var response = ReaPi.SetJob(connection, jobId, Settings.Configuration.Job);
-                if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"SetJob failed: {this}, {value}: {ReaPi.GetErrorMessage(response, out _)}");
+                try
+                {
+                    var jobId = 1; // Interlocked.Increment(ref _jobId);
 
-                var labelContent = ReaPi.CreateLabelContent();
+                    var response = ReaPi.SetJob(connection, jobId, Settings.Configuration.Job);
+                    if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"SetJob failed: {this}, {value}: {ReaPi.GetErrorMessage(response, out _)}");
 
-                var error = ReaPi.PrepareLabelContent(labelContent, jobId, Settings.Configuration.Group, Settings.Configuration.Object, Settings.Configuration.Content, value);
-                if (error != ReaPi.EErrorCode.OK) throw new ReaPiException($"PrepareLabelContent failed: {this}, {value}: {error}");
+                    var labelContent = ReaPi.CreateLabelContent();
 
-                response = ReaPi.SetLabelContent(connection, labelContent);
-                if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"SetLabelContent failed: {this}, {value}: {ReaPi.GetErrorMessage(response, out _)}");
+                    var error = ReaPi.PrepareLabelContent(labelContent, jobId, Settings.Configuration.Group, Settings.Configuration.Object, Settings.Configuration.Content, value);
+                    if (error != ReaPi.EErrorCode.OK) throw new ReaPiException($"PrepareLabelContent failed: {this}, {value}: {error}");
 
-                response = ReaPi.StartJob(connection, jobId);
-                if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"StartJob failed: {this}, {value}: {ReaPi.GetErrorMessage(response, out _)}");
+                    response = ReaPi.SetLabelContent(connection, labelContent);
+                    if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"SetLabelContent failed: {this}, {value}: {ReaPi.GetErrorMessage(response, out _)}");
+
+                    //response = ReaPi.StartJob(connection, jobId);
+                    //if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"StartJob failed: {this}, {value}: {ReaPi.GetErrorMessage(response, out _)}");
+                }
+                finally 
+                { 
+                    _semaphore.Release(); 
+                }
             }
             catch
             {

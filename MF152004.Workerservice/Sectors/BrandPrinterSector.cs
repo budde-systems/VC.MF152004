@@ -19,6 +19,7 @@ public class BrandPrinterSector : Sector
     private readonly MessageDistributor _messageDistributor;
 
     private readonly Dictionary<string, BrandPrinter> _printers;
+
     private readonly BrandPrinter _printerFront;
     private readonly BrandPrinter _printerBack;
 
@@ -98,17 +99,17 @@ public class BrandPrinterSector : Sector
 
             if (shipment != null)
             {
-                if (printer == _printerFront && shipment.BoxBrandedAt_1.HasValue)
-                {
-                    _logger.LogInformation("{0}: Shipment {1} was already branded at {2}, skipping printing", printer, shipment, shipment.BoxBrandedAt_1.Value);
-                    return;
-                }
+                //if (printer == _printerFront && shipment.BoxBrandedAt_1.HasValue)
+                //{
+                //    _logger.LogInformation("{0}: Shipment {1} was already branded at {2}, skipping printing", printer, shipment, shipment.BoxBrandedAt_1.Value);
+                //    return;
+                //}
 
-                if (printer == _printerBack && shipment.BoxBrandedAt_2.HasValue)
-                {
-                    _logger.LogInformation("{0}: Shipment {1} was already branded at {2}, skipping printing", printer, shipment, shipment.BoxBrandedAt_2.Value);
-                    return;
-                }
+                //if (printer == _printerBack && shipment.BoxBrandedAt_2.HasValue)
+                //{
+                //    _logger.LogInformation("{0}: Shipment {1} was already branded at {2}, skipping printing", printer, shipment, shipment.BoxBrandedAt_2.Value);
+                //    return;
+                //}
 
                 _logger.LogInformation("{0}: Printing ref {1} for shipment {2}", printer, referenceId, shipment);
             }
@@ -130,7 +131,8 @@ public class BrandPrinterSector : Sector
 
             if (referenceId != printer.Settings.Configuration.NoPrintValue)
             {
-                await Task.Delay(2000);
+                await Task.Delay(5000);
+                _logger.LogInformation("{0}: Setting ref {1}", printer, printer.Settings.Configuration.NoPrintValue);
                 await printer.Print(printer.Settings.Configuration.NoPrintValue);
             }
         }
