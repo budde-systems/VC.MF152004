@@ -1,24 +1,17 @@
-﻿using BlueApps.MaterialFlow.Common.Models.Machines;
-using MF152004.Models.Settings.BrandPrinter;
+﻿using MF152004.Models.Settings.BrandPrinter;
 using ReaPiSharp;
 
 namespace MF152004.Common.Machines;
 
-public class BrandPrinter : IMachine
+public class BrandPrinter
 {
     private int _jobId;
     private readonly object _connectionLock = new();
     private Task<ReaPi.ConnectionIdentifier>? _connectionTask;
 
-    public string Id { get; set; } = Guid.NewGuid().ToString();
-
     public string Name { get; set; } = null!;
 
-    public string BasePosition { get; set; } = null!;
-
-    public string SubPosition { get; set; } = null!;
-
-    public BrandPrinterSettings Settings { get; set; } = null!;
+    public BrandPrinterSettings Settings { get; set; } = new();
 
     private Task<ReaPi.ConnectionIdentifier> ConnectAsync()
     {

@@ -26,7 +26,7 @@ public class DestinationService
     /// <param name="e"></param>
     public void OnDestinationsUpdate(object? sender, Models.EventArgs.UpdateDestinationsEventArgs e)
     {
-        var routePositions = GetSectorsRoutePositions();
+        var routePositions = GetSectorsRoutePositions()?.ToList();
 
         if (routePositions != null)
         {
@@ -48,7 +48,7 @@ public class DestinationService
         }
     }
 
-    private IEnumerable<RoutePosition?>? GetSectorsRoutePositions() =>
+    private IEnumerable<RoutePosition>? GetSectorsRoutePositions() =>
         _sectors?
             .Where(x => x.Diverters != null)
             .SelectMany(x => x.Diverters)
@@ -59,13 +59,12 @@ public class DestinationService
 
     internal IEnumerable<Destination?>? GetSectorsDestinations() =>
         GetSectorsRoutePositions()?
-            .Where(_ => _ != null && _.Destination != null)
-            .Select(_ => _?.Destination);
-
+            .Where(p => p is { Destination: not null })
+            .Select(p => p.Destination);
 
     internal void OnDockedTelescope(object? sender, DockedTelescopeEventArgs docked)
     {
-        var destinations = GetSectorsDestinations();
+        var destinations = GetSectorsDestinations()?.ToList();
 
         if (destinations != null && docked.Gates != null)
         {
@@ -73,9 +72,7 @@ public class DestinationService
 
             foreach (var gate in docked.Gates)
             {
-                var destination = destinations
-                    .FirstOrDefault(_ => _ != null && _.UI_Id != null && string
-                        .Concat(_.UI_Id.Where(char.IsDigit)) == gate);
+                var destination = destinations.FirstOrDefault(d => d is { UI_Id: not null } && string.Concat(d.UI_Id.Where(char.IsDigit)) == gate);
 
                 if (destination != null)
                 {
@@ -91,15 +88,13 @@ public class DestinationService
 
     internal void OnLoadFactor(object? sender, LoadFactorEventArgs e)
     {
-        var destinations = GetSectorsDestinations();
+        var destinations = GetSectorsDestinations()?.ToList();
 
         if (destinations != null && e.LoadFactors != null)
         {
             foreach (var loadFactor in e.LoadFactors)
             {
-                var destination = destinations
-                    .FirstOrDefault(_ => _ != null && _.UI_Id != null && string
-                        .Concat(_.UI_Id.Where(char.IsDigit)) == loadFactor.Gate);
+                var destination = destinations.FirstOrDefault(_ => _ is { UI_Id: not null } && string.Concat(_.UI_Id.Where(char.IsDigit)) == loadFactor.Gate);
 
                 if (destination != null)
                     destination.LoadFactor = loadFactor.Factor; 

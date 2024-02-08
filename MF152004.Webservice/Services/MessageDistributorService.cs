@@ -247,8 +247,6 @@ public class MessageDistributorService : MessageDistributor
         _client.SendData(pckHelper.GetPacketData());
     }
 
-    #region generalPacket
-
     private void OnGeneralPacket(MessagePacketHelper packetHelper)
     {
         var pckHelper = packetHelper as GeneralMessagePacketHelper;
@@ -268,10 +266,6 @@ public class MessageDistributorService : MessageDistributor
             _logger.LogWarning("The packethelper or general packet is null.");
         }
     }
-
-    #endregion
-
-    #region Weightscan
 
     private void OnWeightScan(MessagePacketHelper packetHelper)
     {
@@ -307,8 +301,6 @@ public class MessageDistributorService : MessageDistributor
 
         _logger.LogInformation($"Number of attempts to post weightscan in WMS: {numberOfAttempts}");
     }
-
-    #endregion
 
     /// <summary>
     /// Labels will be downloaded async in the defined local file system.

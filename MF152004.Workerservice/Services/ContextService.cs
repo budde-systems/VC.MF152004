@@ -7,7 +7,7 @@ using MF152004.Workerservice.Data;
 
 namespace MF152004.Workerservice.Services;
 
-public class ContextService //TODO: IShipment vervollständigen und diese Klassen hier in Models oder Commmon aufnehmen. Service soll mindestens IShipment-Daten zurückgeben.
+public class ContextService
 {
     public ConfigurationService ConfigService { get; set; }
 
@@ -120,19 +120,19 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
         else
         {
             shipment.DestinationRouteReference = target;
-            _logger.LogInformation("Destination updated in {0}: {1} (4)", shipment, shipment.DestinationRouteReference);
-
             shipment.DestinationRouteReferenceUpdatedAt = DateTime.Now;
+
+            _logger.LogInformation("Destination updated in {0}: {1} (4)", shipment, shipment.DestinationRouteReference);
         }
     }
 
-    public Shipment? GetShipment(int id) => Context.Shipments.SingleOrDefault(x => x.Id == id);
+    public Shipment? GetShipment(int id) => Context.Shipments.FirstOrDefault(x => x.Id == id);
 
     public int GetShipmentId(params string[] barcodes) => GetShipmentByTransportationReference(barcodes)?.Id ?? 0;
 
     public Shipment? GetShipmentByTransportationReference(IList<string>? barcodes)
     {
-        return barcodes == null ? null : Context.Shipments.SingleOrDefault(x => barcodes.Any(b => b == x.TransportationReference));
+        return barcodes == null ? null : Context.Shipments.FirstOrDefault(x => barcodes.Any(b => b == x.TransportationReference));
     }
 
     public bool IsShipped(int shipmentId) => GetShipment(shipmentId)?.Status == "shipped";
@@ -268,23 +268,11 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
         return isWeight <= plusTolerance && isWeight >= minusTolerance;
     }
 
-    public void AddWeightScan(Scan scan)
-    {
-        lock (_contextLock)
-        {
-            Context.WeightScans.Add(scan);
-        }
-    }
-
-    public Scan? GetWeightScan(int shipmentId) => Context.WeightScans.SingleOrDefault(x => x.ShipmentId == shipmentId);
-
-    public double GetIsWeight(int shipmentId) => GetWeightScan(shipmentId)?.Weight ?? 0;
-
-
     /// <summary>
     /// First: matching by barcodes. On fail: matching by shipment 
     /// </summary>
     /// <param name="barcodes"></param>
+    /// <param name="shipment"></param>
     /// <returns>An empty string if something went wrong</returns>
     public string? GetBrandingReferenceId(IList<string> barcodes, Shipment shipment)
     {
@@ -305,16 +293,6 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
         shipment.PacketTracing = packetTracing;
     }
 
-    public void RemovePacketTracing(params string[] barcodes)
-    {
-        var shipment = GetShipmentByTransportationReference(barcodes);
-
-        if (shipment is null) //TODO: Log
-            return;
-
-        shipment.PacketTracing = 0;
-    }
-
     public void RemovePacketTracing(int packetTracing)
     {
         var shipment = GetShipmentByPacketTracing(packetTracing);
@@ -331,17 +309,16 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
     /// <param name="packetTracing"></param>
     /// <returns></returns>
     public Shipment? GetShipmentByPacketTracing(int packetTracing) =>
-        Context.Shipments?.FirstOrDefault(_ => _.PacketTracing == packetTracing); //TODO: Single hat Fehler ergaben wegen doppelten Eintrag??
+        Context.Shipments.FirstOrDefault(s => s.PacketTracing == packetTracing); //TODO: Single hat Fehler ergaben wegen doppelten Eintrag??
 
     public ICollection<Shipment> GetShipmentsByPacketTracing(List<int> tracedPackets) =>
-        Context.Shipments?.Where(_ => tracedPackets.Contains(_.PacketTracing)).ToList() ?? new List<Shipment>();
+        Context.Shipments.Where(s => tracedPackets.Contains(s.PacketTracing)).ToList();
 
     /// <summary>
     /// Get all shipments which have not yet reached their destination
     /// </summary>
     /// <returns></returns>
-    public ICollection<Shipment> GetRunningShipments() =>
-        Context.Shipments?.Where(_ => _.DestinationReachedAt is null).ToList() ?? new List<Shipment>();
+    public ICollection<Shipment> GetRunningShipments() => Context.Shipments.Where(s => s.DestinationReachedAt is null).ToList();
 
     public void DestinationReached(int shipmentId)
     {
@@ -350,8 +327,6 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
         if (shipment != null)
             shipment.DestinationReachedAt = DateTime.Now;
     }
-
-    #region Event-subscribers
 
     public void UpdateShipments(object? sender, UpdateShipmentEventArgs shipments) =>
         UpdateShipments(shipments.UpdatedShipments?.ToArray());
@@ -362,8 +337,6 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
     public void UpdateConfiguration(object? sender, UpdateConfigurationEventArgs configs) =>
         ConfigService.UpdateConfigs(configs.ServiceConfiguration);
 
-    #endregion
-
     public Shipment? LogShipment(Sector sector, IList<string>? barcodes)
     {
         if (barcodes == null || !barcodes.Any())
@@ -372,10 +345,10 @@ public class ContextService //TODO: IShipment vervollständigen und diese Klasse
             return null;
         }
 
-        var shipment = GetShipmentByTransportationReference(barcodes?.ToArray());
+        var shipment = GetShipmentByTransportationReference(barcodes.ToArray());
         
         if (shipment == null)
-            _logger.LogWarning("{0}: Unknown shipment detected. Barcodes: {1}", sector, string.Join(", ", barcodes!));
+            _logger.LogWarning("{0}: Unknown shipment detected. Barcodes: {1}", sector, string.Join(", ", barcodes));
         else
             _logger.LogInformation("{0}: Shipment: {1}", sector, shipment);
 

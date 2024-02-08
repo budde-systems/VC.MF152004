@@ -50,27 +50,22 @@ public class BoxSealerSector : Sector
             SubPosition = "2.2.53"
         };
 
-        flowSort.CreateTowards(new[]
+        flowSort.CreateTowards(new Toward
         {
-            new Toward
+            DriveDirection = Direction.Right,
+            FaultDirection = true,
+            RoutePosition = new RoutePosition
             {
-                DriveDirection = Direction.Right,
-                FaultDirection = true,
-                RoutePosition = new RoutePosition
-                {
-                    Id = "1", //1 = detour
-                    Name = DefaultRoute.Detour.ToString(),
-                }
-            },
-
-            new Toward
+                Id = "1", //1 = detour
+                Name = DefaultRoute.Detour.ToString(),
+            }
+        }, new Toward
+        {
+            DriveDirection = Direction.StraightAhead,
+            RoutePosition = new RoutePosition
             {
-                DriveDirection = Direction.StraightAhead,
-                RoutePosition = new RoutePosition
-                {
-                    Id = "2", //2 = straight out
-                    Name = DefaultRoute.BoxSealer.ToString()
-                }
+                Id = "2", //2 = straight out
+                Name = DefaultRoute.BoxSealer.ToString()
             }
         });
 
@@ -141,17 +136,6 @@ public class BoxSealerSector : Sector
 
             _messageDistributor.SendNoRead(noRead);
         }
-    }
-
-    private int ValidateBarcodesAndGetShipmentId(params string[]? barcodes)
-    {
-        if (barcodes is null || barcodes.Any(_ => _ == CommonData.NoRead))
-        {
-            //TODO: Logging
-            return -1;
-        }
-
-        return _contextService.GetShipmentId(barcodes);
     }
 
     private void SetDiverterDirection(IDiverter? diverter, int shipmentId, params string[]? barcodes) //TODO: Logging

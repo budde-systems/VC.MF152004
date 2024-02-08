@@ -111,26 +111,20 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
         }
     }
 
-    #region plc
     private void DistributeMessageFromPLC(MessagePacketHelper packetHelper)
     {
-        var pckHelper = packetHelper as PLC152004_PacketHelper;
-        if (pckHelper == null) return;
+        if (packetHelper is not PLC152004_PacketHelper pckHelper) return;
 
         _logger.LogInformation("<<< PLC: {0}", string.Join(",", pckHelper.Areas));
 
         switch (pckHelper.Command)
         {
             case PLC_Command.C001:
-
                 OnBarcodeScanned(pckHelper);
-
                 break;
 
             case PLC_Command.C003:
-
                 OnWeightScanned(pckHelper);
-
                 break;
 
             case PLC_Command.C004:
@@ -138,15 +132,11 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
                 break;
 
             case PLC_Command.C005:
-
-                OnUnsubscripedPacket(pckHelper);
-
+                OnUnsubscribedPacket(pckHelper);
                 break;
 
             case PLC_Command.C006:
-
                 OnDockedTelescope(pckHelper);
-
                 break;
 
             case PLC_Command.C007:
@@ -189,7 +179,7 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
             Weight = weight,
             PacketTracing = packetTracing,
             Barcodes = GetBarcodes(pckHelper),
-            ValidHeight = validHeight == 0 ? true : false,
+            ValidHeight = validHeight == 0,
             Position = pckHelper.Areas[4]
         };
 
@@ -211,7 +201,7 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
         return barcodes;
     }
 
-    private void OnUnsubscripedPacket(PLC152004_PacketHelper pckHelper)
+    private void OnUnsubscribedPacket(PLC152004_PacketHelper pckHelper)
     {
         UnsubscribedPacketEventArgs packet = new();
 
@@ -247,23 +237,23 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
 
     private ICollection<short> SplitErrorcodes(string data)
     {
-        var errorcodes = new List<short>();
+        var errorCodes = new List<short>();
 
         if (string.IsNullOrEmpty(data))
-            return errorcodes;
+            return errorCodes;
 
-        var existsErrorcodes = (Errorcode[])Enum.GetValues(typeof(Errorcode));
+        var existingErrorCodes = (Errorcode[])Enum.GetValues(typeof(Errorcode));
 
-        foreach (var splittedCode in data.Split(','))
+        foreach (var splitCode in data.Split(','))
         {
-            if (short.TryParse(splittedCode, out var validCode))
+            if (short.TryParse(splitCode, out var validCode))
             {
-                if (existsErrorcodes.Any(c => (short)c == validCode))
-                    errorcodes.Add(validCode);
+                if (existingErrorCodes.Any(c => (short)c == validCode))
+                    errorCodes.Add(validCode);
             }
         }
 
-        return errorcodes;
+        return errorCodes;
     }
 
     private void OnLoadFactor(PLC152004_PacketHelper packetHelper)
@@ -299,10 +289,6 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
             LoadFactorReached?.Invoke(this, load);
     }
 
-    #endregion
-
-    #region configuration
-
     private void DistributeMessageFromWebserviceConfig(MessagePacketHelper packetHelper)
     {
         var pckHelper = (ConfigurationPacketHelper)packetHelper;
@@ -310,9 +296,7 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
         switch (pckHelper.ConfigurationPacket.KeyCode)
         {
             case ActionKey.NewEntity:
-
                 OnNewConfiguration(pckHelper.ConfigurationPacket.Configuration);
-
                 break;
         }
     }
@@ -334,10 +318,6 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
         _client.SendData(pckHelper.GetPacketData());
     }
 
-    #endregion
-
-    #region shipments
-
     private void DistributeMessageFromWebservice(MessagePacketHelper packetHelper)
     {
         var pckHelper = (ShipmentPacketHelper)packetHelper;
@@ -345,15 +325,11 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
         switch (pckHelper.ShipmentPacket.KeyCode)
         {
             case ActionKey.UpdatedEntity:
-
                 OnUpdateShipments(pckHelper);
-
                 break;
 
             case ActionKey.NewEntity:
-
                 OnNewShipments(pckHelper);
-
                 break;
         }
     }
@@ -378,12 +354,12 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
         NewShipmentsReached?.Invoke(this, shipments);
     }
 
-    public void SendShipmentsRequest(params int[] requestedShipments)
+    public async Task SendShipmentsRequest(params int[] requestedShipments)
     {
         var pckHelper = new ShipmentPacketHelper("", CommonData.Topics[TopicType.Workerservice_Webservice]);
         pckHelper.CreateNewShipmentsRequest(requestedShipments);
 
-        _client.SendData(pckHelper.GetPacketData());
+        await _client.SendData(pckHelper.GetPacketData());
     }
 
     /// <summary>
@@ -400,16 +376,7 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
 
             await _client.SendData(pckHelper.GetPacketData());
         }
-        else
-        {
-            _logger.LogError($"Shipment is null [at {nameof(SendShipmentUpdate)}]");
-            // throw new ArgumentNullException(nameof(shipment)); VK: ???
-        }
     }
-
-    #endregion
-
-    #region destination
 
     private void DistributeMessageFromWebserviceDestination(MessagePacketHelper packetHelper)
     {
@@ -437,15 +404,11 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
         if (destinations is null || destinations.Length == 0 || _hubConnection is null || _hubConnection.State == HubConnectionState.Disconnected)
             return;
 
-        var dests = destinations
+        var de = destinations
             .Select(d => new Destination { Id = d.Id, Active = d.Active }).ToList();
 
-        await _hubConnection.InvokeAsync("SendDestinationStatus", new DestinationStatus { Destinations = dests });
+        await _hubConnection.InvokeAsync("SendDestinationStatus", new DestinationStatus { Destinations = de });
     }
-
-    #endregion
-
-    #region general
 
     public async Task SendNoRead(NoRead noRead)
     {
@@ -456,10 +419,6 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
         await _client.SendData(pckHelper.GetPacketData());
     }
 
-    #endregion
-
-    #region WeightScan
-
     public void SendWeightScan(Scan scan)
     {
         var pckHelper = new WeightScanMessagePacketHelper("",
@@ -468,6 +427,4 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
 
         _client.SendData(pckHelper.GetPacketData());
     }
-
-    #endregion
 }
