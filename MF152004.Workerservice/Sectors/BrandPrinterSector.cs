@@ -117,6 +117,7 @@ public class BrandPrinterSector : Sector
                 _logger.LogInformation("{0}: Printing ref {1} for barcodes {2}", printer, referenceId, string.Join(", ", scan.Barcodes!));
 
             await printer.Print(referenceId);
+            _logger.LogInformation("{0}: Printing done", printer);
 
             if (shipment != null && printer == _printerFront)
             {
