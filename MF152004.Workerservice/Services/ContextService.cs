@@ -107,35 +107,40 @@ public class ContextService
     /// <summary>
     /// The destination route and this date of the shipment will be updated if shipment exists.
     /// </summary>
+    /// <param name="shipment"></param>
+    /// <param name="target"></param>
+    public void SetTarget(Shipment shipment, string target)
+    {
+        shipment.DestinationRouteReference = target;
+        shipment.DestinationRouteReferenceUpdatedAt = DateTime.Now;
+
+        _logger.LogInformation("Destination updated in {0}: {1} (4)", shipment, shipment.DestinationRouteReference);
+    }
+
+    /// <summary>
+    /// The destination route and this date of the shipment will be updated if shipment exists.
+    /// </summary>
     /// <param name="shipmentId"></param>
     /// <param name="target"></param>
+    [Obsolete]
     public void SetTarget(int shipmentId, string target)
     {
         var shipment = GetShipment(shipmentId);
 
-        if (shipment is null)
-        {
-            //Log
-        }
-        else
-        {
-            shipment.DestinationRouteReference = target;
-            shipment.DestinationRouteReferenceUpdatedAt = DateTime.Now;
-
-            _logger.LogInformation("Destination updated in {0}: {1} (4)", shipment, shipment.DestinationRouteReference);
-        }
+        if (shipment != null)
+            SetTarget(shipment, target);
     }
 
     public Shipment? GetShipment(int id) => Context.Shipments.FirstOrDefault(x => x.Id == id);
-
-    public int GetShipmentId(params string[] barcodes) => GetShipmentByTransportationReference(barcodes)?.Id ?? 0;
 
     public Shipment? GetShipmentByTransportationReference(IList<string>? barcodes)
     {
         return barcodes == null ? null : Context.Shipments.FirstOrDefault(x => barcodes.Any(b => b == x.TransportationReference));
     }
 
-    public bool IsShipped(int shipmentId) => GetShipment(shipmentId)?.Status == "shipped";
+    public bool IsShipped(Shipment shipment) => shipment.Status == "shipped";
+
+    public bool IsShipped(int shipmentId) => GetShipment(shipmentId) is { } shipment && IsShipped(shipment);
 
     /// <summary>
     /// 

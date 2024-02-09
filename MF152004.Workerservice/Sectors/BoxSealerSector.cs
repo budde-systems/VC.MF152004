@@ -21,8 +21,8 @@ public class BoxSealerSector : Sector
     private readonly PLC152004_PacketHelper _packetHelper = new();
     private readonly MessageDistributor _messageDistributor;
 
-    public BoxSealerSector(MqttClient client, ILogger<Sector> logger, string baseposition, ContextService contextService, 
-        MessageDistributor messageDistributor) : base(client, logger, NAME, baseposition)
+    public BoxSealerSector(MqttClient client, ILogger<Sector> logger, string basePosition, ContextService contextService, 
+        MessageDistributor messageDistributor) : base(client, logger, NAME, basePosition)
     {
         _contextService = contextService;
         _messageDistributor = messageDistributor;

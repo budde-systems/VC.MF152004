@@ -24,8 +24,8 @@ public class ScaleSector : Sector
     private readonly PLC152004_PacketHelper _packetHelper = new();
     private readonly MessageDistributor _messageDistributor;
 
-    public ScaleSector(MqttClient client, ILogger<Sector> logger, string baseposition, ContextService contextService,
-        MessageDistributor messageDistributor) : base(client, logger, NAME, baseposition)
+    public ScaleSector(MqttClient client, ILogger<Sector> logger, string basePosition, ContextService contextService,
+        MessageDistributor messageDistributor) : base(client, logger, NAME, basePosition)
     {
         _contextService = contextService;
         _messageDistributor = messageDistributor;

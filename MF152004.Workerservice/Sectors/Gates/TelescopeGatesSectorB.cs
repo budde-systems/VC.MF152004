@@ -14,8 +14,8 @@ public class TelescopeGatesSectorB : GatesSector
 {
     private const string NAME = "Telescope Sector 2";
 
-    public TelescopeGatesSectorB(MqttClient client, ILogger<Sector> logger, string baseposition, ContextService contextService, 
-        MessageDistributor messageDistributor) : base(client, logger, baseposition, NAME, contextService, messageDistributor)
+    public TelescopeGatesSectorB(MqttClient client, ILogger<Sector> logger, string basePosition, ContextService contextService, 
+        MessageDistributor messageDistributor) : base(client, logger, basePosition, NAME, contextService, messageDistributor)
     {
         BarcodeScanner = CreateScanner();
         Diverters = CreateDiverters();

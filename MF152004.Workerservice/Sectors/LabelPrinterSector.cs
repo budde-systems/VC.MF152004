@@ -36,10 +36,10 @@ public class LabelPrinterSector : Sector
     public LabelPrinterSector(
         MqttClient client,
         ILogger<Sector> logger,
-        string baseposition, 
+        string basePosition, 
         ContextService contextService, 
         MessageDistributor messageDistributor,
-        string? hubUrl) : base(client, logger, NAME, baseposition)
+        string? hubUrl) : base(client, logger, NAME, basePosition)
     {
         _contextService = contextService;
         _messageDistributor = messageDistributor;

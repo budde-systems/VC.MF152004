@@ -1,5 +1,6 @@
 ﻿using BlueApps.MaterialFlow.Common.Connection.PacketHelper;
 using BlueApps.MaterialFlow.Common.Machines.BaseMachines;
+using BlueApps.MaterialFlow.Common.Models.Types;
 using BlueApps.MaterialFlow.Common.Values.Types;
 using MF152004.Workerservice.Common;
 using MF152004.Workerservice.Connection.Packets.Settings;
@@ -35,18 +36,14 @@ public class PLC152004_PacketHelper : PLC_MessagePacketHelper
     /// <summary>
     /// C2
     /// </summary>
-    /// <param name="diverter"></param>
     /// <param name="packetTracing"></param>
-    public void Create_NoExitFlowSortPosition(IDiverter? diverter, int packetTracing)
+    public void Create_NoExitFlowSortPosition(int packetTracing)
     {
-        if (diverter is null)
-            return;
-
         ClearAreas();
         CreatePacketId();
         Command = PLC_Command.C002;
         Areas[2] = packetTracing.ToString();
-        Areas[3] = ((byte)diverter.DriveDirection).ToString();            
+        Areas[3] = ((byte)Direction.StraightAhead).ToString();
     }
 
     public void Create_StopAndGo(string basePosition, bool go)

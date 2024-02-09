@@ -22,11 +22,7 @@ public class ExportGates : GatesSector //TODO: Gates können alle zusammengefass
 
     public override ICollection<IDiverter> CreateDiverters() //TODO: 3 diverters
     {
-        var flowsort1 = CreateFlowSort_1();
-        var flowsort2 = CreateFlowSort_2();
-        var flowsort3 = CreateFlowSort_3();
-
-        return new List<IDiverter> { flowsort1, flowsort2, flowsort3 };
+        return new List<IDiverter> { CreateFlowSort_1(), CreateFlowSort_2(), CreateFlowSort_3() };
     }
 
     private FlowSort CreateFlowSort_1()
@@ -40,23 +36,19 @@ public class ExportGates : GatesSector //TODO: Gates können alle zusammengefass
 
         RoutePosition routePosition = new();
         routePosition.SetRoutePosition(new Destination { Name = "Tor 1", Active = true }); //TODO: UI_Id verwebden
-        flowSort.CreateTowards(new[]
+        
+        flowSort.CreateTowards(new Toward
         {
-            new Toward
+            DriveDirection = Direction.Left,
+            RoutePosition = routePosition,
+        }, new Toward
+        {
+            DriveDirection = Direction.StraightAhead,
+            FaultDirection = true,
+            RoutePosition = new RoutePosition
             {
-                DriveDirection = Direction.Left,
-                RoutePosition = routePosition,
-            },
-
-            new Toward
-            {
-                DriveDirection = Direction.StraightAhead,
-                FaultDirection = true,
-                RoutePosition = new RoutePosition
-                {
-                    Id = "1",
-                    Name = DefaultRoute.ToGates.ToString(),
-                }
+                Id = "1",
+                Name = DefaultRoute.ToGates.ToString(),
             }
         });
 
@@ -76,23 +68,19 @@ public class ExportGates : GatesSector //TODO: Gates können alle zusammengefass
 
         RoutePosition routePosition = new();
         routePosition.SetRoutePosition(new Destination { Name = "Tor 2", Active = true });
-        flowSort.CreateTowards(new[]
+        
+        flowSort.CreateTowards(new Toward
         {
-            new Toward
+            DriveDirection = Direction.Left,
+            RoutePosition = routePosition,
+        }, new Toward
+        {
+            DriveDirection = Direction.StraightAhead,
+            FaultDirection = true,
+            RoutePosition = new RoutePosition
             {
-                DriveDirection = Direction.Left,
-                RoutePosition = routePosition,
-            },
-
-            new Toward
-            {
-                DriveDirection = Direction.StraightAhead,
-                FaultDirection = true,
-                RoutePosition = new RoutePosition
-                {
-                    Id = "2",
-                    Name = DefaultRoute.ToGates.ToString(),
-                }
+                Id = "2",
+                Name = DefaultRoute.ToGates.ToString(),
             }
         });
 
@@ -112,23 +100,19 @@ public class ExportGates : GatesSector //TODO: Gates können alle zusammengefass
 
         RoutePosition routePosition = new();
         routePosition.SetRoutePosition(new Destination { Name = "Tor 3", Active = true });
-        flowSort.CreateTowards(new[]
+        
+        flowSort.CreateTowards(new Toward
         {
-            new Toward
+            DriveDirection = Direction.Left,
+            RoutePosition = routePosition,
+        }, new Toward
+        {
+            DriveDirection = Direction.StraightAhead,
+            FaultDirection = true,
+            RoutePosition = new RoutePosition
             {
-                DriveDirection = Direction.Left,
-                RoutePosition = routePosition,
-            },
-
-            new Toward
-            {
-                DriveDirection = Direction.StraightAhead,
-                FaultDirection = true,
-                RoutePosition = new RoutePosition
-                {
-                    Id = "3",
-                    Name = DefaultRoute.ToGates.ToString(),
-                }
+                Id = "3",
+                Name = DefaultRoute.ToGates.ToString(),
             }
         });
 
