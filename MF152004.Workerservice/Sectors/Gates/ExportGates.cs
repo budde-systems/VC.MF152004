@@ -31,7 +31,7 @@ public class ExportGates : GatesSector //TODO: Gates können alle zusammengefass
         {
             Name = NAME + " flowsort 1",
             BasePosition = "5.1.107",
-            SubPosition = "5.1.106"
+            SubPosition = "5.1.108"
         };
 
         RoutePosition routePosition = new();
