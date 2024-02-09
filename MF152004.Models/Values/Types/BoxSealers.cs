@@ -4,5 +4,5 @@ public enum BoxSealers : int
 {
     None = 0,
     Machine_1 = 1,
-    Machine_2 = 2,
+    Machine_2 = 2
 }

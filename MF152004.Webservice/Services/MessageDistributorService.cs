@@ -257,7 +257,7 @@ public class MessageDistributorService : MessageDistributor
             {
                 GeneralPacketReceived?.Invoke(this, new()
                 {
-                    GeneralPacket = pckHelper.GeneralPacket,
+                    GeneralPacket = pckHelper.GeneralPacket
                 });
             }
         }

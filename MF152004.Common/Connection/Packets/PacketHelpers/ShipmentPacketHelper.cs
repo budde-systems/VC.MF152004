@@ -34,7 +34,7 @@ public class ShipmentPacketHelper : MessagePacketHelper
         var packet = new MessagePacket
         { 
             Topic = OutTopic,
-            Data = JsonSerializer.Serialize(ShipmentPacket),
+            Data = JsonSerializer.Serialize(ShipmentPacket)
         };
 
         return packet;

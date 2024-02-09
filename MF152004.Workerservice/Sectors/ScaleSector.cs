@@ -142,7 +142,7 @@ public class ScaleSector : Sector
             NoRead noRead = new()
             {
                 AtTime = specialScan.AtTime,
-                Position = specialScan.Position ?? "No Position",
+                Position = specialScan.Position ?? "No Position"
             };
 
             _messageDistributor.SendNoRead(noRead);
@@ -281,7 +281,7 @@ public class ScaleSector : Sector
                 ShipmentId = shipmentId,
                 Weight = scannedWeight,
                 ScanType = _contextService.WeightIsValid(scannedWeight, shipmentId) ?
-                    ScanType.successful_scan : ScanType.wrong_weight,
+                    ScanType.successful_scan : ScanType.wrong_weight
             };
 
             _messageDistributor.SendWeightScan(scan);

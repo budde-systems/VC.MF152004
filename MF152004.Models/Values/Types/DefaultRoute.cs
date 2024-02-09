@@ -15,5 +15,5 @@ public enum DefaultRoute : byte
     GateH = 11,
     GateI = 12,
     GateJ = 13,
-    ToGates = 14,
+    ToGates = 14
 }

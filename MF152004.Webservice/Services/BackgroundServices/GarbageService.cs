@@ -38,7 +38,7 @@ public class GarbageService : BackgroundService
         ExecuteTime = new TimeOnly(23, 30),
         KeepDeliveredZplFileDays = 21,
         KeepOldZplFilesDays = 60,
-        KeepShipmentDays = 400,
+        KeepShipmentDays = 400
     };
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

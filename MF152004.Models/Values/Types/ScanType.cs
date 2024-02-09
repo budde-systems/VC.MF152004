@@ -6,5 +6,5 @@ public enum ScanType : byte
     no_scan = 1,
     wrong_weight = 2,
     wrong_carrier = 3,
-    scanner_error = 4,
+    scanner_error = 4
 }

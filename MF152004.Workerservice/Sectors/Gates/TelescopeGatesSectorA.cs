@@ -23,11 +23,7 @@ public class TelescopeGatesSectorA : GatesSector
 
     public override ICollection<IDiverter> CreateDiverters()
     {
-        var flowsort1 = CreateFlowSort_1();
-        var flowsort2 = CreateFlowSort_2();
-        var flowsort3 = CreateFlowSort_3();
-
-        return new List<IDiverter> { flowsort1, flowsort2, flowsort3 };
+        return new List<IDiverter> { CreateFlowSort_1(), CreateFlowSort_2(), CreateFlowSort_3() };
     }
 
     private FlowSort CreateFlowSort_1()
@@ -41,23 +37,19 @@ public class TelescopeGatesSectorA : GatesSector
 
         RoutePosition routePosition = new();
         routePosition.SetRoutePosition(new Destination { Name = "Tor 4" });
-        flowSort.CreateTowards(new[]
+        
+        flowSort.CreateTowards(new Toward
         {
-            new Toward
+            DriveDirection = Direction.Left,
+            RoutePosition = routePosition
+        }, new Toward
+        {
+            DriveDirection = Direction.StraightAhead,
+            FaultDirection = true,
+            RoutePosition = new RoutePosition
             {
-                DriveDirection = Direction.Left,
-                RoutePosition = routePosition,
-            },
-
-            new Toward
-            {
-                DriveDirection = Direction.StraightAhead,
-                FaultDirection = true,
-                RoutePosition = new RoutePosition
-                {
-                    Id = "1",
-                    Name = DefaultRoute.ToGates.ToString(),
-                }
+                Id = "1",
+                Name = DefaultRoute.ToGates.ToString()
             }
         });
 
@@ -77,23 +69,19 @@ public class TelescopeGatesSectorA : GatesSector
 
         RoutePosition routePosition = new();
         routePosition.SetRoutePosition(new Destination { Name = "Tor 5" });
-        flowSort.CreateTowards(new[]
+        
+        flowSort.CreateTowards(new Toward
         {
-            new Toward
+            DriveDirection = Direction.Left,
+            RoutePosition = routePosition
+        }, new Toward
+        {
+            DriveDirection = Direction.StraightAhead,
+            FaultDirection = true,
+            RoutePosition = new RoutePosition
             {
-                DriveDirection = Direction.Left,
-                RoutePosition = routePosition,
-            },
-
-            new Toward
-            {
-                DriveDirection = Direction.StraightAhead,
-                FaultDirection = true,
-                RoutePosition = new RoutePosition
-                {
-                    Id = "2",
-                    Name = DefaultRoute.ToGates.ToString(),
-                }
+                Id = "2",
+                Name = DefaultRoute.ToGates.ToString()
             }
         });
 
@@ -113,23 +101,19 @@ public class TelescopeGatesSectorA : GatesSector
 
         RoutePosition routePosition = new();
         routePosition.SetRoutePosition(new Destination { Name = "Tor 6" });
-        flowSort.CreateTowards(new[]
+        
+        flowSort.CreateTowards(new Toward
         {
-            new Toward
+            DriveDirection = Direction.Left,
+            RoutePosition = routePosition
+        }, new Toward
+        {
+            DriveDirection = Direction.StraightAhead,
+            FaultDirection = true,
+            RoutePosition = new RoutePosition
             {
-                DriveDirection = Direction.Left,
-                RoutePosition = routePosition,
-            },
-
-            new Toward
-            {
-                DriveDirection = Direction.StraightAhead,
-                FaultDirection = true,
-                RoutePosition = new RoutePosition
-                {
-                    Id = "3",
-                    Name = DefaultRoute.ToGates.ToString(),
-                }
+                Id = "3",
+                Name = DefaultRoute.ToGates.ToString()
             }
         });
 
@@ -138,6 +122,5 @@ public class TelescopeGatesSectorA : GatesSector
         return flowSort;
     }
 
-    public override Scanner CreateScanner() =>
-        new("M6.1.205", "S6.1.206");
+    public override Scanner CreateScanner() => new("M6.1.205", "S6.1.206");
 }

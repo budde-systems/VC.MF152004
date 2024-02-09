@@ -87,7 +87,7 @@ public class LabelPrinterSector : Sector
             Errorcode.EmergencyHold_Labelprinter1,
             Errorcode.EmergencyHold_Labelprinter2,
             Errorcode.NoLabel1,
-            Errorcode.NoLabel2, //TODO: weitere ergänzen
+            Errorcode.NoLabel2 //TODO: weitere ergänzen
         };
 
         RelatedErrorcodes.AddRange(errors.Cast<short>());
@@ -322,7 +322,7 @@ public class LabelPrinterSector : Sector
             NoRead noRead = new()
             {
                 AtTime = scan.AtTime,
-                Position = scan.Position ?? string.Empty,
+                Position = scan.Position ?? string.Empty
             };
 
             _messageDistributor.SendNoRead(noRead);

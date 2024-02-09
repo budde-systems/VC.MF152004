@@ -23,12 +23,7 @@ public class TelescopeGatesSectorB : GatesSector
 
     public override ICollection<IDiverter> CreateDiverters()
     {
-        var flowsort1 = CreateFlowSort_1();
-        var flowsort2 = CreateFlowSort_2();
-        var flowsort3 = CreateFlowSort_3();
-        var flowsort4 = CreateFlowSort_4();
-
-        return new List<IDiverter> { flowsort1, flowsort2, flowsort3, flowsort4 };
+        return new List<IDiverter> { CreateFlowSort_1(), CreateFlowSort_2(), CreateFlowSort_3(), CreateFlowSort_4() };
     }
 
     private FlowSort CreateFlowSort_1()
@@ -42,23 +37,19 @@ public class TelescopeGatesSectorB : GatesSector
 
         RoutePosition routePosition = new();
         routePosition.SetRoutePosition(new Destination { Name = "Tor 7" });
-        flowSort.CreateTowards(new[]
+        
+        flowSort.CreateTowards(new Toward
         {
-            new Toward
+            DriveDirection = Direction.Left,
+            RoutePosition = routePosition
+        }, new Toward
+        {
+            DriveDirection = Direction.StraightAhead,
+            FaultDirection = true,
+            RoutePosition = new RoutePosition
             {
-                DriveDirection = Direction.Left,
-                RoutePosition = routePosition,
-            },
-
-            new Toward
-            {
-                DriveDirection = Direction.StraightAhead,
-                FaultDirection = true,
-                RoutePosition = new RoutePosition
-                {
-                    Id = "1",
-                    Name = DefaultRoute.ToGates.ToString(),
-                }
+                Id = "1",
+                Name = DefaultRoute.ToGates.ToString()
             }
         });
 
@@ -78,23 +69,19 @@ public class TelescopeGatesSectorB : GatesSector
 
         RoutePosition routePosition = new();
         routePosition.SetRoutePosition(new Destination { Name = "Tor 8" });
-        flowSort.CreateTowards(new[]
+        
+        flowSort.CreateTowards(new Toward
         {
-            new Toward
+            DriveDirection = Direction.Left,
+            RoutePosition = routePosition
+        }, new Toward
+        {
+            DriveDirection = Direction.StraightAhead,
+            FaultDirection = true,
+            RoutePosition = new RoutePosition
             {
-                DriveDirection = Direction.Left,
-                RoutePosition = routePosition,
-            },
-
-            new Toward
-            {
-                DriveDirection = Direction.StraightAhead,
-                FaultDirection = true,
-                RoutePosition = new RoutePosition
-                {
-                    Id = "2",
-                    Name = DefaultRoute.ToGates.ToString(),
-                }
+                Id = "2",
+                Name = DefaultRoute.ToGates.ToString()
             }
         });
 
@@ -114,23 +101,19 @@ public class TelescopeGatesSectorB : GatesSector
 
         RoutePosition routePosition = new();
         routePosition.SetRoutePosition(new Destination { Name = "Tor 9" });
-        flowSort.CreateTowards(new[]
+        
+        flowSort.CreateTowards(new Toward
         {
-            new Toward
+            DriveDirection = Direction.Left,
+            RoutePosition = routePosition
+        }, new Toward
+        {
+            DriveDirection = Direction.StraightAhead,
+            FaultDirection = true,
+            RoutePosition = new RoutePosition
             {
-                DriveDirection = Direction.Left,
-                RoutePosition = routePosition,
-            },
-
-            new Toward
-            {
-                DriveDirection = Direction.StraightAhead,
-                FaultDirection = true,
-                RoutePosition = new RoutePosition
-                {
-                    Id = "3",
-                    Name = DefaultRoute.ToGates.ToString(),
-                }
+                Id = "3",
+                Name = DefaultRoute.ToGates.ToString()
             }
         });
 
@@ -150,23 +133,19 @@ public class TelescopeGatesSectorB : GatesSector
 
         RoutePosition routePosition = new();
         routePosition.SetRoutePosition(new Destination { Name = "Tor 10" });
-        flowSort.CreateTowards(new[]
+        
+        flowSort.CreateTowards(new Toward
         {
-            new Toward
+            DriveDirection = Direction.Left,
+            RoutePosition = routePosition
+        }, new Toward
+        {
+            DriveDirection = Direction.StraightAhead,
+            FaultDirection = true,
+            RoutePosition = new RoutePosition
             {
-                DriveDirection = Direction.Left,
-                RoutePosition = routePosition,
-            },
-
-            new Toward
-            {
-                DriveDirection = Direction.StraightAhead,
-                FaultDirection = true,
-                RoutePosition = new RoutePosition
-                {
-                    Id = "4",
-                    Name = DefaultRoute.ToGates.ToString(),
-                }
+                Id = "4",
+                Name = DefaultRoute.ToGates.ToString()
             }
         });
 
@@ -175,6 +154,5 @@ public class TelescopeGatesSectorB : GatesSector
         return flowSort;
     }
 
-    public override Scanner CreateScanner() =>
-        new("M7.1.208", "S7.1.209");
+    public override Scanner CreateScanner() => new("M7.1.208", "S7.1.209");
 }

@@ -57,7 +57,7 @@ public class BoxSealerSector : Sector
             RoutePosition = new RoutePosition
             {
                 Id = "1", //1 = detour
-                Name = DefaultRoute.Detour.ToString(),
+                Name = DefaultRoute.Detour.ToString()
             }
         }, new Toward
         {
@@ -131,7 +131,7 @@ public class BoxSealerSector : Sector
             NoRead noRead = new()
             {
                 AtTime = scan.AtTime,
-                Position = scan.Position ?? "No Position",
+                Position = scan.Position ?? "No Position"
             };
 
             _messageDistributor.SendNoRead(noRead);

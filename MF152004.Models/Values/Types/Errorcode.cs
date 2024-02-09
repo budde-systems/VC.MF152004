@@ -16,5 +16,5 @@ public enum Errorcode : short
     LabelPrinter_1_Warning = 12,
     LabelPrinter_2_Warning = 13,
     LabelPrinter_1_Error = 14,
-    LabelPrinter_2_Error = 15,
+    LabelPrinter_2_Error = 15
 }

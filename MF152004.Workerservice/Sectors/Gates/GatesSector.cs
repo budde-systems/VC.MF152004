@@ -1,11 +1,6 @@
-﻿using System.Text;
-using BlueApps.MaterialFlow.Common.Connection.Client;
-using BlueApps.MaterialFlow.Common.Machines.BaseMachines;
-using BlueApps.MaterialFlow.Common.Models;
+﻿using BlueApps.MaterialFlow.Common.Connection.Client;
 using BlueApps.MaterialFlow.Common.Models.EventArgs;
 using BlueApps.MaterialFlow.Common.Sectors;
-using MF152004.Models.Main;
-using MF152004.Models.Values.Types;
 using MF152004.Workerservice.Common;
 using MF152004.Workerservice.Connection.Packets;
 using MF152004.Workerservice.Connection.Packets.PacketHelpers;
@@ -23,17 +18,10 @@ public abstract class GatesSector : Sector
     {
         _contextService = contextService;
         _messageDistributor = messageDistributor;
-        AddRelatedErrorCodes();
     }
 
     public override void AddRelatedErrorCodes()
     {
-        var errors = new List<Errorcode>
-        {
-            Errorcode.EmergencyHold_TelescopicConveyor //TODO: Anpassen, ergänzen
-        };
-
-        RelatedErrorcodes.AddRange(errors.Cast<short>());
     }
 
     public override async void Barcode_Scanned(object? sender, BarcodeScanEventArgs scan)
@@ -63,10 +51,8 @@ public abstract class GatesSector : Sector
                 var shipmentDestinations = shipment.DestinationRouteReference?.Split(';').ToHashSet() ?? new HashSet<string>();
                 var sectorDestinations = Diverters.SelectMany(d => d.Towards).Where(t => !t.FaultDirection).Select(t => t.RoutePosition.Name).Distinct().ToHashSet();
                 
-                if (!shipmentDestinations.Any(sectorDestinations.Contains))
-                {
-                    return;
-                }
+                // Are there any gates where we could possibly route?
+                if (!shipmentDestinations.Any(sectorDestinations.Contains)) return;
 
                 if (!_contextService.IsShipped(shipment) && shipment.DestinationRouteReference != CommonData.FaultIsland)
                 {
@@ -82,54 +68,41 @@ public abstract class GatesSector : Sector
                     return;
                 }
 
-                IDiverter activeDiverter = null;
+                foreach (var diverter in Diverters) diverter.SetFaultDirection();
 
                 foreach (var diverter in Diverters)
                 {
-                    diverter.SetFaultDirection();
-
                     var toward = diverter.Towards.FirstOrDefault(t => shipmentDestinations.Contains(t.RoutePosition.Name));
+                    
+                    // There is no gate whee we could route
+                    if (toward == null) continue;
 
-                    if (toward == null)
-                    {
-                        //
-                    }
-                    else if (!toward.RoutePosition.Destination.Active)
+                    if (!toward.RoutePosition.Destination.Active)
                         _logger.LogWarning("{0}: {1} - The gate is inactive", this, toward.RoutePosition.Name);
 
-                    else if (toward.RoutePosition.Destination.LoadFactor >= 100) 
+                    else if (toward.RoutePosition.Destination.LoadFactor >= 100 ) 
                         _logger.LogWarning("{0}: {1} - Maximum load capacity reached", this, toward.RoutePosition.Name);
                     
-                    else if (activeDiverter == null)
+                    else
                     {
-                        activeDiverter = diverter;
                         AddTrackedPacket(scan.PacketTracing, shipment.Id, toward.RoutePosition.Name);
                         shipment.PacketTracing = scan.PacketTracing;
                         diverter.SetDirection(toward.DriveDirection);
+                        var packet = new PLC152004_PacketHelper();
+                        packet.Create_FlowSortPosition(diverter, scan.PacketTracing);
+                        _logger.LogInformation($"{this}: The package {shipment} will drive out to {toward.RoutePosition.Name} ({diverter.BasePosition}-{diverter.DriveDirection}))");
+                        await _client.SendData(packet.GetPacketData());
+
+                        break;
                     }
                 }
-
-                var packet = new PLC152004_PacketHelper();
-
-                if (activeDiverter != null)
-                {
-                    packet.Create_FlowSortPosition(activeDiverter, scan.PacketTracing);
-                    _logger.LogInformation($"{this}: The package {shipment} will drive out ({activeDiverter.BasePosition}-{activeDiverter.DriveDirection}))");
-                }
-                else
-                {
-                    packet.Create_NoExitFlowSortPosition(scan.PacketTracing);
-                    _logger.LogInformation($"{this}: The package {shipment} will drive on");
-                }
-
-                await _client.SendData(packet.GetPacketData());
 
                 if (!string.IsNullOrEmpty(shipment.Message)) 
                     await _messageDistributor.SendShipmentUpdate(shipment);
             }
             catch (Exception exception)
             {
-                _logger.LogError($"{this}: {exception}");
+                _logger.LogError(exception, "{0}: routing failed", this);
             }
         }
     }

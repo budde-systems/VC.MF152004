@@ -31,7 +31,7 @@ public class ExportGates : GatesSector //TODO: Gates können alle zusammengefass
         {
             Name = NAME + " flowsort 1",
             BasePosition = "5.1.107",
-            SubPosition = "5.1.108"
+            SubPosition = "5.1.106"
         };
 
         RoutePosition routePosition = new();
@@ -40,7 +40,7 @@ public class ExportGates : GatesSector //TODO: Gates können alle zusammengefass
         flowSort.CreateTowards(new Toward
         {
             DriveDirection = Direction.Left,
-            RoutePosition = routePosition,
+            RoutePosition = routePosition
         }, new Toward
         {
             DriveDirection = Direction.StraightAhead,
@@ -48,7 +48,7 @@ public class ExportGates : GatesSector //TODO: Gates können alle zusammengefass
             RoutePosition = new RoutePosition
             {
                 Id = "1",
-                Name = DefaultRoute.ToGates.ToString(),
+                Name = DefaultRoute.ToGates.ToString()
             }
         });
 
@@ -72,7 +72,7 @@ public class ExportGates : GatesSector //TODO: Gates können alle zusammengefass
         flowSort.CreateTowards(new Toward
         {
             DriveDirection = Direction.Left,
-            RoutePosition = routePosition,
+            RoutePosition = routePosition
         }, new Toward
         {
             DriveDirection = Direction.StraightAhead,
@@ -80,7 +80,7 @@ public class ExportGates : GatesSector //TODO: Gates können alle zusammengefass
             RoutePosition = new RoutePosition
             {
                 Id = "2",
-                Name = DefaultRoute.ToGates.ToString(),
+                Name = DefaultRoute.ToGates.ToString()
             }
         });
 
@@ -104,7 +104,7 @@ public class ExportGates : GatesSector //TODO: Gates können alle zusammengefass
         flowSort.CreateTowards(new Toward
         {
             DriveDirection = Direction.Left,
-            RoutePosition = routePosition,
+            RoutePosition = routePosition
         }, new Toward
         {
             DriveDirection = Direction.StraightAhead,
@@ -112,7 +112,7 @@ public class ExportGates : GatesSector //TODO: Gates können alle zusammengefass
             RoutePosition = new RoutePosition
             {
                 Id = "3",
-                Name = DefaultRoute.ToGates.ToString(),
+                Name = DefaultRoute.ToGates.ToString()
             }
         });
 
