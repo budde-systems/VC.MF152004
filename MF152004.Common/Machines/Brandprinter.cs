@@ -36,6 +36,9 @@ public class BrandPrinter
                         var response = ReaPi.SetJob(connection, 1, Settings.Configuration.Job);
                         if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"{this}: Initial SetJob failed: {ReaPi.GetErrorMessage(response, out _)}");
 
+                        response = ReaPi.StartJob(connection, 1);
+                        if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"{this}: StartJob failed: {ReaPi.GetErrorMessage(response, out _)}");
+
                         _labelContent = ReaPi.CreateLabelContent();
 
                         UpdateLabel(connection, Settings.Configuration.NoPrintValue);

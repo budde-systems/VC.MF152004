@@ -50,6 +50,30 @@ public class BrandPrinterSector : Sector
         };
 
         IsActive = true;
+        
+        if (IsActive)
+        {
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _printerFront.Print(_printerFront.Settings.Configuration.NoPrintValue);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"{0} Initialization failed", _printerFront);
+                }
+
+                try
+                {
+                    await _printerBack.Print(_printerBack.Settings.Configuration.NoPrintValue);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"{0} Initialization failed", _printerBack);
+                }
+            });
+        }
     }
 
     public override void AddRelatedErrorCodes()
