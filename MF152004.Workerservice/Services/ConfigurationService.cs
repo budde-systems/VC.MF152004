@@ -15,10 +15,7 @@ public class ConfigurationService
     /// <exception cref="ArgumentNullException"></exception>
     public ConfigurationService(Context context)
     {
-        if (context == null) 
-            throw new ArgumentNullException("context");
-
-        _context = context;
+        _context = context ?? throw new ArgumentNullException("context");
     }
 
     public void UpdateConfigs(ServiceConfiguration? configuration)

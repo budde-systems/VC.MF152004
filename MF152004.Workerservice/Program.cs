@@ -15,6 +15,9 @@ public class Program
         {
             ConfigureLogger();
 
+            Log.Logger.Information("Workerservice is starting up...");
+            Log.Logger.Information("================================================");
+            
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
             var host = Host.CreateDefaultBuilder(args)
@@ -36,7 +39,7 @@ public class Program
 
     private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
-        Log.Logger.Error(e.ExceptionObject as Exception, "AppDomain Unhandled exception");
+        Log.Logger.Error(e.ExceptionObject as Exception, $"AppDomain Unhandled exception ({e.IsTerminating})");
     }
 
     private static void ConfigureLogger()

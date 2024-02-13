@@ -207,13 +207,20 @@ public class MaterialFlowMng : MaterialFlowManager
 
     private async void UpdateDestinationOnHub(object? sender, DockedTelescopeEventArgs e)
     {
-        await Task.Delay(500, _cancellationToken); //wait for destinationservice
-
-        var destinations = _destinationService.GetSectorsDestinations();
-
-        if (destinations != null)
+        try
         {
-            _msgDistributor.SendDestinationStatusToHub(destinations.ToArray());
+            await Task.Delay(500, _cancellationToken); //wait for destinationservice
+
+            var destinations = _destinationService.GetSectorsDestinations();
+
+            if (destinations != null)
+            {
+                await _msgDistributor.SendDestinationStatusToHub(destinations.ToArray());
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "UpdateDestinationOnHub failed");
         }
     }
 

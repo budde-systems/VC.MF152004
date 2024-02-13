@@ -20,9 +20,6 @@ public class Worker : BackgroundService
     {
         try
         {
-            _logger.LogInformation("Workerservice is starting up...");
-            _logger.LogInformation("================================================");
-
             var scope = _services.CreateScope();
             var broker = scope.ServiceProvider.GetRequiredService<MqttBroker>();
 
@@ -38,7 +35,15 @@ public class Worker : BackgroundService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled exception");
+            if (ex is OperationCanceledException && stoppingToken.IsCancellationRequested)
+            {
+                _logger.LogInformation("================================================");
+                _logger.LogInformation("Workerservice is stopping...");
+            }
+            else
+            {
+                _logger.LogError(ex, "Unhandled exception");
+            }
         }
     }
 }

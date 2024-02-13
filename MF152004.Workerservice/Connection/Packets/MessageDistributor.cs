@@ -399,7 +399,7 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
         await _client.SendData(pckHelper.GetPacketData());
     }
 
-    public async void SendDestinationStatusToHub(params Destination?[]? destinations)
+    public async Task SendDestinationStatusToHub(params Destination?[]? destinations)
     {
         if (destinations is null || destinations.Length == 0 || _hubConnection is null || _hubConnection.State == HubConnectionState.Disconnected)
             return;
