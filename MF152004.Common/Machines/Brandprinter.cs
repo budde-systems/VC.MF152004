@@ -14,10 +14,7 @@ public class BrandPrinter
     private readonly ILogger<Sector> _logger;
     private string? _currentValue;
 
-    public BrandPrinter(ILogger<Sector> logger)
-    {
-        _logger = logger;
-    }
+    public BrandPrinter(ILogger<Sector> logger) => _logger = logger;
 
     public string Name { get; set; } = null!;
 
@@ -101,11 +98,12 @@ public class BrandPrinter
                 {
                     UpdateLabel(connection, value);
 
+                    // Resetting the printer to default value after timeout
                     _ = Task.Run(async () =>
                     {
                         try
                         {
-                            await Task.Delay(5000);
+                            await Task.Delay(Settings.Configuration.ResetTimeout);
 
                             if (_currentValue != Settings.Configuration.NoPrintValue)
                             {
