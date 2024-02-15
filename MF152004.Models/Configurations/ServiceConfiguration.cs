@@ -6,7 +6,7 @@ public class ServiceConfiguration
 
     public List<BrandingPdf> BrandingPdfConfigs { get; set; } = new();
     
-    public List<LabelPrinter> LabelPrinterConfigs { get; set; } = new();
+    public List<LabelPrinter> LablePrinterConfigs { get; set; } = new();
     
     public List<SealerRoute> SealerRouteConfigs { get; set; } = new();
 }

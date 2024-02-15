@@ -12,5 +12,5 @@ public class ReaJetConfig
     
     public string NoPrintValue { get; set; } = "1";
     
-    public int ResetTimeout { get; set; } = 5000;
+    public int ResetTimeout { get; set; } = 10000;
 }

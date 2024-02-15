@@ -182,7 +182,7 @@ public class ContextService
         if (barcodes is null || barcodes.Length == 0)
             return string.Empty;
 
-        var printerReference = Context.Config.LabelPrinterConfigs
+        var printerReference = Context.Config.LablePrinterConfigs
             .FirstOrDefault(x => barcodes.Any(bc => bc == x.BoxBarcodeReference))?.LabelPrinterReference;
 
         if (string.IsNullOrEmpty(printerReference))
@@ -192,7 +192,7 @@ public class ContextService
             if (shipment is null)
                 return string.Empty;
             
-            printerReference = Context.Config.LabelPrinterConfigs
+            printerReference = Context.Config.LablePrinterConfigs
                 .FirstOrDefault(x => x.BoxBarcodeReference == shipment.BoxBarcodeReference)?.LabelPrinterReference;
         }
 

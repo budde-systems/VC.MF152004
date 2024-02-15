@@ -39,7 +39,7 @@ public class ConfigurationService
                 var printerReference = GetObject<LabelPrinter[]>(config.Value);
                     
                 if (printerReference != null)
-                    configuration.LabelPrinterConfigs.AddRange(printerReference);
+                    configuration.LablePrinterConfigs.AddRange(printerReference);
             }
             else if (config.Key == ConfigurationName.sealer_route_reference.ToString())
             {
@@ -83,7 +83,7 @@ public class ConfigurationService
         await UpdateWeightConfiguration(configuration.WeightToleranceConfig);
         await UpdateSealerRouteConfiguration(configuration.SealerRouteConfigs);
         await UpdateBrandingPdfConfiguration(configuration.BrandingPdfConfigs);
-        await UpdateLabelPrinterConfigs(configuration.LabelPrinterConfigs);
+        await UpdateLabelPrinterConfigs(configuration.LablePrinterConfigs);
 
         await _context.SaveChangesAsync();
     }
@@ -222,7 +222,7 @@ public class ConfigurationService
         activeConfiguration.WeightToleranceConfig = await _context.WeightToleranceConfigs.FirstOrDefaultAsync(_ => _.ConfigurationInUse);
         activeConfiguration.SealerRouteConfigs = await _context.SealerRoutesConfigs.Where(_ => _.ConfigurationInUse).ToListAsync();
         activeConfiguration.BrandingPdfConfigs = await _context.BradingPdfCongigs.Where(_ => _.ConfigurationInUse).ToListAsync();
-        activeConfiguration.LabelPrinterConfigs = await _context.LabelPrinterConfigs.Where(_ => _.ConfigurationInUse).ToListAsync();
+        activeConfiguration.LablePrinterConfigs = await _context.LabelPrinterConfigs.Where(_ => _.ConfigurationInUse).ToListAsync();
 
         return activeConfiguration;
     }
