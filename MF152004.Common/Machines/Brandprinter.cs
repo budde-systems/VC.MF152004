@@ -1,4 +1,6 @@
-﻿using MF152004.Models.Settings.BrandPrinter;
+﻿using BlueApps.MaterialFlow.Common.Sectors;
+using MF152004.Models.Settings.BrandPrinter;
+using Microsoft.Extensions.Logging;
 using ReaPiSharp;
 
 namespace MF152004.Common.Machines;
@@ -9,12 +11,19 @@ public class BrandPrinter
     private Task<ReaPi.ConnectionIdentifier>? _connectionTask;
     private readonly SemaphoreSlim _semaphore = new(1, 1);
     private ReaPi.LabelContentHandle _labelContent;
+    private readonly ILogger<Sector> _logger;
+    private string? _currentValue;
+
+    public BrandPrinter(ILogger<Sector> logger)
+    {
+        _logger = logger;
+    }
 
     public string Name { get; set; } = null!;
 
     public override string ToString() => Name;
 
-    public BrandPrinterSettings Settings { get; set; } = new();
+    public BrandPrinterSettings Settings { get; init; } = new();
 
     private Task<ReaPi.ConnectionIdentifier> ConnectAsync()
     {
@@ -28,13 +37,18 @@ public class BrandPrinter
 
                     try
                     {
+                        _logger.LogInformation("Connecting {0} at {1}...", this, Settings.ConnectionString);
                         var errorCode = ReaPi.ConnectWaitB(Settings.ConnectionString, out var connection);
 
                         if (errorCode != ReaPi.EErrorCode.OK)
-                            throw new ReaPiException($"Failed to connect BrandPrinter at {Settings.ConnectionString}: {errorCode}");
+                            throw new ReaPiException($"Failed to connect {this} at {Settings.ConnectionString}: {errorCode}");
 
                         var response = ReaPi.SetJob(connection, 1, Settings.Configuration.Job);
                         if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"{this}: Initial SetJob failed: {ReaPi.GetErrorMessage(response, out _)}");
+
+                        // We are trying to stop the existing job, if any. Ignoring the result
+                        response = ReaPi.StopJob(connection, 1);
+                        ReaPi.GetErrorCode(response, out _);
 
                         response = ReaPi.StartJob(connection, 1);
                         if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"{this}: StartJob failed: {ReaPi.GetErrorMessage(response, out _)}");
@@ -69,6 +83,8 @@ public class BrandPrinter
 
         var response = ReaPi.SetLabelContent(connection, _labelContent);
         if (ReaPi.GetErrorCode(response, out _) != 0) throw new ReaPiException($"{this}: SetLabelContent failed ({value}): {ReaPi.GetErrorMessage(response, out _)}");
+        
+        _currentValue = value;
     }
 
     public async Task Print(string value)
@@ -84,6 +100,24 @@ public class BrandPrinter
                 try
                 {
                     UpdateLabel(connection, value);
+
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await Task.Delay(5000);
+
+                            if (_currentValue != Settings.Configuration.NoPrintValue)
+                            {
+                                _logger.LogInformation("{0}: Resetting ref to default {1}", this, Settings.Configuration.NoPrintValue);
+                                await Print(Settings.Configuration.NoPrintValue);
+                            }
+                        }
+                        catch
+                        {
+                            // Ignore
+                        }
+                    });
                 }
                 finally 
                 { 

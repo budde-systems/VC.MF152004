@@ -33,7 +33,7 @@ public class BrandPrinterSector : Sector
         {
             {
                 "M3.1.189", 
-                _printerFront = new BrandPrinter
+                _printerFront = new BrandPrinter(logger)
                 {
                     Name = "BrandPrinter Front",
                     Settings = configuration.GetSection("brand_printer_config_front").Get<BrandPrinterSettings>() ?? throw new Exception("'brand_printer_config_front' section was not found in configuration")
@@ -41,7 +41,7 @@ public class BrandPrinterSector : Sector
             },
             {
                 "M3.1.211",
-                _printerBack = new BrandPrinter
+                _printerBack = new BrandPrinter(logger)
                 {
                     Name = "BrandPrinter Back",
                     Settings = configuration.GetSection("brand_printer_config_back").Get<BrandPrinterSettings>() ?? throw new Exception("'brand_printer_config_back' section was not found in configuration")
@@ -123,17 +123,17 @@ public class BrandPrinterSector : Sector
 
             if (shipment != null)
             {
-                //if (printer == _printerFront && shipment.BoxBrandedAt_1.HasValue)
-                //{
-                //    _logger.LogInformation("{0}: Shipment {1} was already branded at {2}, skipping printing", printer, shipment, shipment.BoxBrandedAt_1.Value);
-                //    return;
-                //}
+                if (printer == _printerFront && shipment.BoxBrandedAt_1.HasValue)
+                {
+                    _logger.LogInformation("{0}: Shipment {1} was already branded at {2}, skipping printing", printer, shipment, shipment.BoxBrandedAt_1.Value);
+                    return;
+                }
 
-                //if (printer == _printerBack && shipment.BoxBrandedAt_2.HasValue)
-                //{
-                //    _logger.LogInformation("{0}: Shipment {1} was already branded at {2}, skipping printing", printer, shipment, shipment.BoxBrandedAt_2.Value);
-                //    return;
-                //}
+                if (printer == _printerBack && shipment.BoxBrandedAt_2.HasValue)
+                {
+                    _logger.LogInformation("{0}: Shipment {1} was already branded at {2}, skipping printing", printer, shipment, shipment.BoxBrandedAt_2.Value);
+                    return;
+                }
 
                 _logger.LogInformation("{0}: Printing ref {1} for shipment {2}", printer, referenceId, shipment);
             }
@@ -152,13 +152,6 @@ public class BrandPrinterSector : Sector
             {
                 shipment.BoxBrandedAt_2 = DateTime.Now;
                 await _messageDistributor.SendShipmentUpdate(shipment);
-            }
-
-            if (referenceId != printer.Settings.Configuration.NoPrintValue)
-            {
-                await Task.Delay(5000);
-                _logger.LogInformation("{0}: Setting ref {1}", printer, printer.Settings.Configuration.NoPrintValue);
-                await printer.Print(printer.Settings.Configuration.NoPrintValue);
             }
         }
         catch (Exception ex)
