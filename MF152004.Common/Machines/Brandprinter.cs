@@ -13,6 +13,7 @@ public class BrandPrinter
     private ReaPi.LabelContentHandle _labelContent;
     private readonly ILogger<Sector> _logger;
     private string? _currentValue;
+    private object? _activeResetToken;
 
     public BrandPrinter(ILogger<Sector> logger) => _logger = logger;
 
@@ -99,23 +100,29 @@ public class BrandPrinter
                     UpdateLabel(connection, value);
 
                     // Resetting the printer to default value after timeout
-                    _ = Task.Run(async () =>
-                    {
-                        try
-                        {
-                            await Task.Delay(Settings.Configuration.ResetTimeout);
 
-                            if (_currentValue != Settings.Configuration.NoPrintValue)
-                            {
-                                _logger.LogInformation("{0}: Resetting ref to default {1}", this, Settings.Configuration.NoPrintValue);
-                                await Print(Settings.Configuration.NoPrintValue);
-                            }
-                        }
-                        catch
+                    if (value != Settings.Configuration.NoPrintValue)
+                    {
+                        var localResetToken = _activeResetToken = new();
+
+                        _ = Task.Run(async () =>
                         {
-                            // Ignore
-                        }
-                    });
+                            try
+                            {
+                                await Task.Delay(Settings.Configuration.ResetTimeout);
+
+                                if (localResetToken == _activeResetToken && _currentValue != Settings.Configuration.NoPrintValue)
+                                {
+                                    _logger.LogInformation("{0}: Resetting ref to default {1}", this, Settings.Configuration.NoPrintValue);
+                                    await Print(Settings.Configuration.NoPrintValue);
+                                }
+                            }
+                            catch
+                            {
+                                // Ignore
+                            }
+                        });
+                    }
                 }
                 finally 
                 { 
