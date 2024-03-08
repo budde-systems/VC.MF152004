@@ -115,8 +115,6 @@ public class MessageDistributor : BlueApps.MaterialFlow.Common.Connection.Packet
     {
         if (packetHelper is not PLC152004_PacketHelper pckHelper) return;
 
-        _logger.LogInformation("<<< PLC: {0}", string.Join(",", pckHelper.Areas));
-
         switch (pckHelper.Command)
         {
             case PLC_Command.C001:

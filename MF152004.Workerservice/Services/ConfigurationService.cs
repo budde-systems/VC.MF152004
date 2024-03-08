@@ -6,7 +6,7 @@ namespace MF152004.Workerservice.Services;
 
 public class ConfigurationService
 {
-    private readonly Context _context; //TODO: lock ergänzen
+    private readonly Context _context;
 
     /// <summary>
     /// 
@@ -15,7 +15,7 @@ public class ConfigurationService
     /// <exception cref="ArgumentNullException"></exception>
     public ConfigurationService(Context context)
     {
-        _context = context ?? throw new ArgumentNullException("context");
+        _context = context;
     }
 
     public void UpdateConfigs(ServiceConfiguration? configuration)
@@ -23,13 +23,9 @@ public class ConfigurationService
         if (configuration != null)
         {
             _context.Config = configuration;
-
             CommonData.WeightTolerance = configuration.WeightToleranceConfig?.WeigthTolerance ?? 0;
-        } //TODO: else logging error
+        }
     }
 
-    public bool ConfigHasEntities()
-    {
-        return _context.Config != null && _context.Config.SealerRouteConfigs.Count > 0;
-    }
+    public bool ConfigHasEntities() => _context.Config.SealerRouteConfigs.Any();
 }
