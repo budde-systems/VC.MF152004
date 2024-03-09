@@ -6,6 +6,7 @@ using BlueApps.MaterialFlow.Common.Connection.PackteHelper;
 using BlueApps.MaterialFlow.Common.Models;
 using BlueApps.MaterialFlow.Common.Models.EventArgs;
 using BlueApps.MaterialFlow.Common.Values.Types;
+using MF152004.Common.Connection.Hubs;
 using MF152004.Common.Connection.Packets.PacketHelpers;
 using MF152004.Common.Data;
 using MF152004.Models.Configurations;
@@ -57,7 +58,7 @@ public class MessageDistributorService : MessageDistributor
 
         AddHeaders(configuration);
         InitHubConnection(configuration["hub_url"]);
-
+        
         _logger.LogInformation("The message distributor service has been started successfully");
     }
 
@@ -76,6 +77,22 @@ public class MessageDistributorService : MessageDistributor
                 .On<DestinationStatus>("ReceiveDestinationStatus", _destinationService.OnNewDestinationStatus);
 
             await _hubConnection.StartAsync();
+
+            _ = Task.Run(async () =>
+            {
+                while (true)
+                {
+                    try
+                    {
+                        await Task.Delay(1000);
+                        await _hubConnection.InvokeAsync("SendMqttStatus", _client?.IsConnected ?? false);
+                    }
+                    catch
+                    {
+                        //
+                    }
+                }
+            });
         }
     }
 
@@ -325,7 +342,6 @@ public class MessageDistributorService : MessageDistributor
                 {
                     await Task.Delay(TimeSpan.FromSeconds(30));
                 }
-
             }
 
             _logger.LogInformation($"The label request runs {times} time/s");

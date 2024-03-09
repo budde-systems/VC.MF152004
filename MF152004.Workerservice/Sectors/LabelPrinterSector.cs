@@ -116,8 +116,7 @@ public class LabelPrinterSector : Sector
 
     private void OnMatchErrorConfirmation(SystemStatus status)
     {
-        if (status.CurrentStatus == Status.Labelprinter_Confirmationstatus && _status == Status.Labelprinter_Matching_Error
-                                                                           && status.Release)
+        if (status is { CurrentStatus: Status.Labelprinter_Confirmationstatus, Release: true })
         {
             _logger.LogInformation($"The match error status of shipment ID {status.TransportReference} on labelprinter " +
                                    "has been confirmed. The system will continue");

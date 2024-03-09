@@ -11,6 +11,11 @@ public class WorkerWebHub : Hub
             await Clients.All.SendAsync("ReceiveStatus", status);
     }
 
+    public async Task SendMqttStatus(bool isOnline)
+    {
+        await Clients.All.SendAsync("ReceiveMqttStatus", isOnline);
+    }
+
     public async Task SendDestinationStatus(DestinationStatus? destinationStatus)
     {
         if (destinationStatus != null)

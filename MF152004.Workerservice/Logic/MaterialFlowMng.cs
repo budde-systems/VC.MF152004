@@ -13,8 +13,6 @@ using MF152004.Workerservice.Sectors.Gates;
 using MF152004.Common.Machines;
 using MF152004.Models.EventArgs;
 using BlueApps.MaterialFlow.Common.Models.EventArgs;
-using MF152004.Models.Settings.BrandPrinter;
-using Microsoft.Extensions.Options;
 
 namespace MF152004.Workerservice.Logic;
 
@@ -170,8 +168,8 @@ public class MaterialFlowMng : MaterialFlowManager
 
             if (!_client.IsConnected)
             {
-                _logger.LogWarning("Couldn't connect to MQTT broker. Trying again in 60 s");
-                await Task.Delay(TimeSpan.FromSeconds(60), _cancellationToken);
+                _logger.LogWarning("Couldn't connect to MQTT broker. Trying again in 10 s");
+                await Task.Delay(TimeSpan.FromSeconds(10), _cancellationToken);
             }
         }
     }

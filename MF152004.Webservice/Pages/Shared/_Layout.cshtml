@@ -33,8 +33,29 @@
                         </li>
                     </ul>
                     <ul class="navbar-nav">
-                        <li id="statusBar">Status</li>
+                        <li><button type="submit" class="btn btn-secondary" data-toggle="tooltip" data-placement="bottom" title="Quittiert die Weiterfahrt bei Versatz von Etiketten" onclick="confirmMatchError2()">Störung Quittierung</button></li>
                     </ul>
+                    <div id="ackSuccessToast" class="toast align-items-center border-success" role="alert" aria-live="assertive" aria-atomic="true" style="position: absolute; left: 0; right: 0; margin-left: auto; margin-right: auto; top: 5em;">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                <strong>Fehler erfolgreich quittiert</strong>
+                            </div>
+                            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                    <div id="ackFailureToast" class="toast align-items-center border-danger" role="alert" aria-live="assertive" aria-atomic="true" style="position: absolute; left: 0; right: 0; margin-left: auto; margin-right: auto; top: 5em;">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                <strong>Ein Fehler ist aufgetreten. Die Bestätigung kann nicht abgeschickt werden. Ggf. muss die Seite erneut geladen werden</strong>
+                            </div>
+                            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                    <div style="margin:0 0 0 20px">Status</div>
+                    <div style="margin:0 0 0 10px">
+                        <div id="statusOnline" hidden="true"><span class="rounded-pill badge bg-success">&nbsp;&nbsp;</span> Aktiv</div>
+                        <div id="statusOffline" hidden="true"><span class="rounded-pill badge bg-danger">&nbsp;&nbsp;</span> Inaktiv</div>
+                    </div>
                 </div>
             </div>
         </nav>

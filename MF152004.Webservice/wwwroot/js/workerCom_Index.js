@@ -1,5 +1,6 @@
 ﻿var connection = new signalR.HubConnectionBuilder().withUrl('/workerWebCom').build();
 var labelPrinterModal;
+var successToast;
 var modalIsOpen = false;
 
 setTimeout(checkLabelCookie, 2000); //to check if cookie already exists
@@ -12,6 +13,12 @@ connection.on("ReceiveStatus", function (status) {
             popUpLabelprinterError(status.message, status.transportReference, status.readedCodes);
         }
     }
+});
+
+connection.on("ReceiveMqttStatus", function (status) {
+
+    document.getElementById('statusOnline').hidden = !status;
+    document.getElementById('statusOffline').hidden = status;
 });
 
 connection.on("ReceiveDestinationStatus", function (destinationsStatus) {
@@ -45,7 +52,6 @@ connection.onclose(function () {
 startConnection();
 
 async function startConnection() {
-
     try {
         await connection.start();
         console.log("Connected to Hub");
@@ -53,7 +59,6 @@ async function startConnection() {
         console.log(err);
         setTimeout(startConnection, 5000);
     }
-
 }
 
 async function confirmMatchError() {
@@ -66,15 +71,38 @@ async function confirmMatchError() {
     };
 
     try {
-
         await connection.invoke("SendStatus", systemStatus);
 
-        labelPrinterModal.hide();
-        deleteCookie("labelprinter");
+        if (labelPrinterModal != null)
+            labelPrinterModal.closeModal();
+
+        if (getCookie("labelprinter") == "")
+            deleteCookie("labelprinter");
+    } catch (err) {
+        console.error(err);
+        toast = new bootstrap.Toast(document.getElementById('ackFailureToast'), { delay: 5000 });
+        toast.show();
+    }
+}
+
+async function confirmMatchError2() {
+
+    const systemStatus = {
+        currentStatus: 2,
+        release: true,
+    };
+
+    try {
+        await connection.invoke("SendStatus", systemStatus);
+
+        toast = new bootstrap.Toast(document.getElementById('ackSuccessToast'), { delay: 5000 });
+        toast.show();
 
     } catch (err) {
         console.error(err);
-        alert('Ein Fehler ist aufgetreten. Die Bestätigung kann nicht abgeschickt werden. Ggf. muss die Seite erneut geladen werden');
+
+        toast = new bootstrap.Toast(document.getElementById('ackFailureToast'), { delay: 5000 });
+        toast.show();
     }
 }
 
