@@ -52,7 +52,7 @@ public class ApplicationDbContext : DbContext
             
         modelBuilder
             .Entity<Shipment>()
-            .Property(e => e.BoxBrandedAt_1)
+            .Property(e => e.BoxBrandedAt_2)
             .HasConversion(
                 v => v.Value.ToLocalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffffffK"), v => DateTime.Parse(v, CultureInfo.InvariantCulture)
             );
